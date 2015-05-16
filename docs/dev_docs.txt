@@ -1,0 +1,7 @@
+mvn install:install-file \
+-Dfile=com.sandy.xtext.jovenotes_1.0.0.201505142013.jar \
+-DgroupId=com.sandy.xtext.jovenotes \
+-DartifactId=jovenotes.xtext \
+-Dversion=1.0 \
+-Dpackaging=jar \
+-DlocalRepositoryPath=/home/sandeep/projects/source/JoveNotesProcessor/repo
