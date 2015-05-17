@@ -29,15 +29,12 @@ public class XTextModelParser {
     		                 String bootstrapMethodName )
     	throws Exception { 
     	
-    	logger.debug( "Registering EMF" ) ;
-    	
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader() ; 
         Class<?> cls = classLoader.loadClass( bootstrapClassName ) ;
         Method   mth = cls.getMethod( bootstrapMethodName ) ;
         Object   obj = cls.newInstance() ;
         
         mth.invoke( obj ) ;
-        logger.debug( "EMF registered" ) ;
     }
     
     public EObject parseFile( File file ) 
@@ -47,8 +44,6 @@ public class XTextModelParser {
     }
     
     public EObject parseURL( URL url ) throws Exception {
-    	
-    	logger.debug( "Parsing url - " + url.toURI().toString() ) ;
     	
         ResourceSet rs       = new ResourceSetImpl();
         URI         emfURI   = URI.createURI( url.toURI().toString() ) ;

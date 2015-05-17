@@ -2,77 +2,169 @@ package com.sandy.jovenotes.processor.util;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 /**
- * An extremely thin wrapper of Apache's property configuration. This class just
- * introduces an easy wrapper over the initialization mechanism. 
- * 
- * Before using an instance of this class, one of the initialize method needs 
- * to be called on it.
- * 
- * @see <a href="http://commons.apache.org/proper/commons-configuration/javadocs/v1.10/apidocs/index.html?org/apache/commons/configuration/PropertiesConfiguration.html">PropertiesConfiguration</a>
+ * The configuration manager for JoveNotes processor. All the configuration 
+ * entities are accessible by getter methods.
  * 
  * @author Sandeep
  */
-public class ConfigManager extends PropertiesConfiguration {
+public class ConfigManager{
 
-	private static final Logger logger = Logger.getLogger(ConfigManager.class);
+	private static Logger log = Logger.getLogger(ConfigManager.class);
+	
+	private static String CK_SRC_DIR   = "source.dir" ;
+	private static String CK_WKSP_DIR  = "workspace.dir" ;
+	private static String CK_DB_DRIVER = "db.driver" ;
+	private static String CK_DB_URL    = "db.url" ;
+	private static String CK_DB_USER   = "db.user" ;
+	private static String CK_DB_PWD    = "db.password" ;
+	
+	private boolean showUsage = false ;
+	private boolean showUI    = false ;
+	private boolean forceProcessAllFiles = false ;
+	private File    srcDir    = null ;
+	private File    wkspDir   = null ;
+	
+	private String  databaseURL        = null ;
+	private String  databaseDriverName = null ;
+	private String  databaseUser       = null ;
+	private String  databasePassword   = null ;
 
-	public static final String DEFAULT_CONFIG_RESOURCE = "/config.properties";
-
-	public ConfigManager(){}
-
-	/** 
-	 * This method tries to initialize with the default configuration file by 
-	 * the name of config.properties in the classpath.
-	 */
-	public synchronized void initialize() throws ConfigurationException {
-		final URL cfgURL = ConfigManager.class.getResource( DEFAULT_CONFIG_RESOURCE );
-		initialize( cfgURL );
+	public boolean isShowUsage()           { return this.showUsage; }
+	public boolean isShowUI()              { return this.showUI; }
+	public boolean isForceProcessAllFiles(){ return this.forceProcessAllFiles; }
+	public File    getSrcDir()             { return this.srcDir; }
+	public File    getWorkspaceDir()       { return this.wkspDir ; }
+	
+	public String getDatabaseURL()        { return this.databaseURL; }
+	public String getDatabaseDriverName() { return this.databaseDriverName; }
+	public String getDatabaseUser()       { return this.databaseUser; }
+	public String getDatabasePassword()   { return this.databasePassword; }
+	
+	// ------------------------------------------------------------------------
+	private Options clOptions = null ;
+	private boolean logCLP    = false ;
+	
+	public ConfigManager( String[] args ) throws Exception {
+		
+		this.clOptions = prepareOptions() ;
+		parseCLP( args ) ;
+		if( this.showUsage )return ;
+		
+		PropertiesConfiguration propCfg = new PropertiesConfiguration() ;
+		URL cfgURL = ConfigManager.class.getResource( "/config.properties" ) ;
+		if( cfgURL == null ) {
+			throw new Exception( "config.properties not found in classpath." ) ;
+		}
+		propCfg.load( cfgURL );
+		parseConfig( propCfg ) ;
 	}
-
-	/** 
-	 * Configuration from one or more (possibly different) sources can be loaded
-	 * via this method. 
-	 * 
-	 * @param cfgURLList An array which can contain a mix of String, URL or File
-	 *        instances. The String instances point to resources on the classpath
-	 *        which can be loaded as properties.
-	 */
-	public synchronized void initialize( final List<Object> cfgURLList ) 
-		throws ConfigurationException {
-
-		for( Iterator<Object> iter = cfgURLList.iterator(); iter.hasNext();) {
-			
-			final Object cfgRes = iter.next();
-			
-			if( cfgRes instanceof String ){
-				super.load( ConfigManager.class.getResource((String) cfgRes) ) ;
-			} 
-			else if( cfgRes instanceof URL ){
-				super.load((URL) cfgRes);
-			} 
-			else if( cfgRes instanceof File ){
-				super.load((File) cfgRes);
-			} 
-			else{
-				final String msg = "Unindentified configuration resource " + cfgRes;
-				logger.error(msg);
-				throw new ConfigurationException( msg ) ;
-			}
+	
+	private void parseConfig( PropertiesConfiguration config ) 
+		throws Exception {
+		
+		parseSrcDir( config ) ;
+		parseDatabaseConfig( config ) ;
+	}
+	
+	private void parseSrcDir( PropertiesConfiguration config ) 
+		throws Exception {
+		
+		this.srcDir  = getMandatoryDirFromConfig( CK_SRC_DIR, config ) ;
+		this.wkspDir = getMandatoryDirFromConfig( CK_WKSP_DIR, config ) ;
+	}
+	
+	private void parseDatabaseConfig( PropertiesConfiguration config ) 
+		throws Exception {
+		
+		this.databaseDriverName = getMandatoryConfig( CK_DB_DRIVER, config ) ;
+		this.databaseURL        = getMandatoryConfig( CK_DB_URL, config ) ;
+		
+		if( StringUtil.isEmptyOrNull( this.databaseUser ) ) {
+			this.databaseUser = config.getString( CK_DB_USER ) ;
+		}
+		
+		if( StringUtil.isEmptyOrNull( this.databasePassword ) ) {
+			this.databasePassword = config.getString( CK_DB_PWD ) ;
 		}
 	}
-
-	/** Initialize the configuration manager with a URL. */
-	public synchronized void initialize( final URL cfgURL )
-		throws ConfigurationException {
+	
+	private File getMandatoryDirFromConfig( String key, 
+											PropertiesConfiguration config ) 
+		throws Exception {
 		
-		super.load(cfgURL);
+		String path = getMandatoryConfig( key, config ) ;
+		File file = new File( path ) ;
+		if( !file.exists() ) {
+			throw new Exception( "Folder referred to by " + key + 
+					" configuration does not exist." ) ;
+		}
+		return file ;
 	}
+	
+	private String getMandatoryConfig( String key, PropertiesConfiguration config ) 
+		throws Exception {
+		
+		String value = config.getString( key ) ;
+		if( StringUtil.isEmptyOrNull( value ) ) {
+			throw new Exception( key + " configuration is missing." ) ;
+		}
+		return value ;
+	}
+	
+    public void printUsage() {
+    	
+    	String usageStr = "JoveNotes [huf] [--dbUser <database user>] " + 
+    	                  "[--dbPassword <database password>]" ;
+    	
+        HelpFormatter helpFormatter = new HelpFormatter() ;
+        helpFormatter.printHelp( 80, usageStr, null, this.clOptions, null ) ;
+    }
+
+    private Options prepareOptions() {
+
+        final Options options = new Options() ;
+        options.addOption( "h", "Print this usage and exit." ) ;
+        options.addOption( "i", "Show graphical user interface." ) ;
+        options.addOption( "f", "Force process all files." ) ;
+        options.addOption( null, "dbUser", true, "The database user name" ) ;
+        options.addOption( null, "dbPassword", true, "The database password" ) ;
+
+        return options ;
+    }
+    
+    private void parseCLP( String[] args ) throws Exception {
+
+        if( this.logCLP ) {
+            StringBuilder str = new StringBuilder() ;
+            for( String arg : args ) {
+                str.append( arg ).append( " " ) ;
+            }
+            log.debug( "Parsing CL args = " + str ) ;
+        }
+        
+        try {
+            CommandLine cmdLine = new DefaultParser().parse( this.clOptions, args ) ;
+            
+            if( cmdLine.hasOption( 'h' ) ) { this.showUsage = true ; }
+            if( cmdLine.hasOption( 'i' ) ) { this.showUI = true ; }
+            if( cmdLine.hasOption( 'f' ) ) { this.forceProcessAllFiles = true ; }
+            
+        	this.databaseUser     = cmdLine.getOptionValue( "dbUser" ) ;
+        	this.databasePassword = cmdLine.getOptionValue( "dbPassword" ) ;
+        }
+        catch ( Exception e ) {
+            log.error( "Error parsing command line arguments.", e ) ;
+            printUsage() ;
+            throw e ;
+        }
+    }
 }

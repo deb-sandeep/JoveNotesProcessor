@@ -13,7 +13,7 @@ public class Markdown4JTest extends TestCase {
 	public void testMD4JSimple() throws Exception {
 		
 		Markdown processor = new Markdown() ;
-		String out = processor.process( "This is  \n**a** Test." ) ;
+		String out = processor.process( "This is  $$@img Hello.png$$." ) ;
 		
 		logger.debug( out ) ;
 	}
