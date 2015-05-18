@@ -4,7 +4,6 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -18,7 +17,7 @@ public class XTextModelParser {
 
     private static final String DEF_EMF_REG_METHOD = "createInjectorAndDoEMFRegistration" ;
 
-    private static Logger logger = Logger.getLogger( XTextModelParser.class ) ;
+//    private static Logger logger = Logger.getLogger( XTextModelParser.class ) ;
     
     public XTextModelParser( String bootstrapClassName )
     	throws Exception {

@@ -16,12 +16,30 @@ public class Database {
 
 	private static final Logger log = Logger.getLogger( Database.class ) ;
 	
-	private Connection conn = null ;
+	private String url      = null ;
+	private String user     = null ;
+	private String password = null ;
 	
 	public Database( String driver, String url, String user, String password ) 
 		throws Exception {
 		
 		Class.forName( driver ) ;
-		this.conn = DriverManager.getConnection( url, user, password ) ;
+		
+		this.url      = url ;
+		this.user     = user ;
+		this.password = password ;
+	}
+	
+	public Connection getConnection() throws Exception {
+		return DriverManager.getConnection( url, user, password ) ;
+	}
+	
+	public void closeConnection( Connection conn ) {
+		try {
+			conn.close() ;
+		}
+		catch( Exception e ) {
+			log.error( "Error closing database connection.", e ) ;
+		}
 	}
 }

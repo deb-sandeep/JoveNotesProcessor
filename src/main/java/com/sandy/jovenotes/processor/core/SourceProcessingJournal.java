@@ -1,12 +1,14 @@
-package com.sandy.jovenotes.processor.jnsrc;
+package com.sandy.jovenotes.processor.core;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,15 +59,24 @@ public class SourceProcessingJournal {
 		String absPath = file.getAbsolutePath() ;
 		
 		if( journal.containsKey( absPath ) ) {
-			long lpt = Long.parseLong( journal.getProperty( absPath ) ) ;
-			long lmt = file.lastModified() ;
+			
+			String[] valParts = journal.getProperty( absPath ).split( "," ) ;
+			
+			long lpt     = Long.parseLong( valParts[0] ) ;
+			long lastCRC = Long.parseLong( valParts[1] ) ;
 			
 			if( lpt == -1 ) {
 				// This implies that the file was processed but not successfully
 				return true ;
 			}
-			else if( lmt > lpt ) {
-				return true ;
+			else if( FileUtils.isFileNewer( file, lpt ) ) {
+				try {
+					long curCRC = FileUtils.checksumCRC32( file ) ;
+					return curCRC != lastCRC ;
+				}
+				catch( Exception e ) {
+					return true ;
+				}
 			}
 			else {
 				return false ;
@@ -77,25 +88,31 @@ public class SourceProcessingJournal {
 		}
 	}
 	
-	public void updateSuccessfulProcessingStatus( File file ) {
+	public void updateSuccessfulProcessingStatus( File file ) 
+		throws Exception {
+		
 		updateAndSaveProperties( file, new Date().getTime() ) ;
 	}
 	
 	public void updateFailureProcessingStatus( File file ) {
-		updateAndSaveProperties( file, -1 ) ;
+		
+		try {
+			updateAndSaveProperties( file, -1 ) ;
+		} 
+		catch( Exception e ) {
+			log.info( "Error saving processing status.", e ) ;
+		}
 	}
 	
-	private void updateAndSaveProperties( File file, long processingValue ) {
+	private void updateAndSaveProperties( File file, long processingValue ) 
+		throws IOException {
 		
 		journal.setProperty( file.getAbsolutePath(), 
-	                         Long.toString( processingValue ) ) ;
-		try {
-			Writer writer = new FileWriter( this.journalFile ) ;
-			journal.store( writer, null ) ; 
-			writer.close() ;
-		}
-		catch( Exception e ) {
-			log.error( "Could not save journal.", e ) ;
-		}
+	                         Long.toString( processingValue ) + "," + 
+		                     FileUtils.checksumCRC32( file ) ) ;
+		
+		Writer writer = new FileWriter( this.journalFile ) ;
+		journal.store( writer, null ) ; 
+		writer.close() ;
 	}
 }

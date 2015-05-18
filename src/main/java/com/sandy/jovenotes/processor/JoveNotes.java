@@ -2,16 +2,17 @@ package com.sandy.jovenotes.processor;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.async.PersistedCmd;
-import com.sandy.jovenotes.processor.jnsrc.SourceFileProcessor;
-import com.sandy.jovenotes.processor.jnsrc.SourceProcessingJournal;
+import com.sandy.jovenotes.processor.core.SourceFileProcessor;
+import com.sandy.jovenotes.processor.core.SourceProcessingJournal;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.Database;
-import com.sandy.jovenotes.processor.util.FileUtil;
 import com.sandy.jovenotes.processor.util.PersistentQueue;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 
@@ -89,7 +90,8 @@ public class JoveNotes {
 		
 		log.debug( "Selecting files for processing." ) ;
 		
-		List<File> allFiles = FileUtil.getFilesList( config.getSrcDir(), ".jn", true ) ;
+		Collection<File> allFiles = FileUtils.listFiles( 
+				                config.getSrcDir(), new String[]{"jn"}, true ) ;
 		List<File> filesForProcessing = new ArrayList<File>() ;
 		
 		for( File file : allFiles ) {
