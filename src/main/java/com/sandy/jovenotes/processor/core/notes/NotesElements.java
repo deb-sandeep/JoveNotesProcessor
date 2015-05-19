@@ -1,7 +1,12 @@
 package com.sandy.jovenotes.processor.core.notes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
+import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
+import com.sandy.jovenotes.processor.core.notes.Cards.QACard;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.NotesElement;
@@ -26,6 +31,7 @@ public class NotesElements {
 	public static final String IMAGE_LABEL   = "image_label" ;
 	public static final String EQUATION      = "equation" ;	
 	
+	// -------------------------------------------------------------------------
 	public static AbstractNotesElement build( Chapter chapter, NotesElement ast ) {
 		AbstractNotesElement notesElement = null ;
 		
@@ -49,6 +55,10 @@ public class NotesElements {
 			this.chapter = chapter ;
 		}
 		
+		public Chapter getChapter() { 
+			return this.chapter ; 
+		}
+		
 		public final String getUID() {
 			if( this.uid != null ) return this.uid ;
 			return StringUtil.getHash( this.chapter.getUID() + getUIDSeed() ) ;
@@ -58,6 +68,7 @@ public class NotesElements {
 		public abstract String getUIDSeed() ;
 		public abstract void processNotesContent( JNTextProcessor textProcessor ) 
 				throws Exception ;
+		public abstract List<AbstractCard> getCards() ;
 	}
 	
 	// -------------------------------------------------------------------------
@@ -84,6 +95,13 @@ public class NotesElements {
 			
 			log.debug( "Processed question = " + question ) ;
 			log.debug( "Processed answer   = " + answer ) ;
+		}
+		
+		public List<AbstractCard> getCards() {
+			
+			List<AbstractCard> cards = new ArrayList<AbstractCard>() ;
+			cards.add( new QACard( this, question, answer ) ) ;
+			return cards ;
 		}
 	}
 }
