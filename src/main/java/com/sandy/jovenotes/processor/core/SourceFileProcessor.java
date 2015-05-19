@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import com.sandy.jovenotes.processor.core.notes.Chapter;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 import com.sandy.xtext.joveNotes.JoveNotes;
+import com.sandy.xtext.joveNotes.ProcessingHints;
 
 public class SourceFileProcessor {
 	
@@ -17,11 +18,17 @@ public class SourceFileProcessor {
 		
 		JoveNotes ast = ( JoveNotes )modelParser.parseFile( file ) ;
 		log.debug( "\tAST created." ) ;
-		
-		Chapter chapter = new Chapter( file, ast ) ;
-		if( chapter.shouldSkipProcessing() ) {
+		if( shouldSkipProcessing( ast ) ) {
 			log.debug( "\tProcessing skipped as @skip_processing is on." ) ;
 			return ;
 		}
+		
+		Chapter chapter = new Chapter( file, ast ) ;
+		chapter.processNotesElementContents() ;
+	}
+	
+	private boolean shouldSkipProcessing( JoveNotes notesAST ) {
+		ProcessingHints hints = notesAST.getProcessingHints() ;
+		return ( hints != null ) && ( hints.getSkipGeneration() != null ) ;
 	}
 }

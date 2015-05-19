@@ -26,8 +26,6 @@ public class NotesElements {
 	public static final String IMAGE_LABEL   = "image_label" ;
 	public static final String EQUATION      = "equation" ;	
 	
-	private static JNTextProcessor textProcessor = new JNTextProcessor() ;
-	
 	public static AbstractNotesElement build( Chapter chapter, NotesElement ast ) {
 		AbstractNotesElement notesElement = null ;
 		
@@ -56,13 +54,10 @@ public class NotesElements {
 			return StringUtil.getHash( this.chapter.getUID() + getUIDSeed() ) ;
 		} ;
 		
-		protected String processText( String input ) {
-			return NotesElements.textProcessor.processText( this.chapter, input ) ;
-		}
-		
 		public abstract String getType() ;
 		public abstract String getUIDSeed() ;
-		public abstract void processNotesContent() throws Exception ;
+		public abstract void processNotesContent( JNTextProcessor textProcessor ) 
+				throws Exception ;
 	}
 	
 	// -------------------------------------------------------------------------
@@ -81,10 +76,14 @@ public class NotesElements {
 		public String getType() { return QA ; }
 		public String getUIDSeed() { return this.ast.getQuestion() ; }
 		
-		public void processNotesContent() throws Exception {
+		public void processNotesContent( JNTextProcessor textProcessor ) 
+				throws Exception {
 			
-			this.question = processText( ast.getQuestion() ) ;
-			this.answer   = processText( ast.getAnswer() ) ;
+			this.question = textProcessor.processText( ast.getQuestion() ) ;
+			this.answer   = textProcessor.processText( ast.getAnswer() ) ;
+			
+			log.debug( "Processed question = " + question ) ;
+			log.debug( "Processed answer   = " + answer ) ;
 		}
 	}
 }

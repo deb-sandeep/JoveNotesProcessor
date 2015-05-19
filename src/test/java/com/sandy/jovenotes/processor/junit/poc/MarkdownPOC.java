@@ -22,7 +22,7 @@ public class MarkdownPOC {
 	private static final Logger log = Logger.getLogger( MarkdownPOC.class ) ;
 	
 //	private Markdown4jProcessor md4jProcessor = new Markdown4jProcessor() ;
-	private PegDownProcessor    pdProcessor   = new PegDownProcessor( Extensions.ALL ) ;
+	private PegDownProcessor    pdProcessor   = new PegDownProcessor( Extensions.ALL & ~Extensions.HARDWRAPS ) ;
 
 	private void runTests() throws Exception {
 		process( "Emphasis", 

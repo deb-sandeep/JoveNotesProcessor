@@ -20,18 +20,20 @@ public class ConfigManager{
 
 	private static Logger log = Logger.getLogger(ConfigManager.class);
 	
-	private static String CK_SRC_DIR   = "source.dir" ;
-	private static String CK_WKSP_DIR  = "workspace.dir" ;
-	private static String CK_DB_DRIVER = "db.driver" ;
-	private static String CK_DB_URL    = "db.url" ;
-	private static String CK_DB_USER   = "db.user" ;
-	private static String CK_DB_PWD    = "db.password" ;
+	private static String CK_SRC_DIR       = "source.dir" ;
+	private static String CK_WKSP_DIR      = "workspace.dir" ;
+	private static String CK_DEST_ROOT_DIR = "destination.media.root.dir" ;
+	private static String CK_DB_DRIVER     = "db.driver" ;
+	private static String CK_DB_URL        = "db.url" ;
+	private static String CK_DB_USER       = "db.user" ;
+	private static String CK_DB_PWD        = "db.password" ;
 	
-	private boolean showUsage = false ;
-	private boolean showUI    = false ;
+	private boolean showUsage            = false ;
+	private boolean showUI               = false ;
 	private boolean forceProcessAllFiles = false ;
-	private File    srcDir    = null ;
-	private File    wkspDir   = null ;
+	private File    srcDir               = null ;
+	private File    wkspDir              = null ;
+	private File    destMediaRootDir     = null ;
 	
 	private String  databaseURL        = null ;
 	private String  databaseDriverName = null ;
@@ -43,6 +45,7 @@ public class ConfigManager{
 	public boolean isForceProcessAllFiles(){ return this.forceProcessAllFiles; }
 	public File    getSrcDir()             { return this.srcDir; }
 	public File    getWorkspaceDir()       { return this.wkspDir ; }
+	public File    getDestMediaRootDir()   { return this.destMediaRootDir ; }
 	
 	public String getDatabaseURL()        { return this.databaseURL; }
 	public String getDatabaseDriverName() { return this.databaseDriverName; }
@@ -78,8 +81,9 @@ public class ConfigManager{
 	private void parseSrcDir( PropertiesConfiguration config ) 
 		throws Exception {
 		
-		this.srcDir  = getMandatoryDirFromConfig( CK_SRC_DIR, config ) ;
-		this.wkspDir = getMandatoryDirFromConfig( CK_WKSP_DIR, config ) ;
+		srcDir  = getMandatoryDirFromConfig( CK_SRC_DIR, config ) ;
+		wkspDir = getMandatoryDirFromConfig( CK_WKSP_DIR, config ) ;
+		destMediaRootDir = getMandatoryDirFromConfig( CK_DEST_ROOT_DIR, config) ;
 	}
 	
 	private void parseDatabaseConfig( PropertiesConfiguration config ) 

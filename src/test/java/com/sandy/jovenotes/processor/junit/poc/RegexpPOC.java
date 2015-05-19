@@ -12,8 +12,9 @@ public class RegexpPOC {
 	public static void main( String[] args ) {
 		
 		// String to be scanned to find the pattern.
-		String line = "This is {{@img Hello.png}} and {{@img Burr.png}} text {{@formula Zing+Bat = a^2}}.";
-		String pattern = "\\{\\{(@[^{ ]*)\\s([^{]*)\\}\\}" ;
+		String line = "This is {{@img 	Hello.png}} and {{@txt Hello There}} text {{@formula a{2}}}.";
+		
+		String pattern = "\\{\\{@([a-zA-Z0-9]*)\\s+((.(?!\\{\\{))*)\\}\\}" ;
 
 		// Create a Pattern object
 		Pattern r = Pattern.compile( pattern ) ;
@@ -22,7 +23,7 @@ public class RegexpPOC {
 		Matcher m = r.matcher(line) ;
 		
 		while( m.find() ) {
-			log.debug( m.group(0) ) ;
+			log.debug( "\nMatch-" + m.group(0) + ", start=" + m.start() + ", end=" + m.end() ) ;
 			log.debug( m.group(1) ) ;
 			log.debug( m.group(2) ) ;
 		}

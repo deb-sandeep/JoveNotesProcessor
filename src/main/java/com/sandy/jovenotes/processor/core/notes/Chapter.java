@@ -3,14 +3,15 @@ package com.sandy.jovenotes.processor.core.notes;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 import com.sandy.jovenotes.processor.util.ConfigManager;
+import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.NotesElement;
-import com.sandy.xtext.joveNotes.ProcessingHints;
 
 public class Chapter {
 	
@@ -39,13 +40,12 @@ public class Chapter {
 		}
 	}
 	
-	public boolean shouldSkipProcessing() {
-		ProcessingHints hints = notesAST.getProcessingHints() ;
-		return ( hints != null ) && ( hints.getSkipGeneration() != null ) ;
-	}
-	
 	public boolean isTestPaper() {
 		return notesAST.getChapterDetails().getTestPaper() != null ;
+	}
+	
+	public String getSyllabusName() {
+		return this.syllabusName ;
 	}
 	
 	public String getSubjectName() {
@@ -81,8 +81,43 @@ public class Chapter {
 	
 	public File getSourceFile() { return this.srcFile ; }
 	
-	public File getImagesFolder() { 
+	public File getMediaDirectory() {
+		
+		File dir =  new File( config.getDestMediaRootDir(), 
+				         syllabusName + File.separator + 
+				         getSubjectName() + File.separator + 
+				         getChapterNumber() + File.separator + 
+				         getSubChapterNumber() ) ;
+		if( !dir.exists() ) {
+			dir.mkdirs() ;
+		}
+		return dir ;
+	}
+	
+	public File getSrcImagesFolder() { 
 		return new File( this.srcFile.getParentFile(), "img" ) ;
+	}
+	
+	public void processNotesElementContents() 
+		throws Exception {
+		
+		log.debug( "\tProcessing notes elements" ) ;
+		ArrayList<File> existingMediaFiles = new ArrayList<File>() ;
+		existingMediaFiles.addAll( FileUtils.listFiles( getMediaDirectory(), null, true ) ) ;
+		log.debug( "\tRetrieved existing media files" ) ;
+		
+		JNTextProcessor textProcessor = new JNTextProcessor( this, existingMediaFiles ) ;
+				
+		for( AbstractNotesElement ne : this.notesElements ) {
+			ne.processNotesContent( textProcessor ) ;
+		}
+		
+		// Now delete the media files that were present but not have been found
+		// relevant in this version of source processing.
+		for( File redundantFile : existingMediaFiles ) {
+			log.debug( "Deleting redundant file - " + redundantFile.getAbsolutePath() ) ;
+			FileUtils.deleteQuietly( redundantFile ) ;
+		}
 	}
 	
 	private String getSyllabusName( File file ) {
