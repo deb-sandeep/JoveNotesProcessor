@@ -1,10 +1,12 @@
 package com.sandy.jovenotes.processor.core.notes;
 
+import org.apache.log4j.Logger;
+
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 
 public class Cards {
 
-//	private static Logger log = Logger.getLogger( Cards.class ) ;
+	private static Logger log = Logger.getLogger( Cards.class ) ;
 	
 	public static final String FIB      = "fib" ;
 	public static final String QA       = "question_answer" ;
@@ -23,6 +25,7 @@ public class Cards {
 		}
 		
 		public abstract String getType() ;
+		public abstract int getDifficultyLevel() ;
 		
 		public AbstractNotesElement getNotesElement(){ return this.notesElement; }
 	}
@@ -37,5 +40,10 @@ public class Cards {
 		}
 		
 		public String getType(){ return QA; }
+		
+		public int getDifficultyLevel() {
+			log.error( "TODO: Implement QACard::getDifficultyLevel" ) ;
+			return 10 ;
+		}
 	}
 }

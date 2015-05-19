@@ -2,6 +2,7 @@ package com.sandy.jovenotes.processor.core.notes;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -9,7 +10,6 @@ import org.apache.log4j.Logger;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
-import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.NotesElement;
 
@@ -38,6 +38,10 @@ public class Chapter {
 		for( NotesElement element : this.notesAST.getNotesElements() ) {
 			notesElements.add( NotesElements.build( this, element ) ) ;
 		}
+	}
+	
+	public List<AbstractNotesElement> getNotesElements() {
+		return this.notesElements ;
 	}
 	
 	public boolean isTestPaper() {
@@ -70,13 +74,6 @@ public class Chapter {
 			   getChapterNumber() + "/" +
 	           getSubChapterNumber() + "/" +
 			   getChapterName() ;
-	}
-	
-	public String getUID() {
-		return StringUtil.getHash( syllabusName + "/" +
-								   getSubjectName() + "/" +
-			                       getChapterNumber() + "/" +
-	                               getSubChapterNumber() ) ;
 	}
 	
 	public File getSourceFile() { return this.srcFile ; }
@@ -118,6 +115,10 @@ public class Chapter {
 			log.debug( "Deleting redundant file - " + redundantFile.getAbsolutePath() ) ;
 			FileUtils.deleteQuietly( redundantFile ) ;
 		}
+	}
+	
+	public String toString() {
+		return getChapterFQN() ;
 	}
 	
 	private String getSyllabusName( File file ) {

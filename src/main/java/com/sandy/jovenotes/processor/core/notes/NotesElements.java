@@ -39,7 +39,7 @@ public class NotesElements {
 			notesElement = new QANotesElement( chapter, ( QuestionAnswer )ast ) ;
 		}
 		
-		log.debug( "Built notes element. UID = " + notesElement.getUID() + 
+		log.debug( "Built notes element. objId = " + notesElement.getObjId() + 
 				   ", type = " + notesElement.getType() );
 		return notesElement ;
 	}
@@ -47,7 +47,8 @@ public class NotesElements {
 	// -------------------------------------------------------------------------
 	public static abstract class AbstractNotesElement {
 		
-		private String uid = null ;
+		private String objId           = null ;
+		private int    difficultyLevel = -1 ;
 		
 		protected Chapter chapter = null ;
 		
@@ -59,15 +60,41 @@ public class NotesElements {
 			return this.chapter ; 
 		}
 		
-		public final String getUID() {
-			if( this.uid != null ) return this.uid ;
-			return StringUtil.getHash( this.chapter.getUID() + getUIDSeed() ) ;
+		public final String getObjId() {
+			
+			if( this.objId == null ){
+				this.objId = StringUtil.getHash( getObjIdSeed() ) ; 
+			}
+			return this.objId ;
 		} ;
 		
-		public abstract String getType() ;
-		public abstract String getUIDSeed() ;
+		public int getDifficultyLevel() {
+			
+			if( difficultyLevel == -1 ) {
+				List<AbstractCard> cards = getCards() ;
+				if( !cards.isEmpty() ) {
+					difficultyLevel = 0 ;
+					for( AbstractCard card : cards ) {
+						difficultyLevel += card.getDifficultyLevel() ;
+					}
+					difficultyLevel = difficultyLevel/cards.size() ;
+				}
+			}
+			return difficultyLevel ;
+		}
+
+		public String getContent() {
+			log.error( "TODO: To implement NotesElements::getContent()" ) ;
+			return "TODO" ;
+		}
+		
 		public abstract void processNotesContent( JNTextProcessor textProcessor ) 
 				throws Exception ;
+		
+		public abstract String getType() ;
+		
+		public abstract String getObjIdSeed() ;
+		
 		public abstract List<AbstractCard> getCards() ;
 	}
 	
@@ -79,13 +106,15 @@ public class NotesElements {
 		private String question = null ;
 		private String answer   = null ;
 		
+		private List<AbstractCard> cards = null ;
+		
 		public QANotesElement( Chapter chapter, QuestionAnswer ast ) {
 			super( chapter ) ;
 			this.ast = ast ;
 		}
 		
 		public String getType() { return QA ; }
-		public String getUIDSeed() { return this.ast.getQuestion() ; }
+		public String getObjIdSeed() { return this.ast.getQuestion() ; }
 		
 		public void processNotesContent( JNTextProcessor textProcessor ) 
 				throws Exception {
@@ -99,8 +128,10 @@ public class NotesElements {
 		
 		public List<AbstractCard> getCards() {
 			
-			List<AbstractCard> cards = new ArrayList<AbstractCard>() ;
-			cards.add( new QACard( this, question, answer ) ) ;
+			if( cards == null ) {
+				cards = new ArrayList<AbstractCard>() ;
+				cards.add( new QACard( this, question, answer ) ) ;
+			}
 			return cards ;
 		}
 	}

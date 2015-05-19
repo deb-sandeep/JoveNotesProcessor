@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.core.notes.Chapter;
+import com.sandy.jovenotes.processor.dao.ChapterDBO;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.ProcessingHints;
@@ -27,6 +28,15 @@ public class SourceFileProcessor {
 		Chapter chapter = new Chapter( file, ast ) ;
 		chapter.processNotesElementContents() ;
 		
+		ChapterDBO chapterDBO = ChapterDBO.get( chapter ) ;
+		if( chapterDBO == null ) {
+			log.debug( "\tChapter " + chapter + " does not exist." ) ;
+			insertNewChapter( chapter ) ;
+		}
+		else {
+			log.debug( "\tChapter " + chapter + " is present in database." ) ;
+		}
+		
 		// Check if the chapter exists in the database - 
 		//   If not, then the full object model will get created in the database
 		//   If exists
@@ -36,6 +46,15 @@ public class SourceFileProcessor {
 		// 			1. New elements (notes, cards) 
 		// 			2. Changed elements (notes, cards)
 		// 			3. Deleted elements (notes, cards)
+	}
+	
+	private void insertNewChapter( Chapter chapter ) 
+		throws Exception {
+		
+		log.debug( "\tInserting new chapter." ) ;
+		ChapterDBO chapterDBO = new ChapterDBO( chapter ) ;
+		chapterDBO.create() ;
+		log.debug( "\tNew chapter created. id = " + chapterDBO.getChapterId() );
 	}
 	
 	private boolean shouldSkipProcessing( JoveNotes notesAST ) {

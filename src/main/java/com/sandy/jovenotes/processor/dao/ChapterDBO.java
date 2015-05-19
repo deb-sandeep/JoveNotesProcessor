@@ -3,12 +3,15 @@ package com.sandy.jovenotes.processor.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
+import com.sandy.jovenotes.processor.core.notes.Chapter;
+import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 
 public class ChapterDBO {
 
@@ -19,8 +22,22 @@ public class ChapterDBO {
 	private int    chapterNum     = 0 ;
 	private int    subChapterNum  = 0 ;
 	private String chapterName    = null ;
+	private boolean isTestPaper   = false ;
 	
 	private List<NotesElementDBO> notesElements = null ;
+	
+	public ChapterDBO( Chapter chapter ) {
+		
+		syllabusName = chapter.getSyllabusName() ;
+		chapterNum   = chapter.getChapterNumber() ;
+		subChapterNum= chapter.getSubChapterNumber() ;
+		chapterName  = chapter.getChapterName() ;
+		
+		notesElements = new ArrayList<NotesElementDBO>() ;
+		for( AbstractNotesElement ne : chapter.getNotesElements() ) {
+			notesElements.add( new NotesElementDBO( ne ) ) ;
+		}
+	}
 	
 	private ChapterDBO( ResultSet rs ) throws Exception {
 		
@@ -29,14 +46,26 @@ public class ChapterDBO {
 		chapterNum    = rs.getInt    ( "chapter_num"     ) ;
 		subChapterNum = rs.getInt    ( "sub_chapter_num" ) ;
 		chapterName   = rs.getString ( "chapter_name"    ) ;
+		isTestPaper   = rs.getBoolean( "is_test_paper"   ) ;
 	}
 	
+	public boolean isTestPaper() {
+		return isTestPaper;
+	}
+
+	public void setTestPaper(boolean isTestPaper) {
+		this.isTestPaper = isTestPaper;
+	}
+
 	public int getChapterId() {
 		return chapterId;
 	}
 
 	public void setChapterId( int chapterId ) {
 		this.chapterId = chapterId;
+		for( NotesElementDBO ne : this.notesElements ) {
+			ne.setChapterId( chapterId ) ; 
+		}
 	}
 
 	public String getSyllabusName() {
@@ -83,7 +112,9 @@ public class ChapterDBO {
 		
 		ArrayList<ChapterDBO> chapters = new ArrayList<ChapterDBO>() ;
 		
-		final String sql = "SELECT `chapter`.`chapter_id`," + 
+		final String sql = "SELECT " + 
+		                   " `chapter`.`chapter_id`," + 
+		                   " `chapter`.`is_test_paper`," + 
                            " `chapter`.`syllabus_name`," +
                            " `chapter`.`chapter_num`," +
                            " `chapter`.`sub_chapter_num`," +
@@ -107,9 +138,49 @@ public class ChapterDBO {
 		return chapters ;
 	}
 	
+	public static ChapterDBO get( Chapter chapter ) throws Exception {
+		
+		final String sql = 
+				"SELECT " + 
+				" chapter_id, " + 
+			    " is_test_paper, " +
+				" syllabus_name, " +
+				" chapter_num, " +
+				" sub_chapter_num, " +
+				" chapter_name " + 
+				"FROM " + 
+				" jove_notes.chapter " +
+				"WHERE " + 
+				" syllabus_name   = ? and " + 
+				" chapter_num     = ? and " + 
+				" sub_chapter_num = ? " ;
+
+		ChapterDBO dbo = null ;
+		Connection conn = JoveNotes.db.getConnection() ;
+		try {
+			log.debug( "Firing query - " + sql ) ;
+			PreparedStatement psmt = conn.prepareStatement( sql ) ;
+			psmt.setString ( 1, chapter.getSyllabusName() ) ;
+			psmt.setInt    ( 2, chapter.getChapterNumber() ) ;
+			psmt.setInt    ( 3, chapter.getSubChapterNumber() );
+			
+			ResultSet rs = psmt.executeQuery() ;
+			if( rs.next() ) {
+				dbo = new ChapterDBO( rs ) ;
+			}
+		}
+		finally {
+			JoveNotes.db.closeConnection( conn ) ;
+		}
+		
+		return dbo ;
+	}
+	
 	public static ChapterDBO get( int chapterId ) throws Exception {
 		
-		final String sql = "SELECT `chapter`.`chapter_id`," + 
+		final String sql = "SELECT " + 
+		                    " `chapter`.`chapter_id`," + 
+		                    " `chapter`.`is_test_paper`," + 
 			                " `chapter`.`syllabus_name`," +
 			                " `chapter`.`chapter_num`," +
 			                " `chapter`.`sub_chapter_num`," +
@@ -141,23 +212,35 @@ public class ChapterDBO {
 
 		final String sql = 
 		"INSERT INTO `jove_notes`.`chapter` " +
-		"(`syllabus_name`, `chapter_num`, `sub_chapter_num`, `chapter_name`) " +
+		"(`is_test_paper`,`syllabus_name`, `chapter_num`, `sub_chapter_num`, `chapter_name`) " +
 		"VALUES " +
-		"( ?, ?, ?, ? )" ;
+		"( ?, ?, ?, ?, ? )" ;
 
 		int generatedId = -1 ;
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
 			log.debug( "Firing query - " + sql ) ;
-			PreparedStatement psmt = conn.prepareStatement( sql ) ;
-			psmt.setString ( 1, getSyllabusName() ) ;
-			psmt.setInt    ( 2, getChapterNum() ) ;
-			psmt.setInt    ( 3, getSubChapterNum() ) ;
-			psmt.setString ( 4, getChapterName() ) ;
+			PreparedStatement psmt = conn.prepareStatement( sql, 
+					                         Statement.RETURN_GENERATED_KEYS ) ;
+			
+			psmt.setBoolean( 1, isTestPaper() ) ;
+			psmt.setString ( 2, getSyllabusName() ) ;
+			psmt.setInt    ( 3, getChapterNum() ) ;
+			psmt.setInt    ( 4, getSubChapterNum() ) ;
+			psmt.setString ( 5, getChapterName() ) ;
 			
 			psmt.executeUpdate() ;
-			generatedId = psmt.getGeneratedKeys().getInt( 1 ) ;
+			ResultSet rs = psmt.getGeneratedKeys() ;
+			if( null != rs && rs.next()) {
+			     generatedId = (int)rs.getLong( 1 ) ;
+			}
+			else {
+				throw new Exception( "Autogenerated key not obtained for chapter." ) ;
+			}
 			setChapterId( generatedId ) ;
+			for( NotesElementDBO ne : this.notesElements ) {
+				ne.create() ;
+			}
 		}
 		finally {
 			JoveNotes.db.closeConnection( conn ) ;
@@ -170,6 +253,7 @@ public class ChapterDBO {
 		final String sql = 
 			"UPDATE `jove_notes`.`chapter` " +
 			"SET " +
+			"`is_test_paper` = ? " +
 			"`syllabus_name` = ? " +
 			"`chapter_num` = ? " +
 			"`sub_chapter_num` = ? " +
@@ -180,11 +264,12 @@ public class ChapterDBO {
 		try {
 			log.debug( "Firing query - " + sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
-			psmt.setString ( 1, getSyllabusName() ) ;
-			psmt.setInt    ( 2, getChapterNum() ) ;
-			psmt.setInt    ( 3, getSubChapterNum() ) ;
-			psmt.setString ( 4, getChapterName() ) ;
-			psmt.setInt    ( 5, getChapterId() ) ;
+			psmt.setBoolean( 1, isTestPaper() ) ;
+			psmt.setString ( 2, getSyllabusName() ) ;
+			psmt.setInt    ( 3, getChapterNum() ) ;
+			psmt.setInt    ( 4, getSubChapterNum() ) ;
+			psmt.setString ( 5, getChapterName() ) ;
+			psmt.setInt    ( 6, getChapterId() ) ;
 			
 			psmt.executeUpdate() ;
 		}
