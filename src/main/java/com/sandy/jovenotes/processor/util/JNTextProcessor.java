@@ -14,7 +14,7 @@ import com.sandy.jovenotes.processor.core.notes.Chapter;
 
 public class JNTextProcessor {
 
-	private static final Logger log = Logger.getLogger( JNTextProcessor.class ) ;
+	private static final Logger log = Logger.getLogger(JNTextProcessor.class) ;
 	
 	private static PegDownProcessor pdProcessor   = 
 			    new PegDownProcessor( Extensions.ALL & ~Extensions.HARDWRAPS ) ;
