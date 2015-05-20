@@ -149,6 +149,7 @@ public class NotesElements {
 		
 		private String question = null ;
 		private String answer   = null ;
+		private String cmapImg  = null ;
 		
 		public QANotesElement( Chapter chapter, QuestionAnswer ast ) {
 			super( QA, chapter, ast ) ;
@@ -158,10 +159,15 @@ public class NotesElements {
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
+			this.cmapImg  = textProcessor.processCMap( ast.getCmap() ) ;
 			this.question = textProcessor.processText( ast.getQuestion() ) ;
-			this.answer   = textProcessor.processText( ast.getAnswer() ) ;
+			this.answer   = textProcessor.processText( ast.getAnswer() ) ; 
 			
-			cards.add( new QACard( ast.getQuestion(), ast.getAnswer(), textProcessor ) ) ;
+			if( cmapImg != null ) {
+				this.answer += "<p>{{@img " + this.cmapImg + "}}" ;
+			}
+			cards.add( new QACard( ast.getQuestion(), ast.getAnswer(), 
+					               cmapImg, textProcessor ) ) ;
 		}
 		
 		public String getObjIdSeed() { 

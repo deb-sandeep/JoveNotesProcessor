@@ -10,7 +10,13 @@ import org.apache.log4j.Logger;
 import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
+import com.sandy.jcmap.util.CMapBuilder;
+import com.sandy.jcmap.util.CMapDotSerializer;
+import com.sandy.jcmap.util.CMapElement;
+import com.sandy.jcmap.util.GraphvizAdapter;
+import com.sandy.jovenotes.processor.JoveNotes;
 import com.sandy.jovenotes.processor.core.notes.Chapter;
+import com.sandy.xtext.joveNotes.CMap;
 
 public class JNTextProcessor {
 
@@ -79,6 +85,13 @@ public class JNTextProcessor {
 	private String processImgMarker( String imgName ) 
 		throws Exception {
 		
+		// If the image name ends with .cmap.png, we do nothing. This is so 
+		// because cmap files are generated and stored in the media directory.
+		// CMap image files are not expected in the source folder.
+		if( imgName.endsWith( ".cmap.png" ) ) {
+			return null ;
+		}
+		
 		File srcFile  = new File( chapter.getSrcImagesFolder(), imgName ) ;
 		File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
 		
@@ -99,5 +112,46 @@ public class JNTextProcessor {
 		}
 		existingMediaFiles.remove( destFile ) ;
 		return null ;
+	}
+
+	public String processCMap( CMap ast )
+			throws Exception {
+		
+		// If there is no CMap in the source, nothing is to be done.
+		if( ast == null )return null ;
+
+		String cmapContent = ast.getContent() ;
+		File imgFile = getCMapDestImageFilePath( cmapContent ) ;
+
+		// If the image file exists, we do not regenerate. We have named the file
+		// based on its content hash. Which implies, if the content would have
+		// changed, the file name would change too.
+		if( imgFile.exists() ) {
+			this.existingMediaFiles.remove( imgFile ) ;
+			return imgFile.getName() ;
+		}
+
+		log.debug( "\tGenerating cmap image. " + imgFile.getName() );
+		CMapElement cmap = new CMapBuilder().buildCMapElement( cmapContent ) ;
+        CMapDotSerializer dotSerializer = new CMapDotSerializer( cmap ) ;
+        
+        File dotFile = new File( JoveNotes.config.getWorkspaceDir(), "temp.dot" ) ;
+
+        String fileContent = dotSerializer.convertCMaptoDot() ;
+        FileUtils.writeStringToFile( dotFile, fileContent, "UTF-8" ) ;
+        
+        File dotExecFile = JoveNotes.config.getGraphvizDotPath() ;
+        GraphvizAdapter gvAdapter = new GraphvizAdapter( dotExecFile.getAbsolutePath() ) ;
+        gvAdapter.generateGraph( dotFile, imgFile ) ;
+        
+        dotFile.delete() ;
+        
+        return imgFile.getName() ;
+	}
+	
+	private File getCMapDestImageFilePath( String cmapContent ) {
+		String imgName = StringUtil.getHash( cmapContent ) + ".cmap.png" ;
+		File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
+		return destFile ;
 	}
 }

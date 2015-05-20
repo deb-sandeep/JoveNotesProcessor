@@ -325,9 +325,6 @@ public class NotesElementDBO extends AbstractDBO {
 		else if( isModified ) {
 			log.debug( "\t  Notes element will be updated. id=" + getNotesElementId() ) ;
 			update() ;
-			for( CardDBO cardDBO : cards ) {
-				cardDBO.processTrace() ;
-			}
 		}
 		else if( !sourceTrace ) {
 			log.debug( "\t  Notes element will be deleted. id=" + getNotesElementId() ) ;

@@ -82,5 +82,10 @@
             <artifactId>jovenotes.xtext</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.sandy</groupId>
+            <artifactId>jcmap</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 </project>

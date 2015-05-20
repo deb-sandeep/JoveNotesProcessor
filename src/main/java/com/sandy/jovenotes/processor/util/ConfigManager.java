@@ -27,6 +27,7 @@ public class ConfigManager{
 	private static String CK_DB_URL        = "db.url" ;
 	private static String CK_DB_USER       = "db.user" ;
 	private static String CK_DB_PWD        = "db.password" ;
+	private static String CK_GRAPHVIZ_PATH = "graphviz.dot.path" ;
 	
 	private boolean showUsage            = false ;
 	private boolean showUI               = false ;
@@ -34,6 +35,7 @@ public class ConfigManager{
 	private File    srcDir               = null ;
 	private File    wkspDir              = null ;
 	private File    destMediaRootDir     = null ;
+	private File    graphvizDotPath      = null ;
 	
 	private String  databaseURL        = null ;
 	private String  databaseDriverName = null ;
@@ -46,6 +48,7 @@ public class ConfigManager{
 	public File    getSrcDir()             { return this.srcDir; }
 	public File    getWorkspaceDir()       { return this.wkspDir ; }
 	public File    getDestMediaRootDir()   { return this.destMediaRootDir ; }
+	public File    getGraphvizDotPath()    { return this.graphvizDotPath; }
 	
 	public String getDatabaseURL()        { return this.databaseURL; }
 	public String getDatabaseDriverName() { return this.databaseDriverName; }
@@ -84,6 +87,7 @@ public class ConfigManager{
 		srcDir  = getMandatoryDirFromConfig( CK_SRC_DIR, config ) ;
 		wkspDir = getMandatoryDirFromConfig( CK_WKSP_DIR, config ) ;
 		destMediaRootDir = getMandatoryDirFromConfig( CK_DEST_ROOT_DIR, config) ;
+		graphvizDotPath  = getMandatoryDirFromConfig( CK_GRAPHVIZ_PATH, config ) ;
 	}
 	
 	private void parseDatabaseConfig( PropertiesConfiguration config ) 

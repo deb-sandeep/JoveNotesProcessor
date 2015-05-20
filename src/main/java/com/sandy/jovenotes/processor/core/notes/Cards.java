@@ -69,12 +69,21 @@ public class Cards {
 		private JNTextProcessor textProcessor = null ;
 		
 		public QACard( String rawQ, String rawA, JNTextProcessor textProcessor ) 
-			throws Exception {
+				throws Exception {
+			this( rawQ, rawA, null, textProcessor ) ;
+		}
+	
+		public QACard( String rawQ, String rawA, String cmapImg, 
+				       JNTextProcessor textProcessor ) throws Exception {
 			
 			super( QA ) ;
 			this.textProcessor = textProcessor ;
 			this.rawQuestion   = rawQ ;
 			this.rawAnswer     = rawA ;
+			
+			if( cmapImg != null ) {
+				this.rawAnswer += "<p>{{@img " + cmapImg + "}}" ;
+			}
 		}
 		
 		public String getObjIdSeed() { 
