@@ -13,7 +13,7 @@ import com.sandy.jovenotes.processor.JoveNotes;
 import com.sandy.jovenotes.processor.core.notes.Chapter;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 
-public class ChapterDBO {
+public class ChapterDBO extends AbstractDBO {
 
 	private static final Logger log = Logger.getLogger( ChapterDBO.class ) ;
 	
@@ -24,9 +24,13 @@ public class ChapterDBO {
 	private String chapterName    = null ;
 	private boolean isTestPaper   = false ;
 	
+	private String chapterFQN = null ;
+	
 	private List<NotesElementDBO> notesElements = null ;
 	
 	public ChapterDBO( Chapter chapter ) {
+		
+		chapterFQN   = chapter.getChapterFQN() ;
 		
 		syllabusName = chapter.getSyllabusName() ;
 		chapterNum   = chapter.getChapterNumber() ;
@@ -123,7 +127,7 @@ public class ChapterDBO {
 		
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "ChapterDBO::getAll", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			ResultSet rs = psmt.executeQuery() ;
 			
@@ -158,7 +162,7 @@ public class ChapterDBO {
 		ChapterDBO dbo = null ;
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "ChapterDBO::get", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setString ( 1, chapter.getSyllabusName() ) ;
 			psmt.setInt    ( 2, chapter.getChapterNumber() ) ;
@@ -191,7 +195,7 @@ public class ChapterDBO {
 		ChapterDBO chapter = null ;
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "ChapterDBO::get", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setInt( 1, chapterId ) ;
 			
@@ -210,6 +214,8 @@ public class ChapterDBO {
 	
 	public int create() throws Exception {
 
+		log.debug( "\tCreating chapter - " + chapterFQN ) ;
+		
 		final String sql = 
 		"INSERT INTO `jove_notes`.`chapter` " +
 		"(`is_test_paper`,`syllabus_name`, `chapter_num`, `sub_chapter_num`, `chapter_name`) " +
@@ -219,7 +225,7 @@ public class ChapterDBO {
 		int generatedId = -1 ;
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "ChapterDBO::create", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql, 
 					                         Statement.RETURN_GENERATED_KEYS ) ;
 			
@@ -262,7 +268,7 @@ public class ChapterDBO {
 
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "ChapterDBO::update", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setBoolean( 1, isTestPaper() ) ;
 			psmt.setString ( 2, getSyllabusName() ) ;
@@ -285,7 +291,7 @@ public class ChapterDBO {
 
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "ChapterDBO::delete", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setInt ( 1, getChapterId() ) ;
 			

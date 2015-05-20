@@ -10,8 +10,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
+import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
 
-public class CardDBO {
+public class CardDBO extends AbstractDBO {
 	
 	private static final Logger log = Logger.getLogger( CardDBO.class ) ;
 
@@ -25,6 +26,13 @@ public class CardDBO {
 	
 	private ChapterDBO chapter = null ;
 	private NotesElementDBO notesElement = null ;
+	
+	public CardDBO( AbstractCard card ) {
+		this.cardType        = card.getType() ;
+		this.difficultyLevel = card.getDifficultyLevel() ;
+		this.content         = card.getContent() ;
+		this.objCorrelId     = card.getObjId() ;
+	}
 	
 	private CardDBO( ResultSet rs ) throws Exception {
 		
@@ -132,7 +140,7 @@ public class CardDBO {
 
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "CardDBO::getAll", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setInt( 1, chapterId ) ;
 			
@@ -149,6 +157,9 @@ public class CardDBO {
 
 	public int create() throws Exception {
 
+		log.debug( "\t    Creating notes element - " + 
+		           getCardType() + "::" + getObjCorrelId() ) ;
+		
 		final String sql = 
 		"INSERT INTO `jove_notes`.`card` " +
 		"(`notes_element_id`, `chapter_id`, `card_type`, `difficulty_level`, `content`, `obj_correl_id`) " +
@@ -158,7 +169,7 @@ public class CardDBO {
 		int generatedId = -1 ;
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "CardDBO::create", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql, 
 					                         Statement.RETURN_GENERATED_KEYS ) ;
 			
@@ -200,7 +211,7 @@ public class CardDBO {
 
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "CardDBO::update", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setInt    ( 1, getNotesElementId() ) ;
 			psmt.setInt    ( 2, getChapterId() ) ;
@@ -224,7 +235,7 @@ public class CardDBO {
 
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
-			log.debug( "Firing query - " + sql ) ;
+			logQuery( "CardDBO::delete", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setInt ( 1, getCardId() ) ;
 			

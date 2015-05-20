@@ -1,9 +1,12 @@
 package com.sandy.jovenotes.processor.core.notes;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONValue;
 
 import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.QACard;
@@ -39,7 +42,7 @@ public class NotesElements {
 			notesElement = new QANotesElement( chapter, ( QuestionAnswer )ast ) ;
 		}
 		
-		log.debug( "Built notes element. objId = " + notesElement.getObjId() + 
+		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
 				   ", type = " + notesElement.getType() );
 		return notesElement ;
 	}
@@ -47,28 +50,41 @@ public class NotesElements {
 	// -------------------------------------------------------------------------
 	public static abstract class AbstractNotesElement {
 		
+		private String type            = null ;
 		private String objId           = null ;
 		private int    difficultyLevel = -1 ;
+		private NotesElement ast       = null ;
 		
 		protected Chapter chapter = null ;
+		protected List<AbstractCard> cards = new ArrayList<AbstractCard>() ;
 		
-		public AbstractNotesElement( Chapter chapter ) {
+		public AbstractNotesElement( String type, Chapter chapter, NotesElement ast ) {
+			this.type    = type ;
 			this.chapter = chapter ;
+			this.ast     = ast ;
+		}
+		
+		public String getType() {
+			return this.type ;
 		}
 		
 		public Chapter getChapter() { 
 			return this.chapter ; 
 		}
 		
+		public NotesElement getAST() {
+			return this.ast ;
+		}
+		
 		public final String getObjId() {
 			
 			if( this.objId == null ){
-				this.objId = StringUtil.getHash( getObjIdSeed() ) ; 
+				this.objId = StringUtil.getHash( "NE" + getType() + getObjIdSeed() ) ; 
 			}
 			return this.objId ;
 		} ;
 		
-		public int getDifficultyLevel() {
+		public final int getDifficultyLevel() {
 			
 			if( difficultyLevel == -1 ) {
 				List<AbstractCard> cards = getCards() ;
@@ -83,19 +99,43 @@ public class NotesElements {
 			return difficultyLevel ;
 		}
 
-		public String getContent() {
-			log.error( "TODO: To implement NotesElements::getContent()" ) ;
-			return "TODO" ;
+		public final String getContent() {
+			Map<String, Object> map = new LinkedHashMap<String, Object>() ;
+			
+			collectContentAttributes( map ) ;
+			String content = JSONValue.toJSONString( map ) ;
+			
+			return content ;
 		}
 		
-		public abstract void processNotesContent( JNTextProcessor textProcessor ) 
+		/**
+		 * This function will be called during the source object model 
+		 * construction immediately following the creation of the notes elements.
+		 * 
+		 * This gives a chance to the concrete notes elements to initialize 
+		 * themselves before they are called into active service. Initialization
+		 * might involve activities like:
+		 * 1. Transforming content text
+		 * 2. Creation of associated cards
+		 * 3. Initialization of associated cards
+		 * 
+		 * @param textProcessor The text processor instance which has the context
+		 *        of processing the chapter to which this notes element belongs.
+		 *        
+		 * @throws Exception
+		 */
+		public abstract void initialize( JNTextProcessor textProcessor ) 
 				throws Exception ;
 		
-		public abstract String getType() ;
+		public List<AbstractCard> getCards() {
+			// It is assumed that the concrete sublcasses will have their cards
+			// initialized and added to the 'cards' array during initialization.
+			return this.cards ;
+		}
 		
-		public abstract String getObjIdSeed() ;
+		protected abstract String getObjIdSeed() ;
 		
-		public abstract List<AbstractCard> getCards() ;
+		protected abstract void collectContentAttributes( Map<String, Object> map ) ; 
 	}
 	
 	// -------------------------------------------------------------------------
@@ -106,33 +146,27 @@ public class NotesElements {
 		private String question = null ;
 		private String answer   = null ;
 		
-		private List<AbstractCard> cards = null ;
-		
 		public QANotesElement( Chapter chapter, QuestionAnswer ast ) {
-			super( chapter ) ;
+			super( QA, chapter, ast ) ;
 			this.ast = ast ;
 		}
 		
-		public String getType() { return QA ; }
-		public String getObjIdSeed() { return this.ast.getQuestion() ; }
-		
-		public void processNotesContent( JNTextProcessor textProcessor ) 
+		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
 			this.question = textProcessor.processText( ast.getQuestion() ) ;
 			this.answer   = textProcessor.processText( ast.getAnswer() ) ;
 			
-			log.debug( "Processed question = " + question ) ;
-			log.debug( "Processed answer   = " + answer ) ;
+			cards.add( new QACard( this, ast, textProcessor ) ) ;
 		}
 		
-		public List<AbstractCard> getCards() {
-			
-			if( cards == null ) {
-				cards = new ArrayList<AbstractCard>() ;
-				cards.add( new QACard( this, question, answer ) ) ;
-			}
-			return cards ;
+		public String getObjIdSeed() { 
+			return this.ast.getQuestion() ; 
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "question", question ) ;
+			map.put( "answer", answer ) ;
 		}
 	}
 }

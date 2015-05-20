@@ -24,7 +24,8 @@ public class Chapter {
 	private JoveNotes notesAST = null ;
 	private ArrayList<AbstractNotesElement> notesElements = null ;
 	
-	public Chapter( File srcFile, JoveNotes notesAST ) {
+	public Chapter( File srcFile, JoveNotes notesAST ) 
+		throws Exception {
 		
 		this.config = com.sandy.jovenotes.processor.JoveNotes.config ;
 		
@@ -38,8 +39,31 @@ public class Chapter {
 		for( NotesElement element : this.notesAST.getNotesElements() ) {
 			notesElements.add( NotesElements.build( this, element ) ) ;
 		}
+		initializeNotesElements() ;
 	}
 	
+	private void initializeNotesElements() 
+			throws Exception {
+			
+		log.debug( "\tProcessing notes elements" ) ;
+		ArrayList<File> existingMediaFiles = new ArrayList<File>() ;
+		existingMediaFiles.addAll( FileUtils.listFiles( getMediaDirectory(), null, true ) ) ;
+		log.debug( "\tRetrieved existing media files" ) ;
+		
+		JNTextProcessor textProcessor = new JNTextProcessor( this, existingMediaFiles ) ;
+				
+		for( AbstractNotesElement ne : this.notesElements ) {
+			ne.initialize( textProcessor ) ;
+		}
+		
+		// Now delete the media files that were present but not have been found
+		// relevant in this version of source processing.
+		for( File redundantFile : existingMediaFiles ) {
+			log.debug( "Deleting redundant file - " + redundantFile.getAbsolutePath() ) ;
+			FileUtils.deleteQuietly( redundantFile ) ;
+		}
+	}
+		
 	public List<AbstractNotesElement> getNotesElements() {
 		return this.notesElements ;
 	}
@@ -93,28 +117,6 @@ public class Chapter {
 	
 	public File getSrcImagesFolder() { 
 		return new File( this.srcFile.getParentFile(), "img" ) ;
-	}
-	
-	public void processNotesElementContents() 
-		throws Exception {
-		
-		log.debug( "\tProcessing notes elements" ) ;
-		ArrayList<File> existingMediaFiles = new ArrayList<File>() ;
-		existingMediaFiles.addAll( FileUtils.listFiles( getMediaDirectory(), null, true ) ) ;
-		log.debug( "\tRetrieved existing media files" ) ;
-		
-		JNTextProcessor textProcessor = new JNTextProcessor( this, existingMediaFiles ) ;
-				
-		for( AbstractNotesElement ne : this.notesElements ) {
-			ne.processNotesContent( textProcessor ) ;
-		}
-		
-		// Now delete the media files that were present but not have been found
-		// relevant in this version of source processing.
-		for( File redundantFile : existingMediaFiles ) {
-			log.debug( "Deleting redundant file - " + redundantFile.getAbsolutePath() ) ;
-			FileUtils.deleteQuietly( redundantFile ) ;
-		}
 	}
 	
 	public String toString() {
