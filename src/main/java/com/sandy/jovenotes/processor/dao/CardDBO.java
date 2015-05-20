@@ -278,15 +278,15 @@ public class CardDBO extends AbstractDBO {
 	public void processTrace() throws Exception {
 
 		if( getCardId() == -1 ) {
-			log.debug( "\t  Card will be created." ) ;
+			log.debug( "\t    Card will be created." ) ;
 			create() ;
 		}
 		else if( isModified ) {
-			log.debug( "\t  Card will be updated. id=" + getCardId() ) ;
+			log.debug( "\t    Card will be updated. id=" + getCardId() ) ;
 			update() ;
 		}
 		else if( !sourceTrace ) {
-			log.debug( "\t  Card will be deleted. id=" + getCardId() ) ;
+			log.debug( "\t    Card will be deleted. id=" + getCardId() ) ;
 			delete() ;
 		}
 	}
