@@ -144,7 +144,7 @@ public class NotesElementDBO extends AbstractDBO {
 			loadAndAssociateCardsWithNotesElements( chapter, elements ) ;
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 		
 		return elements ;
@@ -212,7 +212,7 @@ public class NotesElementDBO extends AbstractDBO {
 			}
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 		return generatedId ;
 	}
@@ -243,7 +243,7 @@ public class NotesElementDBO extends AbstractDBO {
 			psmt.executeUpdate() ;
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 	}
 
@@ -261,7 +261,7 @@ public class NotesElementDBO extends AbstractDBO {
 			psmt.executeUpdate() ;
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 	}
 }

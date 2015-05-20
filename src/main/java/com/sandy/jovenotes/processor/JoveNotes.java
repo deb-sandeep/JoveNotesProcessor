@@ -53,6 +53,7 @@ public class JoveNotes {
 				           config.getDatabaseURL(), 
 				           config.getDatabaseUser(), 
 				           config.getDatabasePassword() ) ;
+		db.returnConnection( db.getConnection() ) ;
 		log.debug( "\tDatabase initialized." ) ;
 		
 		File pqFile = new File( config.getWorkspaceDir(), "jove_notes.pq" ) ;

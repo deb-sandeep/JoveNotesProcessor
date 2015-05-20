@@ -3,7 +3,6 @@ package com.sandy.jovenotes.processor.core.notes;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
@@ -14,7 +13,7 @@ import com.sandy.xtext.joveNotes.QuestionAnswer;
 
 public class Cards {
 
-	private static Logger log = Logger.getLogger( Cards.class ) ;
+	//private static Logger log = Logger.getLogger( Cards.class ) ;
 	
 	public static final String QA       = "question_answer" ;
 	public static final String FIB      = "fib" ;
@@ -70,6 +69,8 @@ public class Cards {
 	// -------------------------------------------------------------------------
 	public static class QACard extends AbstractCard {
 		
+		private static final double DIFFICULTY_FACTOR = 0.037505 ;
+		
 		private QuestionAnswer ast = null ;
 		private String question = null ;
 		private String answer = null ;
@@ -89,8 +90,10 @@ public class Cards {
 		}
 		
 		public int getDifficultyLevel() {
-			log.error( "TODO: Implement QACard::getDifficultyLevel" ) ;
-			return 10 ;
+			int numWords = ast.getAnswer().split( "\\s+" ).length ;
+			double nDiff = (2/( 1 + Math.exp( -1*DIFFICULTY_FACTOR*numWords ))) - 1 ;
+			
+			return (int)Math.ceil( nDiff*100 ) ;
 		}
 		
 		public void collectContentAttributes( Map<String, Object> map ) {

@@ -150,14 +150,14 @@ public class CardDBO extends AbstractDBO {
 			}
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 		return cards ;
 	}
 
 	public int create() throws Exception {
 
-		log.debug( "\t    Creating notes element - " + 
+		log.debug( "\t    Creating card - " + 
 		           getCardType() + "::" + getObjCorrelId() ) ;
 		
 		final String sql = 
@@ -191,7 +191,7 @@ public class CardDBO extends AbstractDBO {
 			setCardId( generatedId ) ;
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 		return generatedId ;
 	}
@@ -224,7 +224,7 @@ public class CardDBO extends AbstractDBO {
 			psmt.executeUpdate() ;
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 	}
 
@@ -242,7 +242,7 @@ public class CardDBO extends AbstractDBO {
 			psmt.executeUpdate() ;
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 	}
 }

@@ -136,7 +136,7 @@ public class ChapterDBO extends AbstractDBO {
 			}
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 		
 		return chapters ;
@@ -174,7 +174,7 @@ public class ChapterDBO extends AbstractDBO {
 			}
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 		
 		return dbo ;
@@ -206,7 +206,7 @@ public class ChapterDBO extends AbstractDBO {
 			}
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 		
 		return chapter ;
@@ -249,7 +249,7 @@ public class ChapterDBO extends AbstractDBO {
 			}
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 		return generatedId ;
 	}
@@ -280,7 +280,7 @@ public class ChapterDBO extends AbstractDBO {
 			psmt.executeUpdate() ;
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 	}
 
@@ -298,7 +298,7 @@ public class ChapterDBO extends AbstractDBO {
 			psmt.executeUpdate() ;
 		}
 		finally {
-			JoveNotes.db.closeConnection( conn ) ;
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 	}
 }

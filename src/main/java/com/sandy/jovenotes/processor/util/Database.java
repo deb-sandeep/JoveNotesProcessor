@@ -3,6 +3,8 @@ package com.sandy.jovenotes.processor.util;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.log4j.Logger;
 
 /**
@@ -20,6 +22,8 @@ public class Database {
 	private String user     = null ;
 	private String password = null ;
 	
+	private GenericObjectPool<Connection> connectionPool = null ;
+	
 	public Database( String driver, String url, String user, String password ) 
 		throws Exception {
 		
@@ -28,18 +32,34 @@ public class Database {
 		this.url      = url ;
 		this.user     = user ;
 		this.password = password ;
+		
+		connectionPool = new GenericObjectPool<Connection>( new BasePoolableObjectFactory<Connection>() {
+			
+			public Connection makeObject() throws Exception {
+				log.debug( "\tCreating a new database connection." ) ;
+				return DriverManager.getConnection( 
+										Database.this.url, Database.this.user, 
+										Database.this.password ) ;
+			}
+
+			public void destroyObject( Connection conn ) throws Exception {
+				log.debug( "Closing a database connection." ) ;
+				conn.close() ;
+			}
+		}) ;
+		connectionPool.setMaxActive( 5 );
 	}
 	
 	public Connection getConnection() throws Exception {
-		return DriverManager.getConnection( url, user, password ) ;
+		return connectionPool.borrowObject() ;
 	}
 	
-	public void closeConnection( Connection conn ) {
+	public void returnConnection( Connection conn ) {
 		try {
-			conn.close() ;
-		}
-		catch( Exception e ) {
-			log.error( "Error closing database connection.", e ) ;
+			connectionPool.returnObject( conn ) ;
+		} 
+		catch (Exception e) {
+			log.error( "Could not return connection.", e ) ;
 		}
 	}
 }

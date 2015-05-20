@@ -59,7 +59,7 @@ public class Chapter {
 		// Now delete the media files that were present but not have been found
 		// relevant in this version of source processing.
 		for( File redundantFile : existingMediaFiles ) {
-			log.debug( "Deleting redundant file - " + redundantFile.getAbsolutePath() ) ;
+			log.debug( "\tDeleting redundant file - " + redundantFile.getAbsolutePath() ) ;
 			FileUtils.deleteQuietly( redundantFile ) ;
 		}
 	}
