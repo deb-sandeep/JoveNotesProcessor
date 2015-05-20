@@ -12,6 +12,7 @@ import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.QACard;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
+import com.sandy.xtext.joveNotes.Definition;
 import com.sandy.xtext.joveNotes.NotesElement;
 import com.sandy.xtext.joveNotes.QuestionAnswer;
 import com.sandy.xtext.joveNotes.WordMeaning;
@@ -44,6 +45,9 @@ public class NotesElements {
 		}
 		else if( ast instanceof WordMeaning ){
 			notesElement = new WMNotesElement( chapter, ( WordMeaning )ast ) ;
+		}
+		else if( ast instanceof Definition ){
+			notesElement = new DefinitionNotesElement( chapter, ( Definition )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
@@ -213,6 +217,46 @@ public class NotesElements {
 		public void collectContentAttributes( Map<String, Object> map ) {
 			map.put( "word", word ) ;
 			map.put( "meaning", meaning ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class DefinitionNotesElement extends AbstractNotesElement {
+		
+		private Definition ast = null ;
+		
+		private String term       = null ;
+		private String definition = null ;
+		private String cmapImg    = null ;
+		
+		public DefinitionNotesElement( Chapter chapter, Definition ast ) {
+			super( QA, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			this.cmapImg    = textProcessor.processCMap( ast.getCmap() ) ;
+			this.term       = textProcessor.processText( ast.getTerm() ) ;
+			this.definition = textProcessor.processText( ast.getDefinition() ) ; 
+			
+			if( cmapImg != null ) {
+				this.definition += "<p>{{@img " + this.cmapImg + "}}" ;
+			}
+
+			String fmtQ = "_Define_'**" + ast.getTerm() + "**'" ;
+			cards.add( new QACard( fmtQ, ast.getDefinition(), 
+					               cmapImg, textProcessor ) ) ;
+		}
+		
+		public String getObjIdSeed() { 
+			return this.ast.getTerm() ; 
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "term", term ) ;
+			map.put( "definition", definition ) ;
 		}
 	}
 }

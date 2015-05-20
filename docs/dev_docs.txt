@@ -6,6 +6,21 @@ mvn install:install-file \
 -Dpackaging=jar \
 -DlocalRepositoryPath=/home/sandeep/projects/source/JoveNotesProcessor/repo
 
+QA            ( question_answer ) -> QA
+WM            ( word_meaning    ) -> QA, QA
+FIB           ( fib             ) -> FIB
+DEFINITION    ( definition      ) -> QA
+CHARACTER     ( character       ) -> QA
+TEACHER_NOTE  ( teacher_note    ) -> -
+MATCHING      ( matching        ) -> MATCHING
+EVENT         ( event           ) -> QA
+TRUE_FALSE    ( true_false      ) -> TF
+CHEM_EQUATION ( chem_equation   ) -> ?
+CHEM_COMPOUND ( chem_compound   ) -> QA, QA, QA
+SPELLBEE      ( spellbee        ) -> SPELLBEE
+IMAGE_LABEL   ( image_label     ) -> IMGLABEL
+EQUATION      ( equation        ) -> ? 
+
 TF       = VE (20)
 SPELLBEE = E  (40)
 MATCHING = ~slots (Cap at M 50)

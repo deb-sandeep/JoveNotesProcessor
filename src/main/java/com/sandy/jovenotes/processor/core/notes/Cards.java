@@ -91,7 +91,7 @@ public class Cards {
 		}
 		
 		public int getDifficultyLevel() {
-			int numWords = rawQuestion.split( "\\s+" ).length ;
+			int numWords = rawAnswer.split( "\\s+" ).length ;
 			double nDiff = (2/( 1 + Math.exp( -1*DIFFICULTY_FACTOR*numWords ))) - 1 ;
 			
 			return (int)Math.ceil( nDiff*100 ) ;
