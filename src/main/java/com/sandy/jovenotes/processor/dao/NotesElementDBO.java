@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -18,17 +19,20 @@ public class NotesElementDBO extends AbstractDBO {
 	
 	private static final Logger log = Logger.getLogger( NotesElementDBO.class ) ;
 
-	private int    notesElementId  = 0 ;
-	private int    chapterId       = 0 ;
+	private int    notesElementId  = -1 ;
+	private int    chapterId       = -1 ;
 	private String elementType     = null ;
 	private int    difficultyLevel = 0 ;
 	private String content         = null ;
 	private String objCorrelId     = null ;
 	
+	private boolean sourceTrace = false ;
+	private boolean isModified  = false ;
+	
 	private ChapterDBO chapter = null ;
 	private List<CardDBO> cards = new ArrayList<CardDBO>() ;
 	
-	public NotesElementDBO( AbstractNotesElement ne ) {
+	public NotesElementDBO( AbstractNotesElement ne ) throws Exception {
 		
 		elementType     = ne.getType() ;
 		difficultyLevel = ne.getDifficultyLevel() ;
@@ -111,6 +115,14 @@ public class NotesElementDBO extends AbstractDBO {
 			this.chapter = ChapterDBO.get( getChapterId() ) ;
 		}
 		return this.chapter ;
+	}
+	
+	public boolean isSourceTrace() {
+		return sourceTrace;
+	}
+
+	public boolean isModified() {
+		return isModified;
 	}
 
 	public static List<NotesElementDBO> getAll( ChapterDBO chapter )
@@ -220,25 +232,19 @@ public class NotesElementDBO extends AbstractDBO {
 	public void update() throws Exception {
 		
 		final String sql = 
-			"UPDATE `jove_notes`.`notes_elements` " +
+			"UPDATE `jove_notes`.`notes_element` " +
 			"SET " +
-			"`chapter_id` = ? " +
-			"`element_type` = ? " +
-			"`difficulty_level` = ? " +
+			"`difficulty_level` = ?, " +
 			"`content` = ? " +
-			"`obj_correl_id` = ? " +
 			"WHERE `notes_element_id` = ? " ;
 
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
 			logQuery( "NotesElementDBO::update", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
-			psmt.setInt    ( 1, getChapterId() ) ;
-			psmt.setString ( 2, getElementType() ) ;
-			psmt.setInt    ( 3, getDifficultyLevel() ) ;
-			psmt.setString ( 4, getContent() ) ;
-			psmt.setString ( 5, getObjCorrelId() ) ;
-			psmt.setInt    ( 6, getNotesElementId() ) ;
+			psmt.setInt    ( 1, getDifficultyLevel() ) ;
+			psmt.setString ( 2, getContent() ) ;
+			psmt.setInt    ( 3, getNotesElementId() ) ;
 			
 			psmt.executeUpdate() ;
 		}
@@ -250,7 +256,7 @@ public class NotesElementDBO extends AbstractDBO {
 	public void delete() throws Exception {
 		
 		final String sql = 
-			"DELETE FROM `jove_notes`.`notes_elements` WHERE `notes_element_id` = ?" ;
+			"DELETE FROM `jove_notes`.`notes_element` WHERE `notes_element_id` = ?" ;
 
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
@@ -262,6 +268,77 @@ public class NotesElementDBO extends AbstractDBO {
 		}
 		finally {
 			JoveNotes.db.returnConnection( conn ) ;
+		}
+	}
+	
+	public void trace( AbstractNotesElement ne ) throws Exception {
+		
+		if( !getObjCorrelId().equals( ne.getObjId() ) ) {
+			throw new Exception( "Correlation id for NEDBO and NE don't match." ) ;
+		}
+		
+		log.debug( "\t    Existing notes element found. id=" + getNotesElementId() ) ;
+		log.debug( "\t      Tracing cards..." ) ;
+		
+		this.sourceTrace = true ;
+		Map<String, CardDBO> dboMap = new HashMap<String, CardDBO>() ;
+		for( CardDBO dbo : cards ) {
+			dboMap.put( dbo.getObjCorrelId(), dbo ) ;
+		}
+		
+		for( AbstractCard card : ne.getCards() ) {
+			CardDBO cardDbo = dboMap.get( card.getObjId() ) ;
+			if( cardDbo == null ) {
+				cardDbo = new CardDBO( card ) ;
+				cardDbo.setChapterId( getChapterId() ) ;
+				cardDbo.setNotesElementId( getNotesElementId() ) ;
+				cards.add( cardDbo ) ;
+				log.debug( "\t      New card found..." ) ;
+			}
+			else {
+				cardDbo.trace( card ) ;
+			}
+		}
+
+		boolean contentEquals    = getContent().equals( ne.getContent() ) ;
+		boolean difficultyEquals = getDifficultyLevel() == ne.getDifficultyLevel() ;
+		
+		if( !( contentEquals && difficultyEquals ) ) {
+			log.debug( "\t      Notes element found modfied.. id=" + getNotesElementId() ) ;
+			this.isModified = true ;
+			this.content = ne.getContent() ;
+			this.difficultyLevel = ne.getDifficultyLevel() ;
+		}
+	}
+	
+	/**
+	 * This function processes the modifications done to the object tree by 
+	 * the trace function.
+	 */
+	public void processTrace() throws Exception {
+
+		if( getNotesElementId() == -1 ) {
+			log.debug( "\t  Notes element will be created." ) ;
+			create() ;
+			return ;
+		}
+		else if( isModified ) {
+			log.debug( "\t  Notes element will be updated. id=" + getNotesElementId() ) ;
+			update() ;
+			for( CardDBO cardDBO : cards ) {
+				cardDBO.processTrace() ;
+			}
+		}
+		else if( !sourceTrace ) {
+			log.debug( "\t  Notes element will be deleted. id=" + getNotesElementId() ) ;
+			delete() ;
+			return ;
+			// The associated cards will be cascade deleted at the database.
+			// No need to delete them explicitly.
+		}
+		
+		for( CardDBO dbo : cards ) {
+			dbo.processTrace() ;
 		}
 	}
 }

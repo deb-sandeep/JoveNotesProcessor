@@ -14,13 +14,14 @@ import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.NotesElement;
 import com.sandy.xtext.joveNotes.QuestionAnswer;
+import com.sandy.xtext.joveNotes.WordMeaning;
 
 public class NotesElements {
 	
 	private static Logger log = Logger.getLogger( NotesElements.class ) ;
 	
-	public static final String WM            = "word_meaning" ;
 	public static final String QA            = "question_answer" ;
+	public static final String WM            = "word_meaning" ;
 	public static final String FIB           = "fib" ;
 	public static final String DEFINITION    = "definition" ;
 	public static final String CHARACTER     = "character" ;
@@ -40,6 +41,9 @@ public class NotesElements {
 		
 		if( ast instanceof QuestionAnswer ){
 			notesElement = new QANotesElement( chapter, ( QuestionAnswer )ast ) ;
+		}
+		else if( ast instanceof WordMeaning ){
+			notesElement = new WMNotesElement( chapter, ( WordMeaning )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
@@ -157,7 +161,7 @@ public class NotesElements {
 			this.question = textProcessor.processText( ast.getQuestion() ) ;
 			this.answer   = textProcessor.processText( ast.getAnswer() ) ;
 			
-			cards.add( new QACard( this, ast, textProcessor ) ) ;
+			cards.add( new QACard( ast.getQuestion(), ast.getAnswer(), textProcessor ) ) ;
 		}
 		
 		public String getObjIdSeed() { 
@@ -167,6 +171,42 @@ public class NotesElements {
 		public void collectContentAttributes( Map<String, Object> map ) {
 			map.put( "question", question ) ;
 			map.put( "answer", answer ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class WMNotesElement extends AbstractNotesElement {
+		
+		private WordMeaning ast = null ;
+		
+		private String word = null ;
+		private String meaning   = null ;
+		
+		public WMNotesElement( Chapter chapter, WordMeaning ast ) {
+			super( QA, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			this.word    = textProcessor.processText( ast.getWord() ) ;
+			this.meaning = textProcessor.processText( ast.getMeaning() ) ;
+			
+			String wmQ = "_What is the meaning of_\n\n**" + ast.getWord() + "**" ;
+			String mqQ = "_Which word means_\n\n" + ast.getMeaning() ;
+			
+			cards.add( new QACard( wmQ, ast.getMeaning(), textProcessor ) ) ;
+			cards.add( new QACard( mqQ, ast.getWord(), textProcessor ) ) ;
+		}
+		
+		public String getObjIdSeed() { 
+			return this.ast.getWord() ; 
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "word", word ) ;
+			map.put( "meaning", meaning ) ;
 		}
 	}
 }

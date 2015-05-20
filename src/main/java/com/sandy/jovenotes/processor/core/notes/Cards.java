@@ -5,11 +5,8 @@ import java.util.Map;
 
 import org.json.simple.JSONValue;
 
-import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
-import com.sandy.jovenotes.processor.core.notes.NotesElements.QANotesElement;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
-import com.sandy.xtext.joveNotes.QuestionAnswer;
 
 public class Cards {
 
@@ -25,17 +22,11 @@ public class Cards {
 	// -------------------------------------------------------------------------
 	public static abstract class AbstractCard {
 		
-		private AbstractNotesElement notesElement = null ;
 		private String type = null ;
 		private String objId = null ;
 		
-		public AbstractCard( String type, AbstractNotesElement notesElement ) {
+		public AbstractCard( String type ) {
 			this.type = type ;
-			this.notesElement = notesElement ;
-		}
-		
-		public AbstractNotesElement getNotesElement(){ 
-			return this.notesElement; 
 		}
 		
 		public String getType() {
@@ -50,7 +41,7 @@ public class Cards {
 			return this.objId ;
 		} ;
 		
-		public String getContent() {
+		public String getContent() throws Exception {
 			Map<String, Object> map = new LinkedHashMap<String, Object>() ;
 			
 			collectContentAttributes( map ) ;
@@ -63,7 +54,8 @@ public class Cards {
 		
 		public abstract int getDifficultyLevel() ;
 		
-		protected abstract void collectContentAttributes( Map<String, Object> map ) ; 
+		protected abstract void collectContentAttributes( Map<String, Object> map ) 
+			throws Exception ; 
 	}
 	
 	// -------------------------------------------------------------------------
@@ -71,34 +63,36 @@ public class Cards {
 		
 		private static final double DIFFICULTY_FACTOR = 0.037505 ;
 		
-		private QuestionAnswer ast = null ;
-		private String question = null ;
-		private String answer = null ;
+		private String rawQuestion = null ;
+		private String rawAnswer = null ;
 		
-		public QACard( QANotesElement notesElement, QuestionAnswer ast, 
-				       JNTextProcessor textProcessor ) 
+		private JNTextProcessor textProcessor = null ;
+		
+		public QACard( String rawQ, String rawA, JNTextProcessor textProcessor ) 
 			throws Exception {
 			
-			super( QA, notesElement ) ;
-			this.ast      = ast ;
-			this.question = textProcessor.processText( ast.getQuestion() ) ;
-			this.answer   = textProcessor.processText( ast.getAnswer() ) ;
+			super( QA ) ;
+			this.textProcessor = textProcessor ;
+			this.rawQuestion   = rawQ ;
+			this.rawAnswer     = rawA ;
 		}
 		
 		public String getObjIdSeed() { 
-			return ast.getQuestion() ;
+			return this.rawQuestion ;
 		}
 		
 		public int getDifficultyLevel() {
-			int numWords = ast.getAnswer().split( "\\s+" ).length ;
+			int numWords = rawQuestion.split( "\\s+" ).length ;
 			double nDiff = (2/( 1 + Math.exp( -1*DIFFICULTY_FACTOR*numWords ))) - 1 ;
 			
 			return (int)Math.ceil( nDiff*100 ) ;
 		}
 		
-		public void collectContentAttributes( Map<String, Object> map ) {
-			map.put( "question", question ) ;
-			map.put( "answer", answer ) ;
+		public void collectContentAttributes( Map<String, Object> map ) 
+			throws Exception {
+			
+			map.put( "question", textProcessor.processText( rawQuestion ) ) ;
+			map.put( "answer",   textProcessor.processText( rawAnswer ) ) ;
 		}
 	}
 }

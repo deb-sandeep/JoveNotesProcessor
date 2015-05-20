@@ -16,9 +16,9 @@ public class CardDBO extends AbstractDBO {
 	
 	private static final Logger log = Logger.getLogger( CardDBO.class ) ;
 
-	private int    cardId          = 0 ;
-	private int    notesElementId  = 0 ;
-	private int    chapterId       = 0 ;
+	private int    cardId          = -1 ;
+	private int    notesElementId  = -1 ;
+	private int    chapterId       = -1 ;
 	private String cardType        = null ;
 	private int    difficultyLevel = 0 ;
 	private String content         = null ;
@@ -27,7 +27,11 @@ public class CardDBO extends AbstractDBO {
 	private ChapterDBO chapter = null ;
 	private NotesElementDBO notesElement = null ;
 	
-	public CardDBO( AbstractCard card ) {
+	private boolean sourceTrace = false ;
+	private boolean isModified  = false ;
+	
+	public CardDBO( AbstractCard card ) throws Exception {
+		
 		this.cardType        = card.getType() ;
 		this.difficultyLevel = card.getDifficultyLevel() ;
 		this.content         = card.getContent() ;
@@ -43,6 +47,27 @@ public class CardDBO extends AbstractDBO {
 		difficultyLevel = rs.getInt    ( "difficulty_level" ) ;
 		content         = rs.getString ( "content"          ) ;
 		objCorrelId     = rs.getString ( "obj_correl_id"    ) ;		
+	}
+	
+	public void trace( AbstractCard card ) throws Exception {
+		
+		if( !getObjCorrelId().equals( card.getObjId() ) ) {
+			throw new Exception( "Correlation id for CardDBO and Card don't match." ) ;
+		}
+		
+		log.debug( "\t        Existing card found. id=" + getCardId() ) ;
+		
+		this.sourceTrace = true ;
+
+		boolean contentEquals    = getContent().equals( card.getContent() ) ;
+		boolean difficultyEquals = getDifficultyLevel() == card.getDifficultyLevel() ;
+		
+		if( !( contentEquals && difficultyEquals ) ) {
+			log.debug( "\t           Card found modififed. id=" + getCardId() ) ;
+			this.isModified = true ;
+			this.content = card.getContent() ;
+			this.difficultyLevel = card.getDifficultyLevel() ;
+		}
 	}
 	
 	public int getCardId() {
@@ -115,6 +140,14 @@ public class CardDBO extends AbstractDBO {
 
 	public void setNotesElement(NotesElementDBO notesElement) {
 		this.notesElement = notesElement;
+	}
+
+	public boolean isSourceTrace() {
+		return sourceTrace;
+	}
+
+	public boolean isModified() {
+		return isModified;
 	}
 
 	public static List<CardDBO> getAll( int chapterId )
@@ -201,25 +234,17 @@ public class CardDBO extends AbstractDBO {
 		final String sql = 
 			"UPDATE `jove_notes`.`card` " +
 			"SET " +
-			"`notes_element_id` = ? " +
-			"`chapter_id` = ? " +
-			"`card_type` = ? " +
-			"`difficulty_level` = ? " +
+			"`difficulty_level` = ?, " +
 			"`content` = ? " +
-			"`obj_correl_id` = ? " +
 			"WHERE `card_id` = ? " ;
 
 		Connection conn = JoveNotes.db.getConnection() ;
 		try {
 			logQuery( "CardDBO::update", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
-			psmt.setInt    ( 1, getNotesElementId() ) ;
-			psmt.setInt    ( 2, getChapterId() ) ;
-			psmt.setString ( 3, getCardType() ) ;
-			psmt.setInt    ( 4, getDifficultyLevel() ) ;
-			psmt.setString ( 5, getContent() ) ;
-			psmt.setString ( 6, getObjCorrelId() ) ;
-			psmt.setInt    ( 7, getCardId() ) ;
+			psmt.setInt    ( 1, getDifficultyLevel() ) ;
+			psmt.setString ( 2, getContent() ) ;
+			psmt.setInt    ( 3, getCardId() ) ;
 			
 			psmt.executeUpdate() ;
 		}
@@ -243,6 +268,26 @@ public class CardDBO extends AbstractDBO {
 		}
 		finally {
 			JoveNotes.db.returnConnection( conn ) ;
+		}
+	}
+	
+	/**
+	 * This function processes the modifications done to the object tree by 
+	 * the trace function.
+	 */
+	public void processTrace() throws Exception {
+
+		if( getCardId() == -1 ) {
+			log.debug( "\t  Card will be created." ) ;
+			create() ;
+		}
+		else if( isModified ) {
+			log.debug( "\t  Card will be updated. id=" + getCardId() ) ;
+			update() ;
+		}
+		else if( !sourceTrace ) {
+			log.debug( "\t  Card will be deleted. id=" + getCardId() ) ;
+			delete() ;
 		}
 	}
 }

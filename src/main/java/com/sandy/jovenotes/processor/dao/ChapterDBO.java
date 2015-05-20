@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -27,8 +29,11 @@ public class ChapterDBO extends AbstractDBO {
 	private String chapterFQN = null ;
 	
 	private List<NotesElementDBO> notesElements = null ;
+	boolean tracedToSourceObjModel = false ;
 	
-	public ChapterDBO( Chapter chapter ) {
+	boolean isModified = false ;
+	
+	public ChapterDBO( Chapter chapter ) throws Exception {
 		
 		chapterFQN   = chapter.getChapterFQN() ;
 		
@@ -51,6 +56,8 @@ public class ChapterDBO extends AbstractDBO {
 		subChapterNum = rs.getInt    ( "sub_chapter_num" ) ;
 		chapterName   = rs.getString ( "chapter_name"    ) ;
 		isTestPaper   = rs.getBoolean( "is_test_paper"   ) ;
+		
+		notesElements = NotesElementDBO.getAll( this ) ;
 	}
 	
 	public boolean isTestPaper() {
@@ -105,10 +112,6 @@ public class ChapterDBO extends AbstractDBO {
 	}
 	
 	public List<NotesElementDBO> getNotesElements() throws Exception {
-		
-		if( this.notesElements == null ) {
-			this.notesElements = NotesElementDBO.getAll( this ) ;
-		}
 		return this.notesElements ;
 	}
 
@@ -259,10 +262,6 @@ public class ChapterDBO extends AbstractDBO {
 		final String sql = 
 			"UPDATE `jove_notes`.`chapter` " +
 			"SET " +
-			"`is_test_paper` = ? " +
-			"`syllabus_name` = ? " +
-			"`chapter_num` = ? " +
-			"`sub_chapter_num` = ? " +
 			"`chapter_name` = ? " +
 			"WHERE `chapter_id` = ? " ;
 
@@ -270,12 +269,8 @@ public class ChapterDBO extends AbstractDBO {
 		try {
 			logQuery( "ChapterDBO::update", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
-			psmt.setBoolean( 1, isTestPaper() ) ;
-			psmt.setString ( 2, getSyllabusName() ) ;
-			psmt.setInt    ( 3, getChapterNum() ) ;
-			psmt.setInt    ( 4, getSubChapterNum() ) ;
-			psmt.setString ( 5, getChapterName() ) ;
-			psmt.setInt    ( 6, getChapterId() ) ;
+			psmt.setString ( 1, getChapterName() ) ;
+			psmt.setInt    ( 2, getChapterId() ) ;
 			
 			psmt.executeUpdate() ;
 		}
@@ -299,6 +294,83 @@ public class ChapterDBO extends AbstractDBO {
 		}
 		finally {
 			JoveNotes.db.returnConnection( conn ) ;
+		}
+	}
+	
+	/**
+	 * Traces the source object model into the database object model. The tracing
+	 * process can have the following consequences:
+	 * 
+	 * 1. Each of NotesElementDBO and CardDBO will have their 'sourceTrace'
+	 *    flag set to true or false depending on whether the corresponding source
+	 *    object was found.
+	 *    
+	 * 1.1 If for a source object a database object correlation is not found,
+	 *    a new DBO object is added to the databse object tree. Note that the
+	 *    new DBO objects will have their foreign key reference fields and thei
+	 *    own ids set as -1 (since they don't exist in the database yet). For
+	 *    these new DBOs, the sourceTrace flag will be false.
+	 *    
+	 * 2. If the 'sourceTrace' is true (source mapping found), a corresponding
+	 *    flag 'isModified' is set to true if it is found that the source object
+	 *    content and the database object content do not match.
+	 *    
+	 * @param chapter The source object model
+	 */
+	public void trace( Chapter chapter ) throws Exception {
+		
+		log.debug( "\tTracing source model to database model." ) ;
+		
+		Map<String, NotesElementDBO> dboMap = new HashMap<String, NotesElementDBO>() ;
+		for( NotesElementDBO dbo : notesElements ) {
+			dboMap.put( dbo.getObjCorrelId(), dbo ) ;
+		}
+		
+		for( AbstractNotesElement ne : chapter.getNotesElements() ) {
+			
+			String objId = ne.getObjId() ;
+			NotesElementDBO newDbo = dboMap.get( objId ) ;
+			
+			if( newDbo == null ) {
+				newDbo = new NotesElementDBO( ne ) ;
+				newDbo.setChapterId( this.getChapterId() ) ;
+				notesElements.add( newDbo ) ;
+				log.debug( "\t    New notes element found." ) ;
+			}
+			else {
+				newDbo.trace( ne ) ;
+			}
+		}
+		
+		if( !chapter.getChapterName().equals( getChapterName() ) ) {
+			isModified = true ;
+			this.chapterName = chapter.getChapterName() ;
+		}
+		
+		tracedToSourceObjModel = true ;
+	}
+	
+	/**
+	 * This function processes the modifications done to the object tree by 
+	 * the trace function.
+	 */
+	public void processTrace() throws Exception {
+		
+		// Safeguard - enforcing that the object model be traced first before
+		// this method is called. Else this method will wipe out all the data
+		// since all the elements will be found not traced to source.
+		if( !tracedToSourceObjModel ) {
+			throw new Exception( "Can't process. Trace has not been called." ) ;
+		}
+		
+		log.debug( "\tProcessing trace." ) ;
+		if( isModified ) {
+			log.debug( "\t  Chapter name being updated. id=" + getChapterId() ) ;
+			update();
+		}
+		
+		for( NotesElementDBO neDBO : notesElements ) {
+			neDBO.processTrace() ;
 		}
 	}
 }

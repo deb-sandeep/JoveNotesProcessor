@@ -38,12 +38,8 @@ public class SourceFileProcessor {
 		}
 		else {
 			log.debug( "\tChapter " + chapter + " is present in database." ) ;
-			//      Load full database object model
-			//      Trace database->source models
-			// 		From the traced models, determine
-			// 			1. New elements (notes, cards) 
-			// 			2. Changed elements (notes, cards)
-			// 			3. Deleted elements (notes, cards)
+			chapterDBO.trace( chapter ) ;
+			chapterDBO.processTrace() ;
 		}
 	}
 	
