@@ -216,4 +216,19 @@ public class Cards {
 			}
 		}
 	}
+
+	// -------------------------------------------------------------------------
+	public static class SpellbeeCard extends AbstractCard {
+		
+		private String objIdSeed = null ;
+		
+		public SpellbeeCard( String objIdSeed ) throws Exception {
+			super( SPELLBEE ) ;
+			this.objIdSeed     = objIdSeed ;
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		public int getDifficultyLevel() { return 10 ; }
+		public void collectContentAttributes( Map<String, Object> map ){} 
+	}
 }

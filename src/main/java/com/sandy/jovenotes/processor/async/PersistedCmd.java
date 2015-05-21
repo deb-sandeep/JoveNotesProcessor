@@ -2,6 +2,8 @@ package com.sandy.jovenotes.processor.async;
 
 import java.io.Serializable;
 
+import com.sandy.jovenotes.processor.core.notes.Chapter;
+
 /**
  * Superclass of all command data which are stored and processed via 
  * PersistentQueue.
@@ -20,6 +22,20 @@ import java.io.Serializable;
 public abstract class PersistedCmd implements Serializable {
 
 	private static final long serialVersionUID = -1919148238331312275L;
+	
+	protected String syllabusName = null ;
+	protected String subjectName  = null ;
+	protected int    chapterNum   = -1 ;
+	protected int    subChapterNum= -1 ;
+	
+	protected PersistedCmd( Chapter chapter ) {
+		this.syllabusName = chapter.getSyllabusName() ;
+		this.subjectName  = chapter.getSubjectName() ;
+		this.chapterNum   = chapter.getChapterNumber() ;
+		this.subChapterNum= chapter.getSubChapterNumber() ;
+	}
 
 	public abstract void execute() throws Exception ;
+	
+	public abstract String getUID() ;
 }

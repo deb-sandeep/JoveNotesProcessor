@@ -1,6 +1,7 @@
 package com.sandy.jovenotes.processor;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,11 +10,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.async.PersistedCmd;
+import com.sandy.jovenotes.processor.async.PersistentQueue;
+import com.sandy.jovenotes.processor.async.PersistentQueue.QueueElement;
 import com.sandy.jovenotes.processor.core.SourceFileProcessor;
 import com.sandy.jovenotes.processor.core.SourceProcessingJournal;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.Database;
-import com.sandy.jovenotes.processor.util.PersistentQueue;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 
 /**
@@ -27,7 +29,7 @@ public class JoveNotes {
 	
 	public static ConfigManager config = null ;
 	public static Database db = null ;
-	public static PersistentQueue<PersistedCmd> persistentQueue = null ;
+	public static PersistentQueue persistentQueue = null ;
 	
 	private SourceProcessingJournal journal = null ;
 	private XTextModelParser modelParser = null ;
@@ -56,8 +58,7 @@ public class JoveNotes {
 		db.returnConnection( db.getConnection() ) ;
 		log.debug( "\tDatabase initialized." ) ;
 		
-		File pqFile = new File( config.getWorkspaceDir(), "jove_notes.pq" ) ;
-		persistentQueue = new PersistentQueue<PersistedCmd>( pqFile ) ;
+		persistentQueue = new PersistentQueue() ;
 		log.debug( "\tPersistent Queue initialized." ) ;
 		
 		File journalFile = new File( config.getWorkspaceDir(), "jove_notes.journal" ) ;
@@ -68,7 +69,7 @@ public class JoveNotes {
 		log.debug( "" ) ;
 	}
 	
-	private void start(){
+	private void start() {
 		
 		List<File> filesForProcessing = getFilesForProcessing() ;
 		log.debug( "Processing files.." ) ;
@@ -83,6 +84,40 @@ public class JoveNotes {
 			catch( Exception e ) {
 				log.error( "Failure in processing " + file.getAbsolutePath(), e ) ;
 				journal.updateFailureProcessingStatus( file ) ;
+			}
+		}
+		
+		try {
+			processPersistedCommands() ;
+		} 
+		catch (Exception e) {
+			log.error( "Error processing perissted cmd", e ) ;
+		}
+	}
+	
+	private void processPersistedCommands() throws Exception {
+		
+		log.debug( "Processing persisted commands." ) ;
+		
+		int numCommands = persistentQueue.size() ;
+		for( int i=0; i<numCommands; i++ ) {
+			QueueElement qElement = null ;
+			PersistedCmd cmd = null ;
+			try {
+				qElement = persistentQueue.remove() ;
+				cmd = ( PersistedCmd )qElement.getObject() ;
+				cmd.execute() ;
+			} 
+			catch( Exception e ){
+				log.error( "\tPersisted command failed. Command = " + cmd, e ) ;
+				if( cmd != null ) {
+					try {
+						qElement.reCreate() ;
+					} 
+					catch (IOException e1) {
+						log.error( "\tCould not re-persist command. " + cmd, e1 ) ;
+					} 
+				}
 			}
 		}
 	}

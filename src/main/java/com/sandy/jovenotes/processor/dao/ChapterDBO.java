@@ -21,6 +21,7 @@ public class ChapterDBO extends AbstractDBO {
 	
 	private int    chapterId      = -1 ;
 	private String syllabusName   = null ;
+	private String subjectName    = null ;
 	private int    chapterNum     = 0 ;
 	private int    subChapterNum  = 0 ;
 	private String chapterName    = null ;
@@ -38,6 +39,7 @@ public class ChapterDBO extends AbstractDBO {
 		chapterFQN   = chapter.getChapterFQN() ;
 		
 		syllabusName = chapter.getSyllabusName() ;
+		subjectName  = chapter.getSubjectName() ;
 		chapterNum   = chapter.getChapterNumber() ;
 		subChapterNum= chapter.getSubChapterNumber() ;
 		chapterName  = chapter.getChapterName() ;
@@ -52,6 +54,7 @@ public class ChapterDBO extends AbstractDBO {
 		
 		chapterId     = rs.getInt    ( "chapter_id"      ) ;
 		syllabusName  = rs.getString ( "syllabus_name"   ) ;
+		subjectName   = rs.getString ( "subject_name"    ) ;
 		chapterNum    = rs.getInt    ( "chapter_num"     ) ;
 		subChapterNum = rs.getInt    ( "sub_chapter_num" ) ;
 		chapterName   = rs.getString ( "chapter_name"    ) ;
@@ -85,6 +88,14 @@ public class ChapterDBO extends AbstractDBO {
 
 	public void setSyllabusName(String syllabusName) {
 		this.syllabusName = syllabusName;
+	}
+	
+	public String getSubjectName() {
+		return subjectName;
+	}
+
+	public void setSubjectName(String subjectName) {
+		this.subjectName = subjectName;
 	}
 
 	public int getChapterNum() {
@@ -123,6 +134,7 @@ public class ChapterDBO extends AbstractDBO {
 		                   " `chapter`.`chapter_id`," + 
 		                   " `chapter`.`is_test_paper`," + 
                            " `chapter`.`syllabus_name`," +
+                           " `chapter`.`subject_name`," +
                            " `chapter`.`chapter_num`," +
                            " `chapter`.`sub_chapter_num`," +
                            " `chapter`.`chapter_name`" + 
@@ -152,6 +164,7 @@ public class ChapterDBO extends AbstractDBO {
 				" chapter_id, " + 
 			    " is_test_paper, " +
 				" syllabus_name, " +
+				" subject_name, " +
 				" chapter_num, " +
 				" sub_chapter_num, " +
 				" chapter_name " + 
@@ -159,6 +172,7 @@ public class ChapterDBO extends AbstractDBO {
 				" jove_notes.chapter " +
 				"WHERE " + 
 				" syllabus_name   = ? and " + 
+				" subject_name    = ? and " + 
 				" chapter_num     = ? and " + 
 				" sub_chapter_num = ? " ;
 
@@ -168,8 +182,9 @@ public class ChapterDBO extends AbstractDBO {
 			logQuery( "ChapterDBO::get", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setString ( 1, chapter.getSyllabusName() ) ;
-			psmt.setInt    ( 2, chapter.getChapterNumber() ) ;
-			psmt.setInt    ( 3, chapter.getSubChapterNumber() );
+			psmt.setString ( 2, chapter.getSubjectName() ) ;
+			psmt.setInt    ( 3, chapter.getChapterNumber() ) ;
+			psmt.setInt    ( 4, chapter.getSubChapterNumber() );
 			
 			ResultSet rs = psmt.executeQuery() ;
 			if( rs.next() ) {
@@ -189,6 +204,7 @@ public class ChapterDBO extends AbstractDBO {
 		                    " `chapter`.`chapter_id`," + 
 		                    " `chapter`.`is_test_paper`," + 
 			                " `chapter`.`syllabus_name`," +
+			                " `chapter`.`subject_name`," +
 			                " `chapter`.`chapter_num`," +
 			                " `chapter`.`sub_chapter_num`," +
 			                " `chapter`.`chapter_name`" + 
@@ -203,7 +219,6 @@ public class ChapterDBO extends AbstractDBO {
 			psmt.setInt( 1, chapterId ) ;
 			
 			ResultSet rs = psmt.executeQuery() ;
-			
 			if( rs.next() ) {
 				chapter = new ChapterDBO( rs ) ;
 			}
@@ -221,9 +236,10 @@ public class ChapterDBO extends AbstractDBO {
 		
 		final String sql = 
 		"INSERT INTO `jove_notes`.`chapter` " +
-		"(`is_test_paper`,`syllabus_name`, `chapter_num`, `sub_chapter_num`, `chapter_name`) " +
+		"(`is_test_paper`,`syllabus_name`, `subject_name`, " + 
+		" `chapter_num`, `sub_chapter_num`, `chapter_name`) " +
 		"VALUES " +
-		"( ?, ?, ?, ?, ? )" ;
+		"( ?, ?, ?, ?, ?, ? )" ;
 
 		int generatedId = -1 ;
 		Connection conn = JoveNotes.db.getConnection() ;
@@ -234,9 +250,10 @@ public class ChapterDBO extends AbstractDBO {
 			
 			psmt.setBoolean( 1, isTestPaper() ) ;
 			psmt.setString ( 2, getSyllabusName() ) ;
-			psmt.setInt    ( 3, getChapterNum() ) ;
-			psmt.setInt    ( 4, getSubChapterNum() ) ;
-			psmt.setString ( 5, getChapterName() ) ;
+			psmt.setString ( 3, getSubjectName() ) ;
+			psmt.setInt    ( 4, getChapterNum() ) ;
+			psmt.setInt    ( 5, getSubChapterNum() ) ;
+			psmt.setString ( 6, getChapterName() ) ;
 			
 			psmt.executeUpdate() ;
 			ResultSet rs = psmt.getGeneratedKeys() ;

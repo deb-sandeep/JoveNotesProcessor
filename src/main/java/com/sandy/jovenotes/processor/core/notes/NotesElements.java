@@ -8,10 +8,13 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 
+import com.sandy.jovenotes.processor.JoveNotes;
+import com.sandy.jovenotes.processor.async.SpellbeeCmd;
 import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.FIBCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.MatchCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.QACard;
+import com.sandy.jovenotes.processor.core.notes.Cards.SpellbeeCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.TrueFalseCard;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
@@ -22,6 +25,7 @@ import com.sandy.xtext.joveNotes.MatchPair;
 import com.sandy.xtext.joveNotes.Matching;
 import com.sandy.xtext.joveNotes.NotesElement;
 import com.sandy.xtext.joveNotes.QuestionAnswer;
+import com.sandy.xtext.joveNotes.Spellbee;
 import com.sandy.xtext.joveNotes.TeacherNote;
 import com.sandy.xtext.joveNotes.TrueFalse;
 import com.sandy.xtext.joveNotes.WordMeaning;
@@ -75,6 +79,9 @@ public class NotesElements {
 		}
 		else if( ast instanceof TrueFalse ){
 			notesElement = new TrueFalseElement( chapter, ( TrueFalse )ast ) ;
+		}
+		else if( ast instanceof Spellbee ){
+			notesElement = new SpellbeeElement( chapter, ( Spellbee )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
@@ -509,5 +516,35 @@ public class NotesElements {
 				map.put( "justification", justification ) ; 
 			}
 		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class SpellbeeElement extends AbstractNotesElement {
+		
+		private String word = null ;
+		private String objIdSeed = null ;
+		private Chapter chapter = null ;
+		
+		public SpellbeeElement( Chapter chapter, Spellbee ast ) {
+			super( SPELLBEE, chapter, ast ) ;
+			this.chapter = chapter ;
+			this.word = ast.getWord() ;
+			this.objIdSeed = this.word ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			SpellbeeCard card = new SpellbeeCard( objIdSeed ) ;
+			SpellbeeCmd  cmd = new SpellbeeCmd( chapter, word, super.getObjId(), card.getObjId() ) ;
+			
+			log.debug( "\tPersisting async spellbee command." ) ;
+			JoveNotes.persistentQueue.add( cmd ) ;
+			cards.add( card ) ;
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		
+		public void collectContentAttributes( Map<String, Object> map ){}
 	}
 }
