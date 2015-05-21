@@ -12,9 +12,12 @@ import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.QACard;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
+import com.sandy.xtext.joveNotes.Character;
 import com.sandy.xtext.joveNotes.Definition;
+import com.sandy.xtext.joveNotes.Event;
 import com.sandy.xtext.joveNotes.NotesElement;
 import com.sandy.xtext.joveNotes.QuestionAnswer;
+import com.sandy.xtext.joveNotes.TeacherNote;
 import com.sandy.xtext.joveNotes.WordMeaning;
 
 public class NotesElements {
@@ -41,13 +44,22 @@ public class NotesElements {
 		AbstractNotesElement notesElement = null ;
 		
 		if( ast instanceof QuestionAnswer ){
-			notesElement = new QANotesElement( chapter, ( QuestionAnswer )ast ) ;
+			notesElement = new QAElement( chapter, ( QuestionAnswer )ast ) ;
 		}
 		else if( ast instanceof WordMeaning ){
-			notesElement = new WMNotesElement( chapter, ( WordMeaning )ast ) ;
+			notesElement = new WMElement( chapter, ( WordMeaning )ast ) ;
 		}
 		else if( ast instanceof Definition ){
-			notesElement = new DefinitionNotesElement( chapter, ( Definition )ast ) ;
+			notesElement = new DefinitionElement( chapter, ( Definition )ast ) ;
+		}
+		else if( ast instanceof TeacherNote ){
+			notesElement = new TeacherNotesElement( chapter, ( TeacherNote )ast ) ;
+		}
+		else if( ast instanceof Character ){
+			notesElement = new CharacterElement( chapter, ( Character )ast ) ;
+		}
+		else if( ast instanceof Event ){
+			notesElement = new EventElement( chapter, ( Event )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
@@ -147,7 +159,7 @@ public class NotesElements {
 	}
 	
 	// -------------------------------------------------------------------------
-	public static class QANotesElement extends AbstractNotesElement {
+	public static class QAElement extends AbstractNotesElement {
 		
 		private QuestionAnswer ast = null ;
 		
@@ -155,7 +167,7 @@ public class NotesElements {
 		private String answer   = null ;
 		private String cmapImg  = null ;
 		
-		public QANotesElement( Chapter chapter, QuestionAnswer ast ) {
+		public QAElement( Chapter chapter, QuestionAnswer ast ) {
 			super( QA, chapter, ast ) ;
 			this.ast = ast ;
 		}
@@ -185,14 +197,14 @@ public class NotesElements {
 	}
 
 	// -------------------------------------------------------------------------
-	public static class WMNotesElement extends AbstractNotesElement {
+	public static class WMElement extends AbstractNotesElement {
 		
 		private WordMeaning ast = null ;
 		
 		private String word = null ;
 		private String meaning   = null ;
 		
-		public WMNotesElement( Chapter chapter, WordMeaning ast ) {
+		public WMElement( Chapter chapter, WordMeaning ast ) {
 			super( QA, chapter, ast ) ;
 			this.ast = ast ;
 		}
@@ -221,7 +233,7 @@ public class NotesElements {
 	}
 
 	// -------------------------------------------------------------------------
-	public static class DefinitionNotesElement extends AbstractNotesElement {
+	public static class DefinitionElement extends AbstractNotesElement {
 		
 		private Definition ast = null ;
 		
@@ -229,7 +241,7 @@ public class NotesElements {
 		private String definition = null ;
 		private String cmapImg    = null ;
 		
-		public DefinitionNotesElement( Chapter chapter, Definition ast ) {
+		public DefinitionElement( Chapter chapter, Definition ast ) {
 			super( QA, chapter, ast ) ;
 			this.ast = ast ;
 		}
@@ -257,6 +269,115 @@ public class NotesElements {
 		public void collectContentAttributes( Map<String, Object> map ) {
 			map.put( "term", term ) ;
 			map.put( "definition", definition ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class TeacherNotesElement extends AbstractNotesElement {
+		
+		private TeacherNote ast = null ;
+		
+		private String note       = null ;
+		private String cmapImg    = null ;
+		
+		public TeacherNotesElement( Chapter chapter, TeacherNote ast ) {
+			super( QA, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			this.cmapImg = textProcessor.processCMap( ast.getCmap() ) ;
+			this.note    = textProcessor.processText( ast.getNote() ) ;
+			
+			if( cmapImg != null ) {
+				this.note += "<p>{{@img " + this.cmapImg + "}}" ;
+			}
+		}
+		
+		public String getObjIdSeed() { 
+			return this.ast.getNote() ; 
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "note", this.note ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class CharacterElement extends AbstractNotesElement {
+		
+		private Character ast = null ;
+		
+		private String character  = null ;
+		private String estimate   = null ;
+		private String cmapImg    = null ;
+		
+		public CharacterElement( Chapter chapter, Character ast ) {
+			super( QA, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			this.cmapImg   = textProcessor.processCMap( ast.getCmap() ) ;
+			this.character = textProcessor.processText( ast.getCharacter() ) ;
+			this.estimate  = textProcessor.processText( ast.getEstimate() ) ; 
+			
+			if( cmapImg != null ) {
+				this.estimate += "<p>{{@img " + this.cmapImg + "}}" ;
+			}
+
+			String fmtQ = "_Give an estimate of_ '**" + ast.getCharacter() + "**'" ;
+			cards.add( new QACard( fmtQ, ast.getEstimate(), 
+					               cmapImg, textProcessor ) ) ;
+		}
+		
+		public String getObjIdSeed() { 
+			return this.ast.getCharacter() ; 
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "character", character ) ;
+			map.put( "estimate",  estimate ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class EventElement extends AbstractNotesElement {
+		
+		private Event ast = null ;
+		
+		private String time  = null ;
+		private String event = null ;
+		
+		public EventElement( Chapter chapter, Event ast ) {
+			super( QA, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			this.time  = textProcessor.processText( ast.getTime() ) ;
+			this.event = textProcessor.processText( ast.getEvent() ) ;
+			
+			String fmtTE = "_What happened in_ **" + ast.getTime() + "** ?" ;
+			String fmtET = "_What did the following happen_ **" + ast.getEvent() + "** ?" ;
+			
+			cards.add( new QACard( fmtTE, ast.getEvent(), textProcessor ) ) ;
+			cards.add( new QACard( fmtET, ast.getTime(), textProcessor ) ) ;
+		}
+		
+		public String getObjIdSeed() { 
+			return this.ast.getEvent() ; 
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "time",  time ) ;
+			map.put( "event", event ) ;
 		}
 	}
 }
