@@ -25,6 +25,7 @@ public class NotesElementDBO extends AbstractDBO {
 	private int    difficultyLevel = 0 ;
 	private String content         = null ;
 	private String objCorrelId     = null ;
+	private boolean ready          = true ;
 	
 	private boolean sourceTrace = false ;
 	private boolean isModified  = false ;
@@ -38,6 +39,7 @@ public class NotesElementDBO extends AbstractDBO {
 		difficultyLevel = ne.getDifficultyLevel() ;
 		content         = ne.getContent() ;
 		objCorrelId     = ne.getObjId() ;
+		ready           = ne.isReady() ;
 		
 		for( AbstractCard card : ne.getCards() ) {
 			cards.add( new CardDBO( card ) ) ;
@@ -53,7 +55,8 @@ public class NotesElementDBO extends AbstractDBO {
 		elementType     = rs.getString ( "element_type"     ) ;
 		difficultyLevel = rs.getInt    ( "difficulty_level" ) ;
 		content         = rs.getString ( "content"          ) ;
-		objCorrelId     = rs.getString ( "obj_correl_id"    ) ;		
+		objCorrelId     = rs.getString ( "obj_correl_id"    ) ;
+		ready           = rs.getBoolean( "ready"            ) ;
 	}
 	
 	public int getNotesElementId() {
@@ -124,6 +127,10 @@ public class NotesElementDBO extends AbstractDBO {
 	public boolean isModified() {
 		return isModified;
 	}
+	
+	public boolean isReady() {
+		return ready ;
+	}
 
 	public static List<NotesElementDBO> getAll( ChapterDBO chapter )
 			throws Exception {
@@ -137,7 +144,8 @@ public class NotesElementDBO extends AbstractDBO {
 			"`notes_element`.`element_type`, " +
 			"`notes_element`.`difficulty_level`, " +
 			"`notes_element`.`content`, " +
-			"`notes_element`.`obj_correl_id` " +
+			"`notes_element`.`obj_correl_id`, " +
+			"`notes_element`.`ready` " +
 			"FROM " +
 			"`jove_notes`.`notes_element` " +
 			"ORDER BY " + 
@@ -193,9 +201,10 @@ public class NotesElementDBO extends AbstractDBO {
 		
 		final String sql = 
 		"INSERT INTO `jove_notes`.`notes_element` " +
-		"(`chapter_id`, `element_type`, `difficulty_level`, `content`, `obj_correl_id`) " +
+		"(`chapter_id`, `element_type`, `difficulty_level`, " + 
+		"`content`, `obj_correl_id`, `ready` ) " +
 		"VALUES " +
-		"( ?, ?, ?, ?, ? )" ;
+		"( ?, ?, ?, ?, ?, ? )" ;
 
 		int generatedId = -1 ;
 		Connection conn = JoveNotes.db.getConnection() ;
@@ -209,6 +218,7 @@ public class NotesElementDBO extends AbstractDBO {
 			psmt.setInt    ( 3, getDifficultyLevel() ) ;
 			psmt.setString ( 4, getContent() ) ;
 			psmt.setString ( 5, getObjCorrelId() ) ;
+			psmt.setBoolean( 6, isReady() ) ;
 			
 			psmt.executeUpdate() ;
 			ResultSet rs = psmt.getGeneratedKeys() ;

@@ -26,12 +26,18 @@ public class Cards {
 		private String type = null ;
 		private String objId = null ;
 		
+		protected boolean ready = true ;
+		
 		public AbstractCard( String type ) {
 			this.type = type ;
 		}
 		
 		public String getType() {
 			return this.type ;
+		}
+		
+		public boolean isReady() {
+			return this.ready ;
 		}
 		
 		public final String getObjId() {
@@ -224,7 +230,8 @@ public class Cards {
 		
 		public SpellbeeCard( String objIdSeed ) throws Exception {
 			super( SPELLBEE ) ;
-			this.objIdSeed     = objIdSeed ;
+			this.objIdSeed = objIdSeed ;
+			super.ready = false ;
 		}
 		
 		public String getObjIdSeed() { return objIdSeed ; }

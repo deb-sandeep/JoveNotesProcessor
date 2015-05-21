@@ -23,6 +23,7 @@ public class CardDBO extends AbstractDBO {
 	private int    difficultyLevel = 0 ;
 	private String content         = null ;
 	private String objCorrelId     = null ;
+	private boolean ready          = true ;
 	
 	private ChapterDBO chapter = null ;
 	private NotesElementDBO notesElement = null ;
@@ -36,6 +37,7 @@ public class CardDBO extends AbstractDBO {
 		this.difficultyLevel = card.getDifficultyLevel() ;
 		this.content         = card.getContent() ;
 		this.objCorrelId     = card.getObjId() ;
+		this.ready           = card.isReady() ;
 	}
 	
 	private CardDBO( ResultSet rs ) throws Exception {
@@ -47,6 +49,7 @@ public class CardDBO extends AbstractDBO {
 		difficultyLevel = rs.getInt    ( "difficulty_level" ) ;
 		content         = rs.getString ( "content"          ) ;
 		objCorrelId     = rs.getString ( "obj_correl_id"    ) ;		
+		ready           = rs.getBoolean( "ready"            ) ;		
 	}
 	
 	public void trace( AbstractCard card ) throws Exception {
@@ -149,6 +152,10 @@ public class CardDBO extends AbstractDBO {
 	public boolean isModified() {
 		return isModified;
 	}
+	
+	public boolean isReady() {
+		return ready ;
+	}
 
 	public static List<CardDBO> getAll( int chapterId )
 			throws Exception {
@@ -163,7 +170,8 @@ public class CardDBO extends AbstractDBO {
 				"   `card`.`card_type`, " +
 				"   `card`.`difficulty_level`, " +
 				"   `card`.`content`, " +
-				"   `card`.`obj_correl_id` " +
+				"   `card`.`obj_correl_id`, " +
+				"   `card`.`ready` " +
 				" FROM " +
 				"   `jove_notes`.`card` " +
 				" WHERE " +
@@ -195,9 +203,10 @@ public class CardDBO extends AbstractDBO {
 		
 		final String sql = 
 		"INSERT INTO `jove_notes`.`card` " +
-		"(`notes_element_id`, `chapter_id`, `card_type`, `difficulty_level`, `content`, `obj_correl_id`) " +
+		"(`notes_element_id`, `chapter_id`, `card_type`, `difficulty_level`, " +
+		" `content`, `obj_correl_id`, `ready`) " +
 		"VALUES " +
-		"(?, ?, ?, ?, ?, ? )" ;
+		"(?, ?, ?, ?, ?, ?, ? )" ;
 
 		int generatedId = -1 ;
 		Connection conn = JoveNotes.db.getConnection() ;
@@ -212,6 +221,7 @@ public class CardDBO extends AbstractDBO {
 			psmt.setInt    ( 4, getDifficultyLevel() ) ;
 			psmt.setString ( 5, getContent() ) ;
 			psmt.setString ( 6, getObjCorrelId()  ) ;
+			psmt.setBoolean( 7, isReady() ) ;
 			
 			psmt.executeUpdate() ;
 			ResultSet rs = psmt.getGeneratedKeys() ;

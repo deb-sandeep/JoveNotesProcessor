@@ -96,6 +96,7 @@ public class NotesElements {
 		private String objId           = null ;
 		private int    difficultyLevel = -1 ;
 		private NotesElement ast       = null ;
+		protected boolean ready        = true ;
 		
 		protected Chapter chapter = null ;
 		protected List<AbstractCard> cards = new ArrayList<AbstractCard>() ;
@@ -116,6 +117,10 @@ public class NotesElements {
 		
 		public NotesElement getAST() {
 			return this.ast ;
+		}
+		
+		public boolean isReady() {
+			return this.ready ;
 		}
 		
 		public final String getObjId() {
@@ -539,6 +544,7 @@ public class NotesElements {
 			SpellbeeCmd  cmd = new SpellbeeCmd( chapter, word, super.getObjId(), card.getObjId() ) ;
 			
 			log.debug( "\tPersisting async spellbee command." ) ;
+			super.ready = false ;
 			JoveNotes.persistentQueue.add( cmd ) ;
 			cards.add( card ) ;
 		}
