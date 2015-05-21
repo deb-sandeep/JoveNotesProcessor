@@ -77,6 +77,16 @@
 		    <artifactId>json-simple</artifactId>
 		    <version>1.1.1</version>
 		</dependency>
+		<dependency>
+		    <groupId>com.wordnik</groupId>
+		    <artifactId>wordnik-java-client</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpclient</artifactId>
+		    <version>4.4.1</version>
+		</dependency>
         <dependency>
             <groupId>com.sandy.xtext.jovenotes</groupId>
             <artifactId>jovenotes.xtext</artifactId>
