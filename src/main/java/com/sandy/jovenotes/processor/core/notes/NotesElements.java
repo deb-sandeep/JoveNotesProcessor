@@ -9,15 +9,21 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 
 import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
+import com.sandy.jovenotes.processor.core.notes.Cards.FIBCard;
+import com.sandy.jovenotes.processor.core.notes.Cards.MatchCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.QACard;
+import com.sandy.jovenotes.processor.core.notes.Cards.TrueFalseCard;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.Character;
 import com.sandy.xtext.joveNotes.Definition;
 import com.sandy.xtext.joveNotes.Event;
+import com.sandy.xtext.joveNotes.MatchPair;
+import com.sandy.xtext.joveNotes.Matching;
 import com.sandy.xtext.joveNotes.NotesElement;
 import com.sandy.xtext.joveNotes.QuestionAnswer;
 import com.sandy.xtext.joveNotes.TeacherNote;
+import com.sandy.xtext.joveNotes.TrueFalse;
 import com.sandy.xtext.joveNotes.WordMeaning;
 
 public class NotesElements {
@@ -60,6 +66,15 @@ public class NotesElements {
 		}
 		else if( ast instanceof Event ){
 			notesElement = new EventElement( chapter, ( Event )ast ) ;
+		}
+		else if( ast instanceof com.sandy.xtext.joveNotes.FIB ){
+			notesElement = new FIBElement( chapter, ( com.sandy.xtext.joveNotes.FIB )ast ) ;
+		}
+		else if( ast instanceof Matching ){
+			notesElement = new MatchElement( chapter, ( Matching )ast ) ;
+		}
+		else if( ast instanceof TrueFalse ){
+			notesElement = new TrueFalseElement( chapter, ( TrueFalse )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
@@ -205,7 +220,7 @@ public class NotesElements {
 		private String meaning   = null ;
 		
 		public WMElement( Chapter chapter, WordMeaning ast ) {
-			super( QA, chapter, ast ) ;
+			super( WM, chapter, ast ) ;
 			this.ast = ast ;
 		}
 		
@@ -242,7 +257,7 @@ public class NotesElements {
 		private String cmapImg    = null ;
 		
 		public DefinitionElement( Chapter chapter, Definition ast ) {
-			super( QA, chapter, ast ) ;
+			super( DEFINITION, chapter, ast ) ;
 			this.ast = ast ;
 		}
 		
@@ -281,7 +296,7 @@ public class NotesElements {
 		private String cmapImg    = null ;
 		
 		public TeacherNotesElement( Chapter chapter, TeacherNote ast ) {
-			super( QA, chapter, ast ) ;
+			super( TEACHER_NOTE, chapter, ast ) ;
 			this.ast = ast ;
 		}
 		
@@ -315,7 +330,7 @@ public class NotesElements {
 		private String cmapImg    = null ;
 		
 		public CharacterElement( Chapter chapter, Character ast ) {
-			super( QA, chapter, ast ) ;
+			super( CHARACTER, chapter, ast ) ;
 			this.ast = ast ;
 		}
 		
@@ -354,7 +369,7 @@ public class NotesElements {
 		private String event = null ;
 		
 		public EventElement( Chapter chapter, Event ast ) {
-			super( QA, chapter, ast ) ;
+			super( EVENT, chapter, ast ) ;
 			this.ast = ast ;
 		}
 		
@@ -378,6 +393,121 @@ public class NotesElements {
 		public void collectContentAttributes( Map<String, Object> map ) {
 			map.put( "time",  time ) ;
 			map.put( "event", event ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class FIBElement extends AbstractNotesElement {
+		
+		private com.sandy.xtext.joveNotes.FIB ast = null ;
+		
+		private List<String> rawAnswers  = new ArrayList<String>() ;
+		private String       fmtQuestion = null ;
+		
+		public FIBElement( Chapter chapter, com.sandy.xtext.joveNotes.FIB ast ) {
+			super( FIB, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			this.fmtQuestion = textProcessor.processText( ast.getQuestion() ) ;
+			for( String ans : ast.getAnswers() ) {
+				this.rawAnswers.add( ans ) ;
+			}
+			cards.add( new FIBCard( ast.getQuestion(), rawAnswers, textProcessor ) ) ;
+		}
+		
+		public String getObjIdSeed() { 
+			StringBuilder seed = new StringBuilder() ;
+			for( String answer : rawAnswers ) {
+				seed.append( answer ) ;
+			}
+			return seed.toString() ;
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "question", fmtQuestion ) ;
+			map.put( "answers",  rawAnswers ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class MatchElement extends AbstractNotesElement {
+		
+		private Matching ast = null ;
+		
+		private List<List<String>> pairs = new ArrayList<List<String>>() ;
+		private String objIdSeed = "" ;
+		
+		public MatchElement( Chapter chapter, Matching ast ) {
+			super( MATCHING, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			for( MatchPair pair : ast.getPairs() ) {
+				
+				objIdSeed += pair.getMatchQuestion() ;
+				List<String> pairList = new ArrayList<String>() ;
+				pairList.add( textProcessor.processText( pair.getMatchQuestion() ) ) ;
+				pairList.add( textProcessor.processText( pair.getMatchAnswer() ) ) ;
+				this.pairs.add( pairList ) ;
+			}
+			
+			cards.add( new MatchCard( objIdSeed, pairs ) ) ;
+		}
+		
+		public String getObjIdSeed() { 
+			return objIdSeed ;
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "matchData", pairs ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class TrueFalseElement extends AbstractNotesElement {
+		
+		private TrueFalse ast = null ;
+		
+		private String  statement     = null ;
+		private boolean truthValue    = false ;
+		private String  justification = null ;
+		
+		private String objIdSeed = null ;
+		
+		public TrueFalseElement( Chapter chapter, TrueFalse ast ) {
+			super( TRUE_FALSE, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			statement = textProcessor.processText( ast.getStatement() ) ;
+			truthValue = Boolean.parseBoolean( ast.getTruthValue() ) ;
+			if( ast.getJustification() != null ) {
+				justification = textProcessor.processText( ast.getJustification() ) ;
+			}
+			
+			objIdSeed = ast.getStatement() ;
+			
+			cards.add( new TrueFalseCard( objIdSeed, statement, truthValue, justification ) ) ;
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		
+		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "statement", statement ) ;
+			map.put( "truthValue", new Boolean( truthValue ) ) ;
+			if( justification != null ) {
+				map.put( "justification", justification ) ; 
+			}
 		}
 	}
 }

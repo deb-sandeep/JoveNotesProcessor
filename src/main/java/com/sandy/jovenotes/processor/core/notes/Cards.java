@@ -1,6 +1,7 @@
 package com.sandy.jovenotes.processor.core.notes;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.simple.JSONValue;
@@ -102,6 +103,117 @@ public class Cards {
 			
 			map.put( "question", textProcessor.processText( rawQuestion ) ) ;
 			map.put( "answer",   textProcessor.processText( rawAnswer ) ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class FIBCard extends AbstractCard {
+		
+		private static final double DIFFICULTY_FACTOR = 0.67535 ;
+		private static final double X_SHIFT = -0.1 ;
+		private static final double MAX_LIMIT = 0.6 ;
+		
+		private String       rawQuestion = null ;
+		private List<String> rawAnswers  = null ;
+		
+		private JNTextProcessor textProcessor = null ;
+		
+		public FIBCard( String rawQ, List<String> answers, 
+				        JNTextProcessor textProcessor ) throws Exception {
+			
+			super( FIB ) ;
+			this.textProcessor = textProcessor ;
+			this.rawQuestion   = rawQ ;
+			this.rawAnswers    = answers ;
+		}
+		
+		public String getObjIdSeed() { 
+			StringBuilder seed = new StringBuilder() ;
+			for( String answer : rawAnswers ) {
+				seed.append( answer ) ;
+			}
+			return seed.toString() ;
+		}
+		
+		public int getDifficultyLevel() {
+			int x = rawAnswers.size() ;
+			double nDiff = (2*(1/(1+Math.exp(-1*DIFFICULTY_FACTOR*(x-X_SHIFT)))-.5))*MAX_LIMIT ;
+			return (int)Math.ceil( nDiff*100 ) ;
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) 
+			throws Exception {
+			
+			map.put( "question", textProcessor.processText( rawQuestion ) ) ;
+			map.put( "answer",   rawAnswers ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class MatchCard extends AbstractCard {
+		
+		private static final double DIFFICULTY_FACTOR = 0.26954 ;
+		private static final double X_SHIFT = 0.0 ;
+		private static final double MAX_LIMIT = 0.75 ;
+		
+		private List<List<String>> fmtMatchPairs = null ;
+		
+		private String objIdSeed = null ;
+		
+		public MatchCard( String objIdSeed, 
+				          List<List<String>> fmtMatchPairs ) throws Exception {
+			
+			super( MATCHING ) ;
+			this.objIdSeed = objIdSeed ;
+			this.fmtMatchPairs = fmtMatchPairs ;
+		}
+		
+		public String getObjIdSeed() { 
+			return objIdSeed ;
+		}
+		
+		public int getDifficultyLevel() {
+			int x = fmtMatchPairs.size() ;
+			double nDiff = (2*(1/(1+Math.exp(-1*DIFFICULTY_FACTOR*(x-X_SHIFT)))-.5))*MAX_LIMIT ;
+			return (int)Math.ceil( nDiff*100 ) ;
+		}
+		
+		public void collectContentAttributes( Map<String, Object> map ) 
+			throws Exception {
+			map.put( "matchData", fmtMatchPairs ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class TrueFalseCard extends AbstractCard {
+		
+		private String  statement     = null ;
+		private boolean truthValue    = false ;
+		private String  justification = null ;
+		
+		private String objIdSeed = null ;
+		
+		public TrueFalseCard( String objIdSeed, String statement,
+				              boolean truthValue, String justification ) 
+				            		  throws Exception {
+			super( TF ) ;
+			this.objIdSeed     = objIdSeed ;
+			this.statement     = statement ;
+			this.truthValue    = truthValue ;
+			this.justification = justification ;
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		
+		public int getDifficultyLevel() { return 20 ; }
+		
+		public void collectContentAttributes( Map<String, Object> map ) 
+			throws Exception {
+			map.put( "statement", statement ) ;
+			map.put( "truthValue", new Boolean( truthValue ) ) ;
+			if( justification != null ) {
+				map.put( "justification", justification ) ; 
+			}
 		}
 	}
 }
