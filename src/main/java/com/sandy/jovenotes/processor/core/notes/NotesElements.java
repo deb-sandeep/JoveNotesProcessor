@@ -21,6 +21,7 @@ import com.sandy.jovenotes.processor.core.notes.Cards.TrueFalseCard;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.Character;
+import com.sandy.xtext.joveNotes.ChemCompound;
 import com.sandy.xtext.joveNotes.Definition;
 import com.sandy.xtext.joveNotes.Event;
 import com.sandy.xtext.joveNotes.HotSpot;
@@ -89,6 +90,9 @@ public class NotesElements {
 		}
 		else if( ast instanceof ImageLabel ){
 			notesElement = new ImageLabelElement( chapter, ( ImageLabel )ast ) ;
+		}
+		else if( ast instanceof ChemCompound ){
+			notesElement = new ChemCompoundElement( chapter, ( ChemCompound )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
@@ -577,9 +581,9 @@ public class NotesElements {
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
-			log.debug( "\t\tInitializing image label." ) ;
-			objIdSeed += ast.getImageName() + ast.getHotspots().size() + 
-					     ast.getHotspots().get(0).getLabel() ;
+			log.debug( "\t\tInitializing image label notes element." ) ;
+			objIdSeed = ast.getImageName() + ast.getHotspots().size() + 
+					    ast.getHotspots().get(0).getLabel() ;
 			
 			textProcessor.processImg( ast.getImageName() ) ;
 			
@@ -603,6 +607,63 @@ public class NotesElements {
 		
 		public void collectContentAttributes( Map<String, Object> map ){
 			map.putAll( jsonAttrs ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class ChemCompoundElement extends AbstractNotesElement {
+		
+		private ChemCompound ast       = null ;
+		private String       objIdSeed = null ;
+		private String       symbol    = null ;
+		
+		public ChemCompoundElement( Chapter chapter, ChemCompound ast ) {
+			super( CHEM_COMPOUND, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			log.debug( "\t\tInitializing ChemCompound notes element." ) ;
+			objIdSeed = ast.getSymbol() ;
+			symbol    = "$$\\ce{" + ast.getSymbol() + "}$$" ;
+			
+			cards.add( new QACard( 
+					"_What is the formulae for_\n\n" + ast.getChemicalName(),
+					symbol, textProcessor ) ) ;
+			
+			cards.add( new QACard(
+					"_What is the chemical name of_\n\n" + symbol, 
+					ast.getChemicalName(), textProcessor ) ) ;
+			
+			if( ast.getCommonName() != null ) {
+				
+				cards.add( new QACard( 
+						"_What is the formulae for_\n\n" + ast.getCommonName(),
+						symbol, textProcessor ) ) ;
+				
+				cards.add( new QACard(
+						"_What is the chemical name of_\n\n" + ast.getCommonName(), 
+						ast.getChemicalName(), textProcessor ) ) ;
+				
+				cards.add( new QACard(
+						"_What is the common name of_\n\n" + ast.getChemicalName(), 
+						ast.getCommonName(), textProcessor ) ) ;
+				
+				cards.add( new QACard( 
+						"_What is the common name for_\n\n" + symbol,
+						ast.getCommonName(), textProcessor ) ) ;
+				
+			}
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		
+		public void collectContentAttributes( Map<String, Object> map ){
+			map.put( "symbol", symbol ) ;
+			map.put( "chemicalName", ast.getChemicalName() ) ;
+			map.put( "commonName",   ast.getCommonName() ) ;
 		}
 	}
 }

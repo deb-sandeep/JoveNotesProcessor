@@ -17,8 +17,8 @@ EVENT         ( event           ) -> QA
 TRUE_FALSE    ( true_false      ) -> TF
 SPELLBEE      ( spellbee        ) -> SPELLBEE
 IMAGE_LABEL   ( image_label     ) -> IMGLABEL
-CHEM_EQUATION ( chem_equation   ) -> ?
 CHEM_COMPOUND ( chem_compound   ) -> QA, QA, QA
+CHEM_EQUATION ( chem_equation   ) -> ?
 EQUATION      ( equation        ) -> ? 
 
 TF       = VE (20)
