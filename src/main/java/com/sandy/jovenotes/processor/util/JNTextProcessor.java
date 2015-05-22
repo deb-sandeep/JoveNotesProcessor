@@ -77,19 +77,21 @@ public class JNTextProcessor {
 		throws Exception {
 		
 		if( type.equals( "img" ) ) {
-			return processImgMarker( data ) ;
+			processImg( data ) ;
+			return null ;
 		}
+		
 		return null ;
 	}
 	
-	private String processImgMarker( String imgName ) 
+	public void processImg( String imgName ) 
 		throws Exception {
 		
 		// If the image name ends with .cmap.png, we do nothing. This is so 
 		// because cmap files are generated and stored in the media directory.
 		// CMap image files are not expected in the source folder.
 		if( imgName.endsWith( ".cmap.png" ) ) {
-			return null ;
+			return ;
 		}
 		
 		File srcFile  = new File( chapter.getSrcImagesFolder(), imgName ) ;
@@ -98,7 +100,7 @@ public class JNTextProcessor {
 		if( !srcFile.exists() ) {
 			log.error( "Source image file " + srcFile.getAbsolutePath() + 
 					   " does not exist." ) ;
-			return null ;
+			return ;
 		}
 		
 		if( destFile.exists() ) {
@@ -111,7 +113,6 @@ public class JNTextProcessor {
 			FileUtils.copyFile( srcFile, destFile ) ;
 		}
 		existingMediaFiles.remove( destFile ) ;
-		return null ;
 	}
 
 	public String processCMap( CMap ast )

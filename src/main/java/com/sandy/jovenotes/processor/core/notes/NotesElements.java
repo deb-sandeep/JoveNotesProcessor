@@ -1,6 +1,7 @@
 package com.sandy.jovenotes.processor.core.notes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import com.sandy.jovenotes.processor.JoveNotes;
 import com.sandy.jovenotes.processor.async.SpellbeeCmd;
 import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.FIBCard;
+import com.sandy.jovenotes.processor.core.notes.Cards.ImageLabelCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.MatchCard;
 import com.sandy.jovenotes.processor.core.notes.Cards.QACard;
 import com.sandy.jovenotes.processor.core.notes.Cards.SpellbeeCard;
@@ -21,6 +23,8 @@ import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.Character;
 import com.sandy.xtext.joveNotes.Definition;
 import com.sandy.xtext.joveNotes.Event;
+import com.sandy.xtext.joveNotes.HotSpot;
+import com.sandy.xtext.joveNotes.ImageLabel;
 import com.sandy.xtext.joveNotes.MatchPair;
 import com.sandy.xtext.joveNotes.Matching;
 import com.sandy.xtext.joveNotes.NotesElement;
@@ -82,6 +86,9 @@ public class NotesElements {
 		}
 		else if( ast instanceof Spellbee ){
 			notesElement = new SpellbeeElement( chapter, ( Spellbee )ast ) ;
+		}
+		else if( ast instanceof ImageLabel ){
+			notesElement = new ImageLabelElement( chapter, ( ImageLabel )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
@@ -552,5 +559,50 @@ public class NotesElements {
 		public String getObjIdSeed() { return objIdSeed ; }
 		
 		public void collectContentAttributes( Map<String, Object> map ){}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class ImageLabelElement extends AbstractNotesElement {
+		
+		private ImageLabel ast       = null ;
+		private String     objIdSeed = null ;
+		
+		private Map<String, Object> jsonAttrs = new HashMap<String, Object>() ;
+		
+		public ImageLabelElement( Chapter chapter, ImageLabel ast ) {
+			super( IMAGE_LABEL, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			log.debug( "\t\tInitializing image label." ) ;
+			objIdSeed += ast.getImageName() + ast.getHotspots().size() + 
+					     ast.getHotspots().get(0).getLabel() ;
+			
+			textProcessor.processImg( ast.getImageName() ) ;
+			
+			List<List<Object>> hsArray = new ArrayList<List<Object>>() ;
+			for( HotSpot hs : ast.getHotspots() ) {
+				List<Object> hsElement = new ArrayList<Object>() ;
+				hsElement.add( hs.getX() ) ;
+				hsElement.add( hs.getY() ) ;
+				hsElement.add( hs.getLabel() ) ;
+				hsArray.add( hsElement ) ;
+			}
+			
+			jsonAttrs.put( "caption",   ast.getCaption() ) ;
+			jsonAttrs.put( "imageName", ast.getImageName() ) ;
+			jsonAttrs.put( "hotSpots",  hsArray ) ;
+			
+			cards.add( new ImageLabelCard( objIdSeed, jsonAttrs ) ) ;
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		
+		public void collectContentAttributes( Map<String, Object> map ){
+			map.putAll( jsonAttrs ) ;
+		}
 	}
 }

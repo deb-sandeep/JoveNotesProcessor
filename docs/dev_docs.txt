@@ -15,10 +15,10 @@ TEACHER_NOTE  ( teacher_note    ) -> -
 MATCHING      ( matching        ) -> MATCHING
 EVENT         ( event           ) -> QA
 TRUE_FALSE    ( true_false      ) -> TF
-CHEM_EQUATION ( chem_equation   ) -> ?
-CHEM_COMPOUND ( chem_compound   ) -> QA, QA, QA
 SPELLBEE      ( spellbee        ) -> SPELLBEE
 IMAGE_LABEL   ( image_label     ) -> IMGLABEL
+CHEM_EQUATION ( chem_equation   ) -> ?
+CHEM_COMPOUND ( chem_compound   ) -> QA, QA, QA
 EQUATION      ( equation        ) -> ? 
 
 TF       = VE (20)
