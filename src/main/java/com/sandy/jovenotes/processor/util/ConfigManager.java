@@ -28,6 +28,7 @@ public class ConfigManager{
 	private static String CK_DB_USER       = "db.user" ;
 	private static String CK_DB_PWD        = "db.password" ;
 	private static String CK_GRAPHVIZ_PATH = "graphviz.dot.path" ;
+	private static String CK_WORDNIC_API   = "wordnic.api.key" ;
 	
 	private boolean showUsage            = false ;
 	private boolean showUI               = false ;
@@ -41,6 +42,7 @@ public class ConfigManager{
 	private String  databaseDriverName = null ;
 	private String  databaseUser       = null ;
 	private String  databasePassword   = null ;
+	private String  wordnicAPIKey      = null ;
 
 	public boolean isShowUsage()           { return this.showUsage; }
 	public boolean isShowUI()              { return this.showUI; }
@@ -54,6 +56,7 @@ public class ConfigManager{
 	public String getDatabaseDriverName() { return this.databaseDriverName; }
 	public String getDatabaseUser()       { return this.databaseUser; }
 	public String getDatabasePassword()   { return this.databasePassword; }
+	public String getWordnicAPIKey()      { return this.wordnicAPIKey; }
 	
 	// ------------------------------------------------------------------------
 	private Options clOptions = null ;
@@ -103,6 +106,13 @@ public class ConfigManager{
 		if( StringUtil.isEmptyOrNull( this.databasePassword ) ) {
 			this.databasePassword = config.getString( CK_DB_PWD ) ;
 		}
+		
+		if( StringUtil.isEmptyOrNull( this.wordnicAPIKey ) ) {
+			this.wordnicAPIKey = config.getString( CK_WORDNIC_API ) ;
+			if( this.wordnicAPIKey == null ) {
+				throw new Exception( "Wordnic API key not configured." ) ;
+			}
+		}
 	}
 	
 	private File getMandatoryDirFromConfig( String key, 
@@ -131,7 +141,8 @@ public class ConfigManager{
     public void printUsage() {
     	
     	String usageStr = "JoveNotes [huf] [--dbUser <database user>] " + 
-    	                  "[--dbPassword <database password>]" ;
+    	                  "[--dbPassword <database password>] " +
+    			          "[--wordnicKey <key>] ";
     	
         HelpFormatter helpFormatter = new HelpFormatter() ;
         helpFormatter.printHelp( 80, usageStr, null, this.clOptions, null ) ;
@@ -145,6 +156,7 @@ public class ConfigManager{
         options.addOption( "f", "Force process all files." ) ;
         options.addOption( null, "dbUser", true, "The database user name" ) ;
         options.addOption( null, "dbPassword", true, "The database password" ) ;
+        options.addOption( null, "wordnicKey", true, "Wordnic API key" ) ;
 
         return options ;
     }
@@ -168,6 +180,7 @@ public class ConfigManager{
             
         	this.databaseUser     = cmdLine.getOptionValue( "dbUser" ) ;
         	this.databasePassword = cmdLine.getOptionValue( "dbPassword" ) ;
+        	this.wordnicAPIKey    = cmdLine.getOptionValue( "wordnicKey" ) ;
         }
         catch ( Exception e ) {
             log.error( "Error parsing command line arguments.", e ) ;

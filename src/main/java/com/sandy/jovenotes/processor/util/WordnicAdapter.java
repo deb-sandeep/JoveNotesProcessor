@@ -3,14 +3,13 @@ package com.sandy.jovenotes.processor.util;
 import java.util.ArrayList ;
 import java.util.List ;
 
+import com.sandy.jovenotes.processor.JoveNotes;
 import com.wordnik.client.api.WordApi ;
 import com.wordnik.client.model.Definition ;
 import com.wordnik.client.model.TextPron;
 
 public class WordnicAdapter {
 
-    private static final String KEY = "cbc0e7787bf50e8d0e00400360b05e9acdee6298ab9944262" ;
-    
     public WordnicAdapter() {
     }
     
@@ -25,7 +24,8 @@ public class WordnicAdapter {
         List<String> definitions = new ArrayList<>() ;
         
         WordApi api = new WordApi() ;
-        api.getInvoker().addDefaultHeader( "api_key", KEY ) ;
+        api.getInvoker().addDefaultHeader( "api_key", 
+        		                           JoveNotes.config.getWordnicAPIKey() ) ;
         
         List<Definition> defs = api.getDefinitions(
                 word,     
@@ -47,7 +47,8 @@ public class WordnicAdapter {
     public String getPronounciation( String word ) throws Exception {
     	
         WordApi api = new WordApi() ;
-        api.getInvoker().addDefaultHeader( "api_key", KEY ) ;
+        api.getInvoker().addDefaultHeader( "api_key", 
+        		                           JoveNotes.config.getWordnicAPIKey() ) ;
         
         List<TextPron> pronounciations = api.getTextPronunciations( 
         		                               word, null, null, "false", 1 ) ;
