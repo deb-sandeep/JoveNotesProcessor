@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -40,6 +41,8 @@ public class JoveNotes {
 	
 	private void initialize( String[] args ) throws Exception {
 		log.debug( "Initializing JoveNotes processor." ) ;
+		
+		java.util.logging.Logger.getLogger("").setLevel( Level.WARNING ) ;
 		
 		modelParser = new XTextModelParser( "com.sandy.xtext.JoveNotesStandaloneSetup" ) ;
 		log.debug( "\tModel parser initialized." ) ;
