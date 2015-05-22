@@ -61,10 +61,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		try {
 			downloadSoundClip( clipFile ) ;
 			downloadDescription( descFile ) ;
-			
-			String pronunciation = new WordnicAdapter().getPronounciation( word ) ;
-			log.debug( "\t\tPronunciation = " + pronunciation ) ;
-			updateDatabase( pronunciation ) ;
+			downloadPronunciation() ;
 		} 
 		catch( Exception e ){
 			log.error( "Could not process spellbee command.", e ) ;
@@ -157,9 +154,19 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		}
 	}
 	
-	private void updateDatabase( String pronunciation ) throws Exception {
-		
+	private void downloadPronunciation() throws Exception {
+
 		int chapterId = getChapterId() ;
+		if( !pronunciationExists( chapterId ) ) {
+			String pronunciation = new WordnicAdapter().getPronounciation( word ) ;
+			log.debug( "\t\tPronunciation = " + pronunciation ) ;
+			updateDatabase( chapterId, pronunciation ) ;
+		}
+	}
+	
+	private void updateDatabase( int chapterId, String pronunciation ) 
+			throws Exception {
+		
 		if( chapterId != -1 ) {
 			
 			Map<String, String> jsonAttrs = new HashMap<String, String>() ;
@@ -236,6 +243,36 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 			JoveNotes.db.returnConnection( conn ) ;
 		}
 		return chapterId ;
+	}
+
+	private boolean pronunciationExists( int chapterId ) throws Exception {
+		
+		final String sql = 
+				"SELECT content " +
+				"FROM jove_notes.notes_element " +
+				"WHERE " +
+				" chapter_id = ? and obj_correl_id = ?" ;
+		
+		boolean exists = false ;
+		Connection conn = JoveNotes.db.getConnection() ;
+		try {
+			logQuery( "ChapterDBO::getAll", sql ) ;
+			PreparedStatement psmt = conn.prepareStatement( sql ) ;
+			psmt.setInt ( 1, chapterId ) ;
+			psmt.setString( 2, neObjId ) ;
+			
+			ResultSet rs = psmt.executeQuery() ;
+			if( rs.next() ) {
+				String existingContent = rs.getString(1).trim() ; 
+				if( !existingContent.equals( "{}" ) ) {
+					exists = true ;
+				}
+			}
+		}
+		finally {
+			JoveNotes.db.returnConnection( conn ) ;
+		}
+		return exists ;
 	}
 
 	public String getUID() {

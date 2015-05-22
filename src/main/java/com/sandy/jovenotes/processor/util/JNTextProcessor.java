@@ -98,9 +98,9 @@ public class JNTextProcessor {
 		File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
 		
 		if( !srcFile.exists() ) {
-			log.error( "Source image file " + srcFile.getAbsolutePath() + 
-					   " does not exist." ) ;
-			return ;
+			String msg = "Source image file " + srcFile.getAbsolutePath() + 
+					     " does not exist." ;
+			throw new Exception( msg ) ;
 		}
 		
 		if( destFile.exists() ) {
