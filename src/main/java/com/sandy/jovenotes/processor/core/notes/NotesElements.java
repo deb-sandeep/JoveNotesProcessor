@@ -23,6 +23,8 @@ import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.Character;
 import com.sandy.xtext.joveNotes.ChemCompound;
 import com.sandy.xtext.joveNotes.Definition;
+import com.sandy.xtext.joveNotes.EqSymbol;
+import com.sandy.xtext.joveNotes.Equation;
 import com.sandy.xtext.joveNotes.Event;
 import com.sandy.xtext.joveNotes.HotSpot;
 import com.sandy.xtext.joveNotes.ImageLabel;
@@ -93,6 +95,9 @@ public class NotesElements {
 		}
 		else if( ast instanceof ChemCompound ){
 			notesElement = new ChemCompoundElement( chapter, ( ChemCompound )ast ) ;
+		}
+		else if( ast instanceof Equation ){
+			notesElement = new EquationElement( chapter, ( Equation )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
@@ -481,7 +486,7 @@ public class NotesElements {
 				this.pairs.add( pairList ) ;
 			}
 			
-			cards.add( new MatchCard( objIdSeed, pairs ) ) ;
+			cards.add( new MatchCard( objIdSeed, null, pairs ) ) ;
 		}
 		
 		public String getObjIdSeed() { 
@@ -664,6 +669,63 @@ public class NotesElements {
 			map.put( "symbol", symbol ) ;
 			map.put( "chemicalName", ast.getChemicalName() ) ;
 			map.put( "commonName",   ast.getCommonName() ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class EquationElement extends AbstractNotesElement {
+		
+		private Equation ast       = null ;
+		private String   objIdSeed = null ;
+		
+		private String equation = null ;
+		private String descr    = null ;
+		List<List<String>> symbols = new ArrayList<List<String>>() ;
+		
+		public EquationElement( Chapter chapter, Equation ast ) {
+			super( CHEM_COMPOUND, chapter, ast ) ;
+			this.ast = ast ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			log.debug( "\t\tInitializing Equation notes element." ) ;
+			objIdSeed = ast.getEquation() ;
+			
+			// Wrapping the user supplied equation in $$ will ensure that it
+			// gets rendered by MathJax on the client. It can be argued that
+			// we should not be amalgamating view concerns in the core data.
+			// It's a potent objection! As of now, we are already doing a lot of
+			// view processing during source transformation (Markdown for example).
+			// I do believe that the core data should be render hint agnostic.
+			// Maybe this is one of the things I need to look at sometimes in the
+			// future iterations.
+			equation  = "$$" + ast.getEquation() + "$$" ;
+			descr     = textProcessor.processText( ast.getDescription() ) ;
+			
+			for( EqSymbol symbol : ast.getSymbols() ) {
+				List<String> pair = new ArrayList<String>() ;
+				pair.add( "\\(" + symbol.getSymbol() + "\\)" ) ;
+				pair.add( textProcessor.processText( symbol.getDescription() ) ) ;
+				symbols.add( pair ) ; 
+			}
+			
+			cards.add( new QACard( "_What is the equation for_\n\n" + descr, 
+					               equation, textProcessor ) ) ;
+			
+			String caption = "For the following equation, match the symbols. " + 
+			                 equation ;
+			cards.add( new MatchCard( objIdSeed, caption, symbols ) ) ;
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		
+		public void collectContentAttributes( Map<String, Object> map ){
+
+			map.put( "equation",    equation ) ;
+			map.put( "description", descr ) ;
+			map.put( "symbols",     symbols ) ;
 		}
 	}
 }

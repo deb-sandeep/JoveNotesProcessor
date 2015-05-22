@@ -163,15 +163,17 @@ public class Cards {
 		private static final double MAX_LIMIT = 0.75 ;
 		
 		private List<List<String>> fmtMatchPairs = null ;
+		private String caption = null ;
 		
 		private String objIdSeed = null ;
 		
-		public MatchCard( String objIdSeed, 
+		public MatchCard( String objIdSeed, String caption,
 				          List<List<String>> fmtMatchPairs ) throws Exception {
 			
 			super( MATCHING ) ;
 			this.objIdSeed = objIdSeed ;
 			this.fmtMatchPairs = fmtMatchPairs ;
+			this.caption = ( caption == null ) ? "Match the following" : caption ;
 		}
 		
 		public String getObjIdSeed() { 
@@ -186,6 +188,7 @@ public class Cards {
 		
 		public void collectContentAttributes( Map<String, Object> map ) 
 			throws Exception {
+			map.put( "caption", caption ) ;
 			map.put( "matchData", fmtMatchPairs ) ;
 		}
 	}
