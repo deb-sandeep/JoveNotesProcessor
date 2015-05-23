@@ -100,8 +100,7 @@ public class NotesElements {
 			notesElement = new EquationElement( chapter, ( Equation )ast ) ;
 		}
 		
-		log.debug( "\t  Built notes element. objId = " + notesElement.getObjId() + 
-				   ", type = " + notesElement.getType() );
+		log.debug( "\t  Built notes element. type = " + notesElement.getType() );
 		return notesElement ;
 	}
 
@@ -109,7 +108,6 @@ public class NotesElements {
 	public static abstract class AbstractNotesElement {
 		
 		private String type            = null ;
-		private String objId           = null ;
 		private int    difficultyLevel = -1 ;
 		private NotesElement ast       = null ;
 		protected boolean ready        = true ;
@@ -140,11 +138,7 @@ public class NotesElements {
 		}
 		
 		public final String getObjId() {
-			
-			if( this.objId == null ){
-				this.objId = StringUtil.getHash( "NE" + getType() + getObjIdSeed() ) ; 
-			}
-			return this.objId ;
+			return StringUtil.getHash( "NE" + getType() + getObjIdSeed() ) ; 
 		} ;
 		
 		public final int getDifficultyLevel() {
@@ -431,28 +425,29 @@ public class NotesElements {
 		
 		private List<String> rawAnswers  = new ArrayList<String>() ;
 		private String       fmtQuestion = null ;
+		private String       objIdSeed   = null ;
 		
 		public FIBElement( Chapter chapter, com.sandy.xtext.joveNotes.FIB ast ) {
 			super( FIB, chapter, ast ) ;
 			this.ast = ast ;
+			
+			StringBuilder seed = new StringBuilder() ;
+			for( String ans : ast.getAnswers() ) {
+				this.rawAnswers.add( ans ) ;
+				seed.append( ans ) ;
+			}
+			this.objIdSeed = seed.toString() ;
 		}
 		
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
 			this.fmtQuestion = textProcessor.processText( ast.getQuestion() ) ;
-			for( String ans : ast.getAnswers() ) {
-				this.rawAnswers.add( ans ) ;
-			}
 			cards.add( new FIBCard( ast.getQuestion(), rawAnswers, textProcessor ) ) ;
 		}
 		
 		public String getObjIdSeed() { 
-			StringBuilder seed = new StringBuilder() ;
-			for( String answer : rawAnswers ) {
-				seed.append( answer ) ;
-			}
-			return seed.toString() ;
+			return this.objIdSeed ;
 		}
 		
 		public void collectContentAttributes( Map<String, Object> map ) {
@@ -472,20 +467,20 @@ public class NotesElements {
 		public MatchElement( Chapter chapter, Matching ast ) {
 			super( MATCHING, chapter, ast ) ;
 			this.ast = ast ;
+			for( MatchPair pair : ast.getPairs() ) {
+				this.objIdSeed += pair.getMatchQuestion() ;
+			}
 		}
 		
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
 			for( MatchPair pair : ast.getPairs() ) {
-				
-				objIdSeed += pair.getMatchQuestion() ;
 				List<String> pairList = new ArrayList<String>() ;
 				pairList.add( textProcessor.processText( pair.getMatchQuestion() ) ) ;
 				pairList.add( textProcessor.processText( pair.getMatchAnswer() ) ) ;
 				this.pairs.add( pairList ) ;
 			}
-			
 			cards.add( new MatchCard( objIdSeed, null, pairs ) ) ;
 		}
 		
@@ -512,6 +507,7 @@ public class NotesElements {
 		public TrueFalseElement( Chapter chapter, TrueFalse ast ) {
 			super( TRUE_FALSE, chapter, ast ) ;
 			this.ast = ast ;
+			this.objIdSeed = ast.getStatement() ;
 		}
 		
 		public void initialize( JNTextProcessor textProcessor ) 
@@ -522,8 +518,6 @@ public class NotesElements {
 			if( ast.getJustification() != null ) {
 				justification = textProcessor.processText( ast.getJustification() ) ;
 			}
-			
-			objIdSeed = ast.getStatement() ;
 			
 			cards.add( new TrueFalseCard( objIdSeed, statement, truthValue, justification ) ) ;
 		}
@@ -551,6 +545,7 @@ public class NotesElements {
 			this.chapter = chapter ;
 			this.word = ast.getWord() ;
 			this.objIdSeed = this.word ;
+			super.ready = false ;
 		}
 		
 		public void initialize( JNTextProcessor textProcessor ) 
@@ -563,7 +558,6 @@ public class NotesElements {
 												card.getObjId() ) ;
 			
 			log.debug( "\tPersisting async spellbee command." ) ;
-			super.ready = false ;
 			JoveNotes.persistentQueue.add( cmd ) ;
 			cards.add( card ) ;
 		}
@@ -584,14 +578,14 @@ public class NotesElements {
 		public ImageLabelElement( Chapter chapter, ImageLabel ast ) {
 			super( IMAGE_LABEL, chapter, ast ) ;
 			this.ast = ast ;
+			this.objIdSeed = ast.getImageName() + ast.getHotspots().size() + 
+				             ast.getHotspots().get(0).getLabel() ;
 		}
 		
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
 			log.debug( "\t\tInitializing image label notes element." ) ;
-			objIdSeed = ast.getImageName() + ast.getHotspots().size() + 
-					    ast.getHotspots().get(0).getLabel() ;
 			
 			textProcessor.processImg( ast.getImageName() ) ;
 			
@@ -628,13 +622,13 @@ public class NotesElements {
 		public ChemCompoundElement( Chapter chapter, ChemCompound ast ) {
 			super( CHEM_COMPOUND, chapter, ast ) ;
 			this.ast = ast ;
+			this.objIdSeed = ast.getSymbol() ;
 		}
 		
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
 			log.debug( "\t\tInitializing ChemCompound notes element." ) ;
-			objIdSeed = ast.getSymbol() ;
 			symbol    = "$$\\ce{" + ast.getSymbol() + "}$$" ;
 			
 			cards.add( new QACard( 
@@ -688,13 +682,13 @@ public class NotesElements {
 		public EquationElement( Chapter chapter, Equation ast ) {
 			super( EQUATION, chapter, ast ) ;
 			this.ast = ast ;
+			this.objIdSeed = ast.getEquation() ;
 		}
 		
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
 			log.debug( "\t\tInitializing Equation notes element." ) ;
-			objIdSeed = ast.getEquation() ;
 			
 			// Wrapping the user supplied equation in $$ will ensure that it
 			// gets rendered by MathJax on the client. It can be argued that

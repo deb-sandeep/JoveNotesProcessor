@@ -164,6 +164,8 @@ public class NotesElementDBO extends AbstractDBO {
 			"`notes_element`.`ready` " +
 			"FROM " +
 			"`jove_notes`.`notes_element` " +
+			"WHERE " + 
+			"`notes_element`.`chapter_id` = ? " +
 			"ORDER BY " + 
 			"`notes_element`.`notes_element_id` ASC ";
 
@@ -171,6 +173,7 @@ public class NotesElementDBO extends AbstractDBO {
 		try {
 			logQuery( "NotesElementDBO::getAll", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
+			psmt.setInt( 1, chapter.getChapterId() ) ;
 			ResultSet rs = psmt.executeQuery() ;
 			
 			while( rs.next() ) {

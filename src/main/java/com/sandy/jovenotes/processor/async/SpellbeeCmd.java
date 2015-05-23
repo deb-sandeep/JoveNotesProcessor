@@ -201,7 +201,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 			jsonAttrs.put( "word", word ) ;
 			jsonAttrs.put( "pronunciation", pronunciation ) ;
 			json = JSONValue.toJSONString( jsonAttrs ) ;
-			updateReq     = true ;
+			updateReq = true ;
 		}
 		
 		if( difficultyLevel != existingDifficulty ) {

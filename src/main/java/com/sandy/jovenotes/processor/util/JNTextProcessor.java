@@ -42,6 +42,9 @@ public class JNTextProcessor {
 		
 		String output = processJoveNotesMarkers( input ) ;
 		output = pdProcessor.markdownToHtml( output ) ;
+		if( output.startsWith( "<p>" ) && output.endsWith( "</p>" ) ) {
+			output = output.substring( 3, output.length()-4 ) ;
+		}
 		return output ;
 	}
 	
