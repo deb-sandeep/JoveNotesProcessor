@@ -238,7 +238,7 @@ public class Cards {
 		}
 		
 		public String getObjIdSeed() { return objIdSeed ; }
-		public int getDifficultyLevel() { return 10 ; }
+		public int getDifficultyLevel() { return objIdSeed.length()*3 ; }
 		public void collectContentAttributes( Map<String, Object> map ){} 
 	}
 

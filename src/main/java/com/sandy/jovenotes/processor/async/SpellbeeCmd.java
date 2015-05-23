@@ -38,15 +38,21 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		  "http://dictionary.reference.com/browse/{{word}}?s=t" ;
 	
 	private String word = null ;
+	private int difficultyLevel = 0 ;
 	private String neObjId = null ;
 	private String cardObjId = null ;
 	
-	public SpellbeeCmd( Chapter chapter, String word, 
+	private transient int chapterId = 0 ;
+	private transient int existingDifficulty = 0 ;
+	private transient String existingContent = null ;
+	
+	public SpellbeeCmd( Chapter chapter, String word, int difficultyLevel, 
 			            String neObjId, String cardObjId ) {
 		
 		super( chapter ) ;
 		
 		this.word = word ;
+		this.difficultyLevel = difficultyLevel ;
 		this.neObjId = neObjId ;
 		this.cardObjId = cardObjId ;
 	}
@@ -61,7 +67,9 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		try {
 			downloadSoundClip( clipFile ) ;
 			downloadDescription( descFile ) ;
-			downloadPronunciation() ;
+			
+			loadExistingData() ;
+			updateContentAndDifficultyLevel() ;
 		} 
 		catch( Exception e ){
 			log.error( "Could not process spellbee command.", e ) ;
@@ -154,35 +162,61 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		}
 	}
 	
-	private void downloadPronunciation() throws Exception {
-
-		int chapterId = getChapterId() ;
-		if( !pronunciationExists( chapterId ) ) {
-			String pronunciation = new WordnicAdapter().getPronounciation( word ) ;
-			log.debug( "\t\tPronunciation = " + pronunciation ) ;
-			updateDatabase( chapterId, pronunciation ) ;
+	private void loadExistingData() throws Exception {
+		
+		chapterId = getChapterId() ;
+		final String sql = 
+				"SELECT content, difficulty_level " +
+				"FROM jove_notes.card " +
+				"WHERE " +
+				" chapter_id = ? and obj_correl_id = ?" ;
+		
+		Connection conn = JoveNotes.db.getConnection() ;
+		try {
+			logQuery( "ChapterDBO::getAll", sql ) ;
+			PreparedStatement psmt = conn.prepareStatement( sql ) ;
+			psmt.setInt ( 1, chapterId ) ;
+			psmt.setString( 2, cardObjId ) ;
+			
+			ResultSet rs = psmt.executeQuery() ;
+			if( rs.next() ) {
+				existingContent = rs.getString(1).trim() ;
+				existingDifficulty = rs.getInt(2) ;
+			}
+		}
+		finally {
+			JoveNotes.db.returnConnection( conn ) ;
 		}
 	}
 	
-	private void updateDatabase( int chapterId, String pronunciation ) 
-			throws Exception {
+	private void updateContentAndDifficultyLevel() throws Exception {
 		
-		if( chapterId != -1 ) {
-			
+		String json = existingContent ;
+		int    diff = existingDifficulty ;
+		boolean updateReq    = false ;
+		
+		if( existingContent.equals( "{}" ) ) {
+			String pronunciation = new WordnicAdapter().getPronounciation( word ) ;
 			Map<String, String> jsonAttrs = new HashMap<String, String>() ;
 			jsonAttrs.put( "word", word ) ;
 			jsonAttrs.put( "pronunciation", pronunciation ) ;
-			String json = JSONValue.toJSONString( jsonAttrs ) ;
-			
-			updateTable( chapterId, "notes_element", neObjId, json ) ;
-			updateTable( chapterId, "card", cardObjId, json ) ;
+			json = JSONValue.toJSONString( jsonAttrs ) ;
+			updateReq     = true ;
 		}
-		else {
-			throw new Exception( "Could not update database. Chapter not found." ) ;
+		
+		if( difficultyLevel != existingDifficulty ) {
+			diff = difficultyLevel ;
+			if( !updateReq ) updateReq = true ;
+		}
+		
+		if( updateReq ) {
+			updateTable( chapterId, "notes_element", neObjId,   json, diff ) ;
+			updateTable( chapterId, "card",          cardObjId, json, diff ) ;
 		}
 	}
 	
-	private void updateTable( int chapterId, String tableName, String uid, String json ) 
+	private void updateTable( int chapterId, String tableName, String uid, 
+			                  String json, int diffLevel ) 
 		throws Exception {
 		
 		log.debug( "\t\tUpdating table " + tableName ) ;
@@ -191,7 +225,8 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 				"UPDATE jove_notes." + tableName + " " +
 				"SET " +
 				" content = ?, " +
-				" ready=1 " + 
+				" ready=1 ," +
+				" difficulty_level=? " +
 				"WHERE " +
 				" chapter_id = ? and " +
 				" obj_correl_id  = ?" ;
@@ -201,8 +236,9 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 			logQuery( "ChapterDBO::getAll", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setString( 1, json ) ;
-			psmt.setInt( 2, chapterId ) ;
-			psmt.setString( 3, uid ) ;
+			psmt.setInt   ( 2, diffLevel ) ;
+			psmt.setInt   ( 3, chapterId ) ;
+			psmt.setString( 4, uid ) ;
 			
 			if( psmt.executeUpdate() == 0 ) {
 				throw new Exception( "Could not update " + tableName ) ;
@@ -243,36 +279,6 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 			JoveNotes.db.returnConnection( conn ) ;
 		}
 		return chapterId ;
-	}
-
-	private boolean pronunciationExists( int chapterId ) throws Exception {
-		
-		final String sql = 
-				"SELECT content " +
-				"FROM jove_notes.notes_element " +
-				"WHERE " +
-				" chapter_id = ? and obj_correl_id = ?" ;
-		
-		boolean exists = false ;
-		Connection conn = JoveNotes.db.getConnection() ;
-		try {
-			logQuery( "ChapterDBO::getAll", sql ) ;
-			PreparedStatement psmt = conn.prepareStatement( sql ) ;
-			psmt.setInt ( 1, chapterId ) ;
-			psmt.setString( 2, neObjId ) ;
-			
-			ResultSet rs = psmt.executeQuery() ;
-			if( rs.next() ) {
-				String existingContent = rs.getString(1).trim() ; 
-				if( !existingContent.equals( "{}" ) ) {
-					exists = true ;
-				}
-			}
-		}
-		finally {
-			JoveNotes.db.returnConnection( conn ) ;
-		}
-		return exists ;
 	}
 
 	public String getUID() {

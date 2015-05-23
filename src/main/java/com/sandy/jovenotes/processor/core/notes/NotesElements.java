@@ -557,7 +557,10 @@ public class NotesElements {
 				throws Exception {
 			
 			SpellbeeCard card = new SpellbeeCard( objIdSeed ) ;
-			SpellbeeCmd  cmd = new SpellbeeCmd( chapter, word, super.getObjId(), card.getObjId() ) ;
+			SpellbeeCmd  cmd = new SpellbeeCmd( chapter, word, 
+												card.getDifficultyLevel(), 
+												super.getObjId(), 
+												card.getObjId() ) ;
 			
 			log.debug( "\tPersisting async spellbee command." ) ;
 			super.ready = false ;
