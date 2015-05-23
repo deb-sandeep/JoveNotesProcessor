@@ -29,6 +29,7 @@ public class NotesElementDBO extends AbstractDBO {
 	
 	private boolean sourceTrace = false ;
 	private boolean isModified  = false ;
+	private boolean isDeleted   = false ;
 	
 	private ChapterDBO chapter = null ;
 	private List<CardDBO> cards = new ArrayList<CardDBO>() ;
@@ -131,7 +132,22 @@ public class NotesElementDBO extends AbstractDBO {
 	public boolean isReady() {
 		return ready ;
 	}
+	
+	public List<CardDBO> getCards() {
+		return this.cards ;
+	}
 
+	public boolean isDeleted() {
+		return isDeleted ;
+	}
+	
+	private void setDeleted( boolean deleted ) {
+		isDeleted = true ;
+		for( CardDBO card : cards ) {
+			card.setDeleted( true ) ;
+		}
+	}
+	
 	public static List<NotesElementDBO> getAll( ChapterDBO chapter )
 			throws Exception {
 			
@@ -275,13 +291,14 @@ public class NotesElementDBO extends AbstractDBO {
 			psmt.setInt ( 1, getNotesElementId() ) ;
 			
 			psmt.executeUpdate() ;
+			setDeleted( true ) ;
 		}
 		finally {
 			JoveNotes.db.returnConnection( conn ) ;
 		}
 	}
 	
-	public void trace( AbstractNotesElement ne ) throws Exception {
+	public boolean trace( AbstractNotesElement ne ) throws Exception {
 		
 		if( !getObjCorrelId().equals( ne.getObjId() ) ) {
 			throw new Exception( "Correlation id for NEDBO and NE don't match." ) ;
@@ -290,6 +307,7 @@ public class NotesElementDBO extends AbstractDBO {
 		log.debug( "\t    Existing notes element found. id=" + getNotesElementId() ) ;
 		log.debug( "\t      Tracing cards..." ) ;
 		
+		boolean updateRequired = false ;
 		this.sourceTrace = true ;
 		Map<String, CardDBO> dboMap = new HashMap<String, CardDBO>() ;
 		for( CardDBO dbo : cards ) {
@@ -303,22 +321,35 @@ public class NotesElementDBO extends AbstractDBO {
 				cardDbo.setChapterId( getChapterId() ) ;
 				cardDbo.setNotesElementId( getNotesElementId() ) ;
 				cards.add( cardDbo ) ;
+				if( !updateRequired ) updateRequired = true ;
 				log.debug( "\t      New card found..." ) ;
 			}
 			else {
-				cardDbo.trace( card ) ;
+				boolean bool = cardDbo.trace( card ) ;
+				if( !updateRequired && bool ) updateRequired = true ;
 			}
 		}
 
-		boolean contentEquals    = getContent().equals( ne.getContent() ) ;
-		boolean difficultyEquals = getDifficultyLevel() == ne.getDifficultyLevel() ;
-		
-		if( !( contentEquals && difficultyEquals ) ) {
-			log.debug( "\t      Notes element found modfied.. id=" + getNotesElementId() ) ;
-			this.isModified = true ;
-			this.content = ne.getContent() ;
-			this.difficultyLevel = ne.getDifficultyLevel() ;
+		// Only if the notes is ready - implying that it's content will not be 
+		// modified beyond this point, do we check for modification. This is 
+		// a special case and applies for special elements such as spell bee.
+		// In case of spell bee, the pronunciation is downloaded offline and 
+		// hence at this point, the card is not ready - consequently we don't
+		// have to check for modification.
+		if( ne.isReady() ) {
+			boolean contentEquals    = getContent().equals( ne.getContent() ) ;
+			boolean difficultyEquals = getDifficultyLevel() == ne.getDifficultyLevel() ;
+			
+			if( !( contentEquals && difficultyEquals ) ) {
+				log.debug( "\t      Notes element found modfied.. id=" + getNotesElementId() ) ;
+				this.isModified = true ;
+				this.content = ne.getContent() ;
+				this.difficultyLevel = ne.getDifficultyLevel() ;
+				if( !updateRequired ) updateRequired = true ;
+			}
 		}
+		
+		return updateRequired ;
 	}
 	
 	/**

@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
+import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
 import com.sandy.jovenotes.processor.core.notes.Chapter;
 import com.sandy.jovenotes.processor.dao.ChapterDBO;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
@@ -32,24 +33,35 @@ public class SourceFileProcessor {
 		// Retrieve the database object model if one exists
 		ChapterDBO chapterDBO = ChapterDBO.get( chapter ) ;
 		
+		boolean chapterUpdateRequired = true ;
 		if( chapterDBO == null ) {
 			log.debug( "\tChapter " + chapter + " does not exist." ) ;
-			insertNewChapter( chapter ) ;
+			chapterDBO = insertNewChapter( chapter ) ;
 		}
 		else {
 			log.debug( "\tChapter " + chapter + " is present in database." ) ;
-			chapterDBO.trace( chapter ) ;
-			chapterDBO.processTrace() ;
+			chapterUpdateRequired = chapterDBO.trace( chapter ) ;
+			if( chapterUpdateRequired ){
+				log.debug( "\tChapter update required. Processing trace." ) ;
+				chapterDBO.processTrace() ;
+			}
+		}
+		
+		if( chapterUpdateRequired ) {
+			log.debug( "\tChapter has been updated. Refreshing meta data." ) ;
+			com.sandy.jovenotes.processor.JoveNotes.persistentQueue.add( 
+				 new RefreshChapterCmd( chapter, chapterDBO.getChapterId() ) ) ;
 		}
 	}
 	
-	private void insertNewChapter( Chapter chapter ) 
+	private ChapterDBO insertNewChapter( Chapter chapter ) 
 		throws Exception {
 		
 		log.debug( "\tInserting new chapter." ) ;
 		ChapterDBO chapterDBO = new ChapterDBO( chapter ) ;
 		chapterDBO.create() ;
 		log.debug( "\tNew chapter created. id = " + chapterDBO.getChapterId() );
+		return chapterDBO ;
 	}
 	
 	private boolean shouldSkipProcessing( JoveNotes notesAST ) {

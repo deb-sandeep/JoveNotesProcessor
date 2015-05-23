@@ -33,6 +33,7 @@ public class ChapterDBO extends AbstractDBO {
 	boolean tracedToSourceObjModel = false ;
 	
 	boolean isModified = false ;
+	boolean isDeleted  = false ;
 	
 	public ChapterDBO( Chapter chapter ) throws Exception {
 		
@@ -126,6 +127,14 @@ public class ChapterDBO extends AbstractDBO {
 		return this.notesElements ;
 	}
 
+	public boolean isDeleted() {
+		return isDeleted ;
+	}
+	
+	public void setDeleted( boolean deleted ) {
+		this.isDeleted = true ;
+	}
+	
 	public static List<ChapterDBO> getAll() throws Exception {
 		
 		ArrayList<ChapterDBO> chapters = new ArrayList<ChapterDBO>() ;
@@ -308,6 +317,7 @@ public class ChapterDBO extends AbstractDBO {
 			psmt.setInt ( 1, getChapterId() ) ;
 			
 			psmt.executeUpdate() ;
+			setDeleted( true ) ;
 		}
 		finally {
 			JoveNotes.db.returnConnection( conn ) ;
@@ -333,10 +343,14 @@ public class ChapterDBO extends AbstractDBO {
 	 *    content and the database object content do not match.
 	 *    
 	 * @param chapter The source object model
+	 * 
+	 * @return true if an update to the chapter is required, false otherwise.
 	 */
-	public void trace( Chapter chapter ) throws Exception {
+	public boolean trace( Chapter chapter ) throws Exception {
 		
 		log.debug( "\tTracing source model to database model." ) ;
+		
+		boolean updateRequired = false ;
 		
 		Map<String, NotesElementDBO> dboMap = new HashMap<String, NotesElementDBO>() ;
 		for( NotesElementDBO dbo : notesElements ) {
@@ -346,16 +360,18 @@ public class ChapterDBO extends AbstractDBO {
 		for( AbstractNotesElement ne : chapter.getNotesElements() ) {
 			
 			String objId = ne.getObjId() ;
-			NotesElementDBO newDbo = dboMap.get( objId ) ;
+			NotesElementDBO dbo = dboMap.get( objId ) ;
 			
-			if( newDbo == null ) {
-				newDbo = new NotesElementDBO( ne ) ;
-				newDbo.setChapterId( this.getChapterId() ) ;
-				notesElements.add( newDbo ) ;
+			if( dbo == null ) {
+				dbo = new NotesElementDBO( ne ) ;
+				dbo.setChapterId( this.getChapterId() ) ;
+				notesElements.add( dbo ) ;
+				if( !updateRequired ) updateRequired = true ;
 				log.debug( "\t    New notes element found." ) ;
 			}
 			else {
-				newDbo.trace( ne ) ;
+				boolean bool = dbo.trace( ne ) ;
+				if( !updateRequired && bool )updateRequired = true ;
 			}
 		}
 		
@@ -365,6 +381,7 @@ public class ChapterDBO extends AbstractDBO {
 		}
 		
 		tracedToSourceObjModel = true ;
+		return updateRequired ;
 	}
 	
 	/**
@@ -380,7 +397,6 @@ public class ChapterDBO extends AbstractDBO {
 			throw new Exception( "Can't process. Trace has not been called." ) ;
 		}
 		
-		log.debug( "\tProcessing trace." ) ;
 		if( isModified ) {
 			log.debug( "\t  Chapter name being updated. id=" + getChapterId() ) ;
 			update();

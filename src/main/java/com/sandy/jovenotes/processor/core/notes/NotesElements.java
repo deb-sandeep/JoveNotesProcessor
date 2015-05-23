@@ -683,7 +683,7 @@ public class NotesElements {
 		List<List<String>> symbols = new ArrayList<List<String>>() ;
 		
 		public EquationElement( Chapter chapter, Equation ast ) {
-			super( CHEM_COMPOUND, chapter, ast ) ;
+			super( EQUATION, chapter, ast ) ;
 			this.ast = ast ;
 		}
 		
