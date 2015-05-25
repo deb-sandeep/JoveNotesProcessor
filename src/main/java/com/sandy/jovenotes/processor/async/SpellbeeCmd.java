@@ -198,7 +198,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		if( existingContent.equals( "{}" ) ) {
 			String pronunciation = new WordnicAdapter().getPronounciation( word ) ;
 			Map<String, String> jsonAttrs = new HashMap<String, String>() ;
-			jsonAttrs.put( "word", word ) ;
+			jsonAttrs.put( "word", word.toLowerCase() ) ;
 			jsonAttrs.put( "pronunciation", pronunciation ) ;
 			json = JSONValue.toJSONString( jsonAttrs ) ;
 			updateReq = true ;
@@ -243,6 +243,8 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 			if( psmt.executeUpdate() == 0 ) {
 				throw new Exception( "Could not update " + tableName ) ;
 			}
+			
+			log.debug( "Updated json " + json ) ;
 		}
 		finally {
 			JoveNotes.db.returnConnection( conn ) ;
