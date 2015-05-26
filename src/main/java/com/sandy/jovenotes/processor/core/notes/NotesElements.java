@@ -294,7 +294,7 @@ public class NotesElements {
 				this.definition += "<p>{{@img " + this.cmapImg + "}}" ;
 			}
 
-			String fmtQ = "_Define_'**" + ast.getTerm() + "**'" ;
+			String fmtQ = "_Define_  '**" + ast.getTerm() + "**'" ;
 			cards.add( new QACard( fmtQ, ast.getDefinition(), 
 					               cmapImg, textProcessor ) ) ;
 		}
@@ -367,7 +367,8 @@ public class NotesElements {
 				this.estimate += "<p>{{@img " + this.cmapImg + "}}" ;
 			}
 
-			String fmtQ = "_Give an estimate of_ '**" + ast.getCharacter() + "**'" ;
+			String fmtQ = "_Give an estimate of_  \n" + 
+			              "'**" + ast.getCharacter() + "**'" ;
 			cards.add( new QACard( fmtQ, ast.getEstimate(), 
 					               cmapImg, textProcessor ) ) ;
 		}
@@ -402,7 +403,7 @@ public class NotesElements {
 			this.event = textProcessor.processText( ast.getEvent() ) ;
 			
 			String fmtTE = "_What happened in_ **" + ast.getTime() + "** ?" ;
-			String fmtET = "_What did the following happen_ **" + ast.getEvent() + "** ?" ;
+			String fmtET = "_When did the following happen_ **  \n" + ast.getEvent() + "** ?" ;
 			
 			cards.add( new QACard( fmtTE, ast.getEvent(), textProcessor ) ) ;
 			cards.add( new QACard( fmtET, ast.getTime(), textProcessor ) ) ;
@@ -418,6 +419,7 @@ public class NotesElements {
 		}
 	}
 
+	
 	// -------------------------------------------------------------------------
 	public static class FIBElement extends AbstractNotesElement {
 		
@@ -456,6 +458,7 @@ public class NotesElements {
 		}
 	}
 
+	
 	// -------------------------------------------------------------------------
 	public static class MatchElement extends AbstractNotesElement {
 		
@@ -493,6 +496,7 @@ public class NotesElements {
 		}
 	}
 
+	
 	// -------------------------------------------------------------------------
 	public static class TrueFalseElement extends AbstractNotesElement {
 		
@@ -533,6 +537,7 @@ public class NotesElements {
 		}
 	}
 
+	
 	// -------------------------------------------------------------------------
 	public static class SpellbeeElement extends AbstractNotesElement {
 		
@@ -567,6 +572,7 @@ public class NotesElements {
 		public void collectContentAttributes( Map<String, Object> map ){}
 	}
 
+	
 	// -------------------------------------------------------------------------
 	public static class ImageLabelElement extends AbstractNotesElement {
 		
@@ -612,6 +618,7 @@ public class NotesElements {
 		}
 	}
 
+	
 	// -------------------------------------------------------------------------
 	public static class ChemCompoundElement extends AbstractNotesElement {
 		
@@ -669,6 +676,7 @@ public class NotesElements {
 		}
 	}
 
+	
 	// -------------------------------------------------------------------------
 	public static class EquationElement extends AbstractNotesElement {
 		

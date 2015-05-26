@@ -151,7 +151,7 @@ public class Cards {
 			throws Exception {
 			
 			map.put( "question", textProcessor.processText( rawQuestion ) ) ;
-			map.put( "answer",   rawAnswers ) ;
+			map.put( "answers",  rawAnswers ) ;
 		}
 	}
 
