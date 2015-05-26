@@ -253,7 +253,7 @@ public class NotesElements {
 			this.meaning = textProcessor.processText( ast.getMeaning() ) ;
 			
 			String wmQ = "_What is the meaning of_\n\n**" + ast.getWord() + "**" ;
-			String mqQ = "_Which word means_\n\n" + ast.getMeaning() ;
+			String mqQ = "_Which word means_\n\n**" + ast.getMeaning() + "**" ;
 			
 			cards.add( new QACard( wmQ, ast.getMeaning(), textProcessor ) ) ;
 			cards.add( new QACard( mqQ, ast.getWord(), textProcessor ) ) ;
@@ -294,7 +294,7 @@ public class NotesElements {
 				this.definition += "<p>{{@img " + this.cmapImg + "}}" ;
 			}
 
-			String fmtQ = "_Define_  '**" + ast.getTerm() + "**'" ;
+			String fmtQ = "_Define_\n\n'**" + ast.getTerm() + "**'" ;
 			cards.add( new QACard( fmtQ, ast.getDefinition(), 
 					               cmapImg, textProcessor ) ) ;
 		}
@@ -367,7 +367,7 @@ public class NotesElements {
 				this.estimate += "<p>{{@img " + this.cmapImg + "}}" ;
 			}
 
-			String fmtQ = "_Give an estimate of_  \n" + 
+			String fmtQ = "_Give an estimate of_\n\n" + 
 			              "'**" + ast.getCharacter() + "**'" ;
 			cards.add( new QACard( fmtQ, ast.getEstimate(), 
 					               cmapImg, textProcessor ) ) ;
@@ -402,8 +402,9 @@ public class NotesElements {
 			this.time  = textProcessor.processText( ast.getTime() ) ;
 			this.event = textProcessor.processText( ast.getEvent() ) ;
 			
-			String fmtTE = "_What happened in_ **" + ast.getTime() + "** ?" ;
-			String fmtET = "_When did the following happen_ **  \n" + ast.getEvent() + "** ?" ;
+			String fmtTE = "_What happened in_\n\n**" + ast.getTime() + "** ?" ;
+			String fmtET = "_When did the following happen_\n\n" + 
+			               "**" + ast.getEvent() + "** ?" ;
 			
 			cards.add( new QACard( fmtTE, ast.getEvent(), textProcessor ) ) ;
 			cards.add( new QACard( fmtET, ast.getTime(), textProcessor ) ) ;
