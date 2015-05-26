@@ -45,6 +45,10 @@ public class JNTextProcessor {
 		if( output.startsWith( "<p>" ) && output.endsWith( "</p>" ) ) {
 			output = output.substring( 3, output.length()-4 ) ;
 		}
+		
+		// Let's piggy back on bootstrap formatting of tables.
+		String customTableTag = "<table class=\"table table-condensed table-striped\">" ;
+		output = output.replaceAll( "<table>", customTableTag ) ;
 		return output ;
 	}
 	
