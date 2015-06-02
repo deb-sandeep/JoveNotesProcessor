@@ -33,6 +33,7 @@ import com.sandy.xtext.joveNotes.MatchPair;
 import com.sandy.xtext.joveNotes.Matching;
 import com.sandy.xtext.joveNotes.NotesElement;
 import com.sandy.xtext.joveNotes.QuestionAnswer;
+import com.sandy.xtext.joveNotes.RefToContext;
 import com.sandy.xtext.joveNotes.Spellbee;
 import com.sandy.xtext.joveNotes.TeacherNote;
 import com.sandy.xtext.joveNotes.TrueFalse;
@@ -56,6 +57,7 @@ public class NotesElements {
 	public static final String SPELLBEE      = "spellbee" ;
 	public static final String IMAGE_LABEL   = "image_label" ;
 	public static final String EQUATION      = "equation" ;	
+	public static final String RTC           = "rtc" ;	
 	
 	// -------------------------------------------------------------------------
 	public static AbstractNotesElement build( Chapter chapter, NotesElement ast ) {
@@ -102,6 +104,9 @@ public class NotesElements {
 		}
 		else if( ast instanceof ChemEquation ){
 			notesElement = new ChemEquationElement( chapter, ( ChemEquation )ast ) ;
+		}
+		else if( ast instanceof RefToContext ){
+			notesElement = new RefToContextElement( chapter, ( RefToContext )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. type = " + notesElement.getType() );
@@ -771,8 +776,7 @@ public class NotesElements {
 	// -------------------------------------------------------------------------
 	public static class ChemEquationElement extends AbstractNotesElement {
 		
-		private String       objIdSeed = null ;
-		
+		private String objIdSeed = null ;
 		private String reactants = null ;
 		private String products  = null ;
 		private String produces  = null ;
@@ -833,6 +837,65 @@ public class NotesElements {
 			
 			map.put( "equation", "$$\\ce{" + equation + "}$$" ) ;
 			map.put( "description", fmtDescr ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class RefToContextElement extends AbstractNotesElement {
+		
+		private String objIdSeed  = null ;
+		private String context    = null ;
+		private String fmtContext = null ;
+		
+		private List<List<String>> rawQAList = new ArrayList<List<String>>() ;
+		private List<List<String>> fmtQAList = new ArrayList<List<String>>() ;
+		
+		public RefToContextElement( Chapter chapter, RefToContext ast ) {
+			
+			super( RTC, chapter, ast ) ;
+			this.objIdSeed = ast.getContext().substring( 0, 
+					                             ast.getContext().length()/5 ) ;
+			this.context = ast.getContext() ;
+			for( QuestionAnswer astQ : ast.getQuestions() ) {
+				List<String> aRawQA = new ArrayList<String>() ;
+				aRawQA.add( astQ.getQuestion() ) ;
+				aRawQA.add( astQ.getAnswer() ) ;
+				rawQAList.add( aRawQA ) ;
+			}
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			log.debug( "\t\tInitializing RefToContext notes element." ) ;
+			this.fmtContext = textProcessor.processText( this.context ) ;
+			for( List<String> aRawQA : rawQAList ) {
+				List<String> aFmtQA = new ArrayList<String>() ;
+				aFmtQA.add( aRawQA.get(0) ) ;
+				aFmtQA.add( aRawQA.get(1) ) ;
+				fmtQAList.add( aFmtQA ) ;
+				
+				cards.add( new QACard( 
+						"<blockquote>" + context + "</blockquote>\n\n" + 
+						aRawQA.get(0), aRawQA.get(1), textProcessor ) ) ;
+			}
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		
+		public void collectContentAttributes( Map<String, Object> map ){
+
+			List<Map<String, String>> questionsObjArray = new ArrayList<Map<String,String>>() ;
+			for( List<String> aFmtQA : fmtQAList ) {
+				Map<String, String> questionObj = new HashMap<String, String>() ;
+				questionObj.put( "question", aFmtQA.get(0) ) ;
+				questionObj.put( "answer",   aFmtQA.get(1) ) ;
+				
+				questionsObjArray.add( questionObj ) ;
+			}
+			
+			map.put( "context",   this.fmtContext ) ;
+			map.put( "questions", questionsObjArray ) ;
 		}
 	}
 }
