@@ -1,10 +1,6 @@
-mvn install:install-file \
--Dfile=com.sandy.xtext.jovenotes_1.0.0.201505142013.jar \
--DgroupId=com.sandy.xtext.jovenotes \
--DartifactId=jovenotes.xtext \
--Dversion=1.0 \
--Dpackaging=jar \
--DlocalRepositoryPath=/home/sandeep/projects/source/JoveNotesProcessor/repo
+mvn install:install-file -Dfile=com.sandy.xtext.jovenotes_1.0.0.201505142013.jar -DgroupId=com.sandy.xtext.jovenotes -DartifactId=jovenotes.xtext -Dversion=1.0 -Dpackaging=jar -DlocalRepositoryPath=/home/sandeep/projects/source/JoveNotesProcessor/repo
+
+mvn install:install-file -Dfile=jcmap.jar -DgroupId=com.sandy.jcmap -DartifactId=jcmap -Dversion=1.0 -Dpackaging=jar -DlocalRepositoryPath=/home/sandeep/projects/source/JoveNotesProcessor/repo
 
 QA            ( question_answer ) -> QA
 WM            ( word_meaning    ) -> QA, QA

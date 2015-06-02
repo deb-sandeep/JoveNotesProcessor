@@ -466,13 +466,20 @@ public class NotesElements {
 		private Matching ast = null ;
 		
 		private List<List<String>> pairs = new ArrayList<List<String>>() ;
+		private List<List<String>> pairsReverse = new ArrayList<List<String>>() ;
 		private String objIdSeed = "" ;
+		private String objIdSeedReverse = "" ;
+		private boolean generateReverseQuestion = true ;
 		
 		public MatchElement( Chapter chapter, Matching ast ) {
 			super( MATCHING, chapter, ast ) ;
 			this.ast = ast ;
+			this.generateReverseQuestion = 
+					   ( ast.getSkipReverseQuestion() == null ) ? true : false ; 
+			
 			for( MatchPair pair : ast.getPairs() ) {
-				this.objIdSeed += pair.getMatchQuestion() ;
+				this.objIdSeed        += pair.getMatchQuestion() ;
+				this.objIdSeedReverse += pair.getMatchAnswer() ;
 			}
 		}
 		
@@ -481,11 +488,25 @@ public class NotesElements {
 			
 			for( MatchPair pair : ast.getPairs() ) {
 				List<String> pairList = new ArrayList<String>() ;
+				List<String> pairListReverse = new ArrayList<String>() ;
+				
 				pairList.add( textProcessor.processText( pair.getMatchQuestion() ) ) ;
 				pairList.add( textProcessor.processText( pair.getMatchAnswer() ) ) ;
+				
+				pairListReverse.add( textProcessor.processText( pair.getMatchAnswer() ) ) ;
+				pairListReverse.add( textProcessor.processText( pair.getMatchQuestion() ) ) ;
+				
 				this.pairs.add( pairList ) ;
+				this.pairsReverse.add( pairListReverse ) ;
 			}
-			cards.add( new MatchCard( objIdSeed, null, pairs ) ) ;
+			
+			cards.add( new MatchCard( objIdSeed, ast.getQuestion(), pairs ) ) ;
+			
+			if( this.generateReverseQuestion ) {
+				cards.add( new MatchCard( objIdSeedReverse, 
+						                  ast.getQuestion(), 
+						                  pairsReverse ) ) ;
+			}
 		}
 		
 		public String getObjIdSeed() { 
@@ -605,7 +626,15 @@ public class NotesElements {
 				hsArray.add( hsElement ) ;
 			}
 			
-			jsonAttrs.put( "caption",   ast.getCaption() ) ;
+			String caption = null ;
+			if( ast.getCaption() == null ) {
+				caption = "Label the image" ;
+			}
+			else {
+				caption = ast.getCaption() ;
+			}
+			
+			jsonAttrs.put( "caption",   caption ) ;
 			jsonAttrs.put( "imageName", ast.getImageName() ) ;
 			jsonAttrs.put( "hotSpots",  hsArray ) ;
 			

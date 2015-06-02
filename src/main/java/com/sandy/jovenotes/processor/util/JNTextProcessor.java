@@ -47,7 +47,7 @@ public class JNTextProcessor {
 		}
 		
 		// Let's piggy back on bootstrap formatting of tables.
-		String customTableTag = "<table class=\"table table-condensed table-striped\">" ;
+		String customTableTag = "<table class=\"pure-table pure-table-horizontal\">" ;
 		output = output.replaceAll( "<table>", customTableTag ) ;
 		return output ;
 	}

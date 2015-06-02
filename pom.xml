@@ -8,7 +8,7 @@
     <repositories>
       <repository>
         <id>my-local-repo</id>
-        <url>file://${basedir}/repo</url>
+        <url>file://${project.basedir}/repo</url>
       </repository>
     </repositories>
     <dependencies>
