@@ -22,6 +22,7 @@ import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.xtext.joveNotes.Character;
 import com.sandy.xtext.joveNotes.ChemCompound;
+import com.sandy.xtext.joveNotes.ChemEquation;
 import com.sandy.xtext.joveNotes.Definition;
 import com.sandy.xtext.joveNotes.EqSymbol;
 import com.sandy.xtext.joveNotes.Equation;
@@ -98,6 +99,9 @@ public class NotesElements {
 		}
 		else if( ast instanceof Equation ){
 			notesElement = new EquationElement( chapter, ( Equation )ast ) ;
+		}
+		else if( ast instanceof ChemEquation ){
+			notesElement = new ChemEquationElement( chapter, ( ChemEquation )ast ) ;
 		}
 		
 		log.debug( "\t  Built notes element. type = " + notesElement.getType() );
@@ -761,6 +765,74 @@ public class NotesElements {
 			map.put( "equation",    equation ) ;
 			map.put( "description", descr ) ;
 			map.put( "symbols",     symbols ) ;
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	public static class ChemEquationElement extends AbstractNotesElement {
+		
+		private String       objIdSeed = null ;
+		
+		private String reactants = null ;
+		private String products  = null ;
+		private String produces  = null ;
+		private String equation  = null ;
+		
+		private String description = null ;
+		private String fmtDescr    = null ;
+		
+		public ChemEquationElement( Chapter chapter, ChemEquation ast ) {
+			
+			super( CHEM_EQUATION, chapter, ast ) ;
+			reactants   = ast.getReactants() ;
+			produces    = (ast.getProduces() == null)? "->" : ast.getProduces();
+			products    = ast.getProducts() ;
+			description = ast.getDescription() ;
+			
+			equation = reactants + " " + produces + " " + products ;
+			
+			this.objIdSeed = reactants + produces ;
+		}
+		
+		public void initialize( JNTextProcessor textProcessor ) 
+				throws Exception {
+			
+			log.debug( "\t\tInitializing ChemEquation notes element." ) ;
+			if( description != null ) {
+				fmtDescr = textProcessor.processText( description ) ;
+				cards.add( new QACard( 
+					"_Write the chemical equation described by:_\n\n" + description,
+				    "$$\\ce{" + equation + "}$$", textProcessor ) ) ;
+			}
+			
+			cards.add( new QACard( 
+					"$$\\ce{" + reactants + " " + produces + "} " + getBlanks( products ) + "$$",
+					"$$\\ce{" + equation + "}$$", textProcessor ) ) ;
+			
+			cards.add( new QACard( 
+					"$$" + getBlanks( reactants ) + " \\ce{" + produces + " " + products + "}$$",
+					"$$\\ce{" + equation + "}$$", textProcessor ) ) ;
+		}
+		
+		private String getBlanks( String string ) {
+			
+			StringBuilder buffer = new StringBuilder() ;
+			String[] parts = string.split( "\\s+\\+\\s+" ) ;
+			for( int i=0; i<parts.length; i++ ) {
+				buffer.append( "\\\\_\\\\_\\\\_\\\\_" ) ;
+				if( i < parts.length-1 ) {
+					buffer.append( " \\+ " ) ;
+				}
+			}
+			return buffer.toString() ;
+		}
+		
+		public String getObjIdSeed() { return objIdSeed ; }
+		
+		public void collectContentAttributes( Map<String, Object> map ){
+			
+			map.put( "equation", "$$\\ce{" + equation + "}$$" ) ;
+			map.put( "description", fmtDescr ) ;
 		}
 	}
 }
