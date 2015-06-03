@@ -1,0 +1,12 @@
+log4j.rootLogger=DEBUG, FILE
+
+log4j.appender.FILE=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.FILE.File=jnprocessor.log
+log4j.appender.FILE.Append=true
+log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
+log4j.appender.FILE.layout.ConversionPattern=[%-5p] [%d{HH:mm:ss,SSS}]  %-20c{1} - %m%n
+
+log4j.logger.org.eclipse.xtext.parser=WARN
+log4j.logger.org.eclipse.xtext.linking.impl=WARN
+log4j.logger.org.apache.http=WARN
+log4j.logger.com.sandy.jcmap=WARN

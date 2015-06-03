@@ -1,0 +1,47 @@
+# JoveNotes processor configuration
+
+# The fully qualified path of the directory where the JoveNotes sources are 
+# stored. 
+# Mandatory - If not specified, program will exit
+source.dir=/home/sandeep/Documents/JoveNotes
+
+# The directory where JoveNotes processor will keep its bookkeeping data which 
+# will be used across runs. The contents of this directory should not be modified 
+# manually.
+# Mandatory - If not specified, program will exit
+workspace.dir=/home/sandeep/projects/workspace/jove_notes_workspace 
+
+# The destination workspace directory where the media associated with the source
+# files will moved post processing.
+# Mandatory - If not specified, program will exit
+destination.media.root.dir=/home/sandeep/projects/workspace/jove_notes_media
+
+# The fully qualified name of the database driver.
+# Mandatory - If not specified, program will exit
+db.driver=com.mysql.jdbc.Driver
+
+# The database connection URL
+# Mandatory - If not specified, program will exit
+db.url=jdbc:mysql://localhost:3306/?useUnicode=yes&characterEncoding=UTF-8
+
+# The database user name. 
+# Optional - This value can also be provided via the --dbUser command line option
+#            If the command line option is specified, it will override the value
+#            provided in this configuration file.
+db.user=root
+
+# The database user name. 
+# Optional - This value can also be provided via the --dbPassword command line 
+#            option. If the command line option is specified, it will override 
+#            the value provided in this configuration file.
+#db.password=
+
+# The path of Graphviz dot executable.
+# Mandatory - If not specified, program will exit
+graphviz.dot.path=/usr/bin/dot
+
+# Wordnic API key
+# Optional - This value can also be provided via the --worknicKey command line 
+#            option If the command line option is specified, it will override 
+#            the value provided in this configuration file.
+#wordnic.api.key=

@@ -1,5 +1,7 @@
 package com.sandy.jovenotes.processor.async;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,8 +16,6 @@ import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
 import com.sandy.jovenotes.processor.dao.AbstractDBO;
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
 public class PersistentQueue extends AbstractDBO {
 	
@@ -103,9 +103,9 @@ public class PersistentQueue extends AbstractDBO {
 				"	( uid, creation_time, serialized_obj, num_times_processed, last_process_time ) " +
 				"values ( ?, ?, ?, ?, ? )" ;
 
-			ByteInputStream    bis = null ;
-			ByteOutputStream   bos = null ;
-			ObjectOutputStream oos = null ;
+			ByteArrayInputStream  bis = null ;
+			ByteArrayOutputStream bos = null ;
+			ObjectOutputStream    oos = null ;
 			
 			Connection conn = JoveNotes.db.getConnection() ;
 			PreparedStatement psmt = null ;
@@ -117,11 +117,11 @@ public class PersistentQueue extends AbstractDBO {
 				psmt.setString( 1, uid ) ;
 				psmt.setTimestamp( 2, creationTime ) ;
 				
-				bos = new ByteOutputStream() ;
+				bos = new ByteArrayOutputStream() ;
 				oos = new ObjectOutputStream( bos ) ;
 				oos.writeObject( object ) ;
 				oos.close() ;
-				bis = new ByteInputStream( bos.getBytes(), bos.getCount() ) ;
+				bis = new ByteArrayInputStream( bos.toByteArray() ) ;
 				
 				psmt.setBinaryStream( 3, bis ) ;
 				psmt.setInt( 4, numTimesProcessed ) ;
