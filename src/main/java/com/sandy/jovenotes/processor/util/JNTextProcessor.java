@@ -23,7 +23,9 @@ public class JNTextProcessor {
 	private static final Logger log = Logger.getLogger(JNTextProcessor.class) ;
 	
 	private static PegDownProcessor pdProcessor   = 
-			    new PegDownProcessor( Extensions.ALL & ~Extensions.HARDWRAPS ) ;
+			    new PegDownProcessor( Extensions.ALL & 
+			    		             ~Extensions.HARDWRAPS & 
+			    		             ~Extensions.ANCHORLINKS ) ;
 	
 	private static final String JN_MARKER_PATTERN = 
 			                 "\\{\\{@([a-zA-Z0-9]*)\\s+((.(?!\\{\\{))*)\\}\\}" ;

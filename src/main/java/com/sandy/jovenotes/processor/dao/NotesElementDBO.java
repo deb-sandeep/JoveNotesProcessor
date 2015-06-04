@@ -26,6 +26,7 @@ public class NotesElementDBO extends AbstractDBO {
 	private String content         = null ;
 	private String objCorrelId     = null ;
 	private boolean ready          = true ;
+	private boolean hiddenFromView = false ;
 	
 	private boolean sourceTrace = false ;
 	private boolean isModified  = false ;
@@ -41,6 +42,7 @@ public class NotesElementDBO extends AbstractDBO {
 		content         = ne.getContent() ;
 		objCorrelId     = ne.getObjId() ;
 		ready           = ne.isReady() ;
+		hiddenFromView  = ne.isHiddenFromView() ;
 		
 		for( AbstractCard card : ne.getCards() ) {
 			cards.add( new CardDBO( card ) ) ;
@@ -58,6 +60,7 @@ public class NotesElementDBO extends AbstractDBO {
 		content         = rs.getString ( "content"          ) ;
 		objCorrelId     = rs.getString ( "obj_correl_id"    ) ;
 		ready           = rs.getBoolean( "ready"            ) ;
+		hiddenFromView  = rs.getBoolean( "hidden_from_view" ) ;
 	}
 	
 	public int getNotesElementId() {
@@ -133,6 +136,10 @@ public class NotesElementDBO extends AbstractDBO {
 		return ready ;
 	}
 	
+	public boolean isHiddenFromView() {
+		return this.hiddenFromView ;
+	}
+	
 	public List<CardDBO> getCards() {
 		return this.cards ;
 	}
@@ -161,7 +168,8 @@ public class NotesElementDBO extends AbstractDBO {
 			"`notes_element`.`difficulty_level`, " +
 			"`notes_element`.`content`, " +
 			"`notes_element`.`obj_correl_id`, " +
-			"`notes_element`.`ready` " +
+			"`notes_element`.`ready`, " +
+			"`notes_element`.`hidden_from_view` " +
 			"FROM " +
 			"`jove_notes`.`notes_element` " +
 			"WHERE " + 
@@ -221,9 +229,9 @@ public class NotesElementDBO extends AbstractDBO {
 		final String sql = 
 		"INSERT INTO `jove_notes`.`notes_element` " +
 		"(`chapter_id`, `element_type`, `difficulty_level`, " + 
-		"`content`, `obj_correl_id`, `ready` ) " +
+		"`content`, `obj_correl_id`, `ready`, `hidden_from_view` ) " +
 		"VALUES " +
-		"( ?, ?, ?, ?, ?, ? )" ;
+		"( ?, ?, ?, ?, ?, ?, ? )" ;
 
 		int generatedId = -1 ;
 		Connection conn = JoveNotes.db.getConnection() ;
@@ -238,6 +246,7 @@ public class NotesElementDBO extends AbstractDBO {
 			psmt.setString ( 4, getContent() ) ;
 			psmt.setString ( 5, getObjCorrelId() ) ;
 			psmt.setBoolean( 6, isReady() ) ;
+			psmt.setBoolean( 7, isHiddenFromView() ) ;
 			
 			psmt.executeUpdate() ;
 			ResultSet rs = psmt.getGeneratedKeys() ;
@@ -264,7 +273,8 @@ public class NotesElementDBO extends AbstractDBO {
 			"UPDATE `jove_notes`.`notes_element` " +
 			"SET " +
 			"`difficulty_level` = ?, " +
-			"`content` = ? " +
+			"`content` = ?, " +
+			"`hidden_from_view` = ? " +
 			"WHERE `notes_element_id` = ? " ;
 
 		Connection conn = JoveNotes.db.getConnection() ;
@@ -273,7 +283,8 @@ public class NotesElementDBO extends AbstractDBO {
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
 			psmt.setInt    ( 1, getDifficultyLevel() ) ;
 			psmt.setString ( 2, getContent() ) ;
-			psmt.setInt    ( 3, getNotesElementId() ) ;
+			psmt.setBoolean( 3, isHiddenFromView() ) ;
+			psmt.setInt    ( 4, getNotesElementId() ) ;
 			
 			psmt.executeUpdate() ;
 		}
@@ -342,11 +353,13 @@ public class NotesElementDBO extends AbstractDBO {
 		if( ne.isReady() ) {
 			boolean contentEquals    = getContent().equals( ne.getContent() ) ;
 			boolean difficultyEquals = getDifficultyLevel() == ne.getDifficultyLevel() ;
+			boolean hiddenEquals     = isHiddenFromView()   == ne.isHiddenFromView() ;
 			
-			if( !( contentEquals && difficultyEquals ) ) {
+			if( !( contentEquals && difficultyEquals && hiddenEquals ) ) {
 				log.debug( "\t      Notes element found modfied.. id=" + getNotesElementId() ) ;
 				this.isModified = true ;
 				this.content = ne.getContent() ;
+				this.hiddenFromView = ne.isHiddenFromView() ;
 				this.difficultyLevel = ne.getDifficultyLevel() ;
 				if( !updateRequired ) updateRequired = true ;
 			}
