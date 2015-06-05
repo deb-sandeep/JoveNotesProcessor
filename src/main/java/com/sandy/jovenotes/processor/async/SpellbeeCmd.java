@@ -63,13 +63,14 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		File mediaDir = new File( JoveNotes.config.getDestMediaRootDir(), "_spellbee" ) ;
 		File clipFile = new File( mediaDir, word.toLowerCase() + ".mp3" ) ;
 		File descFile = new File( mediaDir, word.toLowerCase() + ".descr" ) ;
+		File pronunciationFile = new File( mediaDir, word.toLowerCase() + ".pronunciation" ) ;
 		
 		try {
 			downloadSoundClip( clipFile ) ;
 			downloadDescription( descFile ) ;
 			
 			loadExistingData() ;
-			updateContentAndDifficultyLevel() ;
+			updateContentAndDifficultyLevel( pronunciationFile ) ;
 		} 
 		catch( Exception e ){
 			log.error( "Could not process spellbee command.", e ) ;
@@ -189,15 +190,29 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		}
 	}
 	
-	private void updateContentAndDifficultyLevel() throws Exception {
+	private void updateContentAndDifficultyLevel( File pronunciationFile ) 
+			throws Exception {
 		
 		String json = existingContent ;
 		int    diff = existingDifficulty ;
 		boolean updateReq    = false ;
 		
 		if( existingContent.equals( "{}" ) ) {
-			log.debug( "\t\tDownloading pronunciation." ) ;
-			String pronunciation = new WordnicAdapter().getPronounciation( word ) ;
+			String pronunciation = null ;
+			
+			if( !pronunciationFile.exists() ) {
+				log.debug( "\t\tDownloading pronunciation." ) ;
+				pronunciation = new WordnicAdapter().getPronounciation( word ) ;
+				pronunciation = ( pronunciation==null ) ? "" : pronunciation ;
+				FileUtils.writeStringToFile( pronunciationFile, pronunciation, 
+						                     "UTF-8" ) ;
+			}
+			else {
+				log.debug( "\t\tLoading pronunciation from cache." ) ;
+				pronunciation = FileUtils.readFileToString( pronunciationFile, 
+						                                    "UTF-8" ) ;
+			}
+			
 			Map<String, String> jsonAttrs = new HashMap<String, String>() ;
 			jsonAttrs.put( "word", word.toLowerCase() ) ;
 			jsonAttrs.put( "pronunciation", pronunciation ) ;
