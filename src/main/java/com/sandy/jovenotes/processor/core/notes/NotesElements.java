@@ -688,30 +688,31 @@ public class NotesElements {
 			log.debug( "\t\tInitializing ChemCompound notes element." ) ;
 			symbol    = "$$\\ce{" + ast.getSymbol() + "}$$" ;
 			
-			cards.add( new QACard( this,
-					"_What is the formulae for_\n\n" + ast.getChemicalName(),
-					symbol, textProcessor ) ) ;
-			
-			cards.add( new QACard( this,
-					"_What is the chemical name of_\n\n" + symbol, 
-					ast.getChemicalName(), textProcessor ) ) ;
-			
-			if( ast.getCommonName() != null ) {
-				
+			if( StringUtil.isNotEmptyOrNull( ast.getChemicalName() ) ) {
 				cards.add( new QACard( this,
-						"_What is the formulae for_\n\n" + ast.getCommonName(),
+						"_What is the **formulae** for_\n\n" + ast.getChemicalName(),
 						symbol, textProcessor ) ) ;
 				
 				cards.add( new QACard( this,
-						"_What is the chemical name of_\n\n" + ast.getCommonName(), 
+						"_What is the **chemical name** of_\n\n" + symbol, 
+						ast.getChemicalName(), textProcessor ) ) ;
+			}
+			
+			if( StringUtil.isNotEmptyOrNull( ast.getCommonName() ) ) {
+				cards.add( new QACard( this,
+						"_What is the **formulae** for_\n\n" + ast.getCommonName(),
+						symbol, textProcessor ) ) ;
+				
+				cards.add( new QACard( this,
+						"_What is the **chemical name** of_\n\n" + ast.getCommonName(), 
 						ast.getChemicalName(), textProcessor ) ) ;
 				
 				cards.add( new QACard( this,
-						"_What is the common name of_\n\n" + ast.getChemicalName(), 
+						"_What is the **common name** of_\n\n" + ast.getChemicalName(), 
 						ast.getCommonName(), textProcessor ) ) ;
 				
 				cards.add( new QACard( this,
-						"_What is the common name for_\n\n" + symbol,
+						"_What is the **common name** for_\n\n" + symbol,
 						ast.getCommonName(), textProcessor ) ) ;
 				
 			}
