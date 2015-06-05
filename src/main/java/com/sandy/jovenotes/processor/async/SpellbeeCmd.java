@@ -196,6 +196,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 		boolean updateReq    = false ;
 		
 		if( existingContent.equals( "{}" ) ) {
+			log.debug( "\t\tDownloading pronunciation." ) ;
 			String pronunciation = new WordnicAdapter().getPronounciation( word ) ;
 			Map<String, String> jsonAttrs = new HashMap<String, String>() ;
 			jsonAttrs.put( "word", word.toLowerCase() ) ;

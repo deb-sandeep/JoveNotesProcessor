@@ -46,12 +46,13 @@ public class WordnicAdapter {
     
     public String getPronounciation( String word ) throws Exception {
     	
+    	
         WordApi api = new WordApi() ;
         api.getInvoker().addDefaultHeader( "api_key", 
         		                           JoveNotes.config.getWordnicAPIKey() ) ;
         
         List<TextPron> pronounciations = api.getTextPronunciations( 
-        		                               word, null, null, "false", 1 ) ;
+        		                               word, null, null, "true", 1 ) ;
         if( !pronounciations.isEmpty() ) {
         	return pronounciations.get(0).getRaw() ;
         }
