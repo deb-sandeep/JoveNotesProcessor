@@ -97,7 +97,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
         boolean result = false ;
         NetworkResourceDownloader downloader = null ;
         
-        String url = GOOGLE_CLIP_URL_TEMPLATE.replace( "{{word}}", word ) ;
+        String url = GOOGLE_CLIP_URL_TEMPLATE.replace( "{{word}}", word.toLowerCase() ) ;
         downloader = new NetworkResourceDownloader( url ) ;
         if( downloader.execute() == 200 ) {
             downloader.saveResponseToFile( outputFile ) ;
