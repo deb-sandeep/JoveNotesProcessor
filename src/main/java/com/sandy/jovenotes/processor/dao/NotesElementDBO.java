@@ -61,6 +61,8 @@ public class NotesElementDBO extends AbstractDBO {
 		objCorrelId     = rs.getString ( "obj_correl_id"    ) ;
 		ready           = rs.getBoolean( "ready"            ) ;
 		hiddenFromView  = rs.getBoolean( "hidden_from_view" ) ;
+		
+		log.debug( "\t  Loaded notes element " + notesElementId + " from DB" ) ;
 	}
 	
 	public int getNotesElementId() {
@@ -351,6 +353,7 @@ public class NotesElementDBO extends AbstractDBO {
 		// hence at this point, the card is not ready - consequently we don't
 		// have to check for modification.
 		if( ne.isReady() ) {
+			
 			boolean contentEquals    = getContent().equals( ne.getContent() ) ;
 			boolean difficultyEquals = getDifficultyLevel() == ne.getDifficultyLevel() ;
 			boolean hiddenEquals     = isHiddenFromView()   == ne.isHiddenFromView() ;
@@ -374,17 +377,18 @@ public class NotesElementDBO extends AbstractDBO {
 	 */
 	public void processTrace() throws Exception {
 
+		log.debug( "\t  Processing trace for NEDBO id = " + getNotesElementId() ) ;
 		if( getNotesElementId() == -1 ) {
-			log.debug( "\t  Notes element will be created." ) ;
+			log.debug( "\t    Notes element will be created." ) ;
 			create() ;
 			return ;
 		}
 		else if( isModified ) {
-			log.debug( "\t  Notes element will be updated. id=" + getNotesElementId() ) ;
+			log.debug( "\t    Notes element will be updated. id=" + getNotesElementId() ) ;
 			update() ;
 		}
 		else if( !sourceTrace ) {
-			log.debug( "\t  Notes element will be deleted. id=" + getNotesElementId() ) ;
+			log.debug( "\t    Notes element will be deleted. id=" + getNotesElementId() ) ;
 			delete() ;
 			return ;
 			// The associated cards will be cascade deleted at the database.

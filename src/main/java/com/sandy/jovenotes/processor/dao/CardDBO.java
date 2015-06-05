@@ -53,38 +53,6 @@ public class CardDBO extends AbstractDBO {
 		ready           = rs.getBoolean( "ready"            ) ;		
 	}
 	
-	public boolean trace( AbstractCard card ) throws Exception {
-		
-		if( !getObjCorrelId().equals( card.getObjId() ) ) {
-			throw new Exception( "Correlation id for CardDBO and Card don't match." ) ;
-		}
-		
-		log.debug( "\t        Existing card found. id=" + getCardId() ) ;
-		
-		this.sourceTrace = true ;
-
-		// Only if the notes is ready - implying that it's content will not be 
-		// modified beyond this point, do we check for modification. This is 
-		// a special case and applies for special elements such as spell bee.
-		// In case of spell bee, the pronunciation is downloaded offline and 
-		// hence at this point, the card is not ready - consequently we don't
-		// have to check for modification.
-		if( card.isReady() ) {
-			boolean contentEquals    = getContent().equals( card.getContent() ) ;
-			boolean difficultyEquals = getDifficultyLevel() == card.getDifficultyLevel() ;
-			
-			if( !( contentEquals && difficultyEquals ) ) {
-				log.debug( "\t           Card found modififed. id=" + getCardId() ) ;
-				this.isModified = true ;
-				this.content = card.getContent() ;
-				this.difficultyLevel = card.getDifficultyLevel() ;
-				return true ;
-			}
-		}
-		
-		return false ;
-	}
-	
 	public int getCardId() {
 		return cardId;
 	}
@@ -300,6 +268,39 @@ public class CardDBO extends AbstractDBO {
 		finally {
 			JoveNotes.db.returnConnection( conn ) ;
 		}
+	}
+	
+	public boolean trace( AbstractCard card ) throws Exception {
+		
+		if( !getObjCorrelId().equals( card.getObjId() ) ) {
+			throw new Exception( "Correlation id for CardDBO and Card don't match." ) ;
+		}
+		
+		log.debug( "\t        Existing card found. id=" + getCardId() ) ;
+		
+		this.sourceTrace = true ;
+
+		// Only if the notes is ready - implying that it's content will not be 
+		// modified beyond this point, do we check for modification. This is 
+		// a special case and applies for special elements such as spell bee.
+		// In case of spell bee, the pronunciation is downloaded offline and 
+		// hence at this point, the card is not ready - consequently we don't
+		// have to check for modification.
+		if( card.isReady() ) {
+			
+			boolean contentEquals    = getContent().equals( card.getContent() ) ;
+			boolean difficultyEquals = getDifficultyLevel() == card.getDifficultyLevel() ;
+			
+			if( !( contentEquals && difficultyEquals ) ) {
+				log.debug( "\t           Card found modififed. id=" + getCardId() ) ;
+				this.isModified = true ;
+				this.content = card.getContent() ;
+				this.difficultyLevel = card.getDifficultyLevel() ;
+				return true ;
+			}
+		}
+		
+		return false ;
 	}
 	
 	/**

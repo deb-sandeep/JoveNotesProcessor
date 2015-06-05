@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.json.simple.JSONValue;
 
+import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.jovenotes.processor.util.StringUtil;
 
@@ -23,12 +24,14 @@ public class Cards {
 	// -------------------------------------------------------------------------
 	public static abstract class AbstractCard {
 		
+		private AbstractNotesElement ne = null ;
 		private String type = null ;
 		private String objId = null ;
 		
 		protected boolean ready = true ;
 		
-		public AbstractCard( String type ) {
+		public AbstractCard( AbstractNotesElement ne, String type ) {
+			this.ne = ne ;
 			this.type = type ;
 		}
 		
@@ -43,7 +46,8 @@ public class Cards {
 		public final String getObjId() {
 			
 			if( this.objId == null ){
-				this.objId = StringUtil.getHash( "Card" + getType() + getObjIdSeed() ) ; 
+				this.objId = StringUtil.getHash( ne.getObjIdSeed() + "Card" + 
+			                                     getType() + getObjIdSeed() ) ; 
 			}
 			return this.objId ;
 		} ;
@@ -75,15 +79,16 @@ public class Cards {
 		
 		private JNTextProcessor textProcessor = null ;
 		
-		public QACard( String rawQ, String rawA, JNTextProcessor textProcessor ) 
+		public QACard( AbstractNotesElement ne, String rawQ, String rawA, 
+				       JNTextProcessor textProcessor ) 
 				throws Exception {
-			this( rawQ, rawA, null, textProcessor ) ;
+			this( ne, rawQ, rawA, null, textProcessor ) ;
 		}
 	
-		public QACard( String rawQ, String rawA, String cmapImg, 
-				       JNTextProcessor textProcessor ) throws Exception {
+		public QACard( AbstractNotesElement ne, String rawQ, String rawA, 
+				       String cmapImg, JNTextProcessor textProcessor ) throws Exception {
 			
-			super( QA ) ;
+			super( ne, QA ) ;
 			this.textProcessor = textProcessor ;
 			this.rawQuestion   = rawQ ;
 			this.rawAnswer     = rawA ;
@@ -124,10 +129,10 @@ public class Cards {
 		
 		private JNTextProcessor textProcessor = null ;
 		
-		public FIBCard( String rawQ, List<String> answers, 
-				        JNTextProcessor textProcessor ) throws Exception {
+		public FIBCard( AbstractNotesElement ne, String rawQ, 
+				        List<String> answers, JNTextProcessor textProcessor ) throws Exception {
 			
-			super( FIB ) ;
+			super( ne, FIB ) ;
 			this.textProcessor = textProcessor ;
 			this.rawQuestion   = rawQ ;
 			this.rawAnswers    = answers ;
@@ -167,10 +172,11 @@ public class Cards {
 		
 		private String objIdSeed = null ;
 		
-		public MatchCard( String objIdSeed, String caption,
-				          List<List<String>> fmtMatchPairs ) throws Exception {
+		public MatchCard( AbstractNotesElement ne, String objIdSeed, 
+				          String caption, List<List<String>> fmtMatchPairs ) 
+				        		  throws Exception {
 			
-			super( MATCHING ) ;
+			super( ne, MATCHING ) ;
 			this.objIdSeed = objIdSeed ;
 			this.fmtMatchPairs = fmtMatchPairs ;
 			this.caption = ( caption == null ) ? "Match the following" : caption ;
@@ -202,10 +208,11 @@ public class Cards {
 		
 		private String objIdSeed = null ;
 		
-		public TrueFalseCard( String objIdSeed, String statement,
-				              boolean truthValue, String justification ) 
+		public TrueFalseCard( AbstractNotesElement ne, String objIdSeed, 
+				              String statement, boolean truthValue, 
+				              String justification ) 
 				            		  throws Exception {
-			super( TF ) ;
+			super( ne, TF ) ;
 			this.objIdSeed     = objIdSeed ;
 			this.statement     = statement ;
 			this.truthValue    = truthValue ;
@@ -231,8 +238,9 @@ public class Cards {
 		
 		private String objIdSeed = null ;
 		
-		public SpellbeeCard( String objIdSeed ) throws Exception {
-			super( SPELLBEE ) ;
+		public SpellbeeCard( AbstractNotesElement ne, String objIdSeed ) 
+				throws Exception {
+			super( ne, SPELLBEE ) ;
 			this.objIdSeed = objIdSeed ;
 			super.ready = false ;
 		}
@@ -252,11 +260,11 @@ public class Cards {
 		private String objIdSeed = null ;
 		private Map<String, Object> contentAttributes = null ;
 		
-		public ImageLabelCard( String objIdSeed,
+		public ImageLabelCard( AbstractNotesElement ne, String objIdSeed,
 				               Map<String, Object> contentAttributes ) 
 		    throws Exception {
 			
-			super( IMGLABEL ) ;
+			super( ne, IMGLABEL ) ;
 			this.objIdSeed = objIdSeed ;
 			this.contentAttributes = contentAttributes ;
 		}

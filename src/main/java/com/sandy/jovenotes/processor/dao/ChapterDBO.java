@@ -380,6 +380,10 @@ public class ChapterDBO extends AbstractDBO {
 			this.chapterName = chapter.getChapterName() ;
 		}
 		
+		if( chapter.getNotesElements().size() != notesElements.size() ) {
+			updateRequired = true ;
+		}
+		
 		tracedToSourceObjModel = true ;
 		return updateRequired ;
 	}

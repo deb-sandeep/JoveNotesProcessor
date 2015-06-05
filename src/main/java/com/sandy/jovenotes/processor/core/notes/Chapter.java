@@ -2,7 +2,9 @@ package com.sandy.jovenotes.processor.core.notes;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -24,6 +26,8 @@ public class Chapter {
 	private JoveNotes notesAST = null ;
 	private ArrayList<AbstractNotesElement> notesElements = null ;
 	
+	private Map<String, Boolean> distinctNEMap = new HashMap<String, Boolean>() ;
+	
 	public Chapter( File srcFile, JoveNotes notesAST ) 
 		throws Exception {
 		
@@ -37,7 +41,18 @@ public class Chapter {
 		log.debug( "\tObject transforming chapter - " + getChapterFQN() );
 		
 		for( NotesElement element : this.notesAST.getNotesElements() ) {
-			notesElements.add( NotesElements.build( this, element ) ) ;
+			
+			AbstractNotesElement ne = NotesElements.build( this, element ) ; 
+			String distinctKey = ne.getType() + "-" + ne.getObjIdSeed() ;
+			
+			if( distinctNEMap.containsKey( distinctKey ) ) {
+				log.warn( "\t\tDuplicate notes element found. Skipping. " +
+			              "key = " + distinctKey ) ;
+			}
+			else {
+				distinctNEMap.put( distinctKey, Boolean.TRUE ) ;
+				notesElements.add(  ne ) ;
+			}
 		}
 		initializeNotesElements() ;
 	}

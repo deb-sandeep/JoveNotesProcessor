@@ -155,7 +155,7 @@ public class NotesElements {
 		}
 		
 		public final String getObjId() {
-			return StringUtil.getHash( "NE" + getType() + getObjIdSeed() ) ; 
+			return StringUtil.getHash( chapter.getChapterFQN() + "NE" + getType() + getObjIdSeed() ) ; 
 		} ;
 		
 		public final int getDifficultyLevel() {
@@ -236,7 +236,7 @@ public class NotesElements {
 			if( cmapImg != null ) {
 				this.answer += "<p>{{@img " + this.cmapImg + "}}" ;
 			}
-			cards.add( new QACard( ast.getQuestion(), ast.getAnswer(), 
+			cards.add( new QACard( this, ast.getQuestion(), ast.getAnswer(), 
 					               cmapImg, textProcessor ) ) ;
 		}
 		
@@ -272,8 +272,8 @@ public class NotesElements {
 			String wmQ = "_What is the meaning of_\n\n**" + ast.getWord() + "**" ;
 			String mqQ = "_Which word means_\n\n**" + ast.getMeaning() + "**" ;
 			
-			cards.add( new QACard( wmQ, ast.getMeaning(), textProcessor ) ) ;
-			cards.add( new QACard( mqQ, ast.getWord(), textProcessor ) ) ;
+			cards.add( new QACard( this, wmQ, ast.getMeaning(), textProcessor ) ) ;
+			cards.add( new QACard( this, mqQ, ast.getWord(), textProcessor ) ) ;
 		}
 		
 		public String getObjIdSeed() { 
@@ -312,7 +312,7 @@ public class NotesElements {
 			}
 
 			String fmtQ = "_Define_\n\n'**" + ast.getTerm() + "**'" ;
-			cards.add( new QACard( fmtQ, ast.getDefinition(), 
+			cards.add( new QACard( this, fmtQ, ast.getDefinition(), 
 					               cmapImg, textProcessor ) ) ;
 		}
 		
@@ -386,7 +386,7 @@ public class NotesElements {
 
 			String fmtQ = "_Give an estimate of_\n\n" + 
 			              "'**" + ast.getCharacter() + "**'" ;
-			cards.add( new QACard( fmtQ, ast.getEstimate(), 
+			cards.add( new QACard( this, fmtQ, ast.getEstimate(), 
 					               cmapImg, textProcessor ) ) ;
 		}
 		
@@ -423,8 +423,8 @@ public class NotesElements {
 			String fmtET = "_When did the following happen_\n\n" + 
 			               "**" + ast.getEvent() + "** ?" ;
 			
-			cards.add( new QACard( fmtTE, ast.getEvent(), textProcessor ) ) ;
-			cards.add( new QACard( fmtET, ast.getTime(), textProcessor ) ) ;
+			cards.add( new QACard( this, fmtTE, ast.getEvent(), textProcessor ) ) ;
+			cards.add( new QACard( this, fmtET, ast.getTime(), textProcessor ) ) ;
 		}
 		
 		public String getObjIdSeed() { 
@@ -463,7 +463,8 @@ public class NotesElements {
 				throws Exception {
 			
 			this.fmtQuestion = textProcessor.processText( ast.getQuestion() ) ;
-			cards.add( new FIBCard( ast.getQuestion(), rawAnswers, textProcessor ) ) ;
+			cards.add( new FIBCard( this, ast.getQuestion(), 
+					                rawAnswers, textProcessor ) ) ;
 		}
 		
 		public String getObjIdSeed() { 
@@ -517,10 +518,10 @@ public class NotesElements {
 				this.pairsReverse.add( pairListReverse ) ;
 			}
 			
-			cards.add( new MatchCard( objIdSeed, ast.getQuestion(), pairs ) ) ;
+			cards.add( new MatchCard( this, objIdSeed, ast.getQuestion(), pairs ) ) ;
 			
 			if( this.generateReverseQuestion ) {
-				cards.add( new MatchCard( objIdSeedReverse, 
+				cards.add( new MatchCard( this, objIdSeedReverse, 
 						                  ast.getQuestion(), 
 						                  pairsReverse ) ) ;
 			}
@@ -562,7 +563,8 @@ public class NotesElements {
 				justification = textProcessor.processText( ast.getJustification() ) ;
 			}
 			
-			cards.add( new TrueFalseCard( objIdSeed, statement, truthValue, justification ) ) ;
+			cards.add( new TrueFalseCard( this, objIdSeed, statement, 
+					                      truthValue, justification ) ) ;
 		}
 		
 		public String getObjIdSeed() { return objIdSeed ; }
@@ -595,7 +597,8 @@ public class NotesElements {
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
-			SpellbeeCard card = new SpellbeeCard( objIdSeed ) ;
+			SpellbeeCard card = new SpellbeeCard( this, objIdSeed ) ;
+			
 			SpellbeeCmd  cmd = new SpellbeeCmd( chapter, word, 
 												card.getDifficultyLevel(), 
 												super.getObjId(), 
@@ -655,7 +658,7 @@ public class NotesElements {
 			jsonAttrs.put( "imageName", ast.getImageName() ) ;
 			jsonAttrs.put( "hotSpots",  hsArray ) ;
 			
-			cards.add( new ImageLabelCard( objIdSeed, jsonAttrs ) ) ;
+			cards.add( new ImageLabelCard( this, objIdSeed, jsonAttrs ) ) ;
 		}
 		
 		public String getObjIdSeed() { return objIdSeed ; }
@@ -685,29 +688,29 @@ public class NotesElements {
 			log.debug( "\t\tInitializing ChemCompound notes element." ) ;
 			symbol    = "$$\\ce{" + ast.getSymbol() + "}$$" ;
 			
-			cards.add( new QACard( 
+			cards.add( new QACard( this,
 					"_What is the formulae for_\n\n" + ast.getChemicalName(),
 					symbol, textProcessor ) ) ;
 			
-			cards.add( new QACard(
+			cards.add( new QACard( this,
 					"_What is the chemical name of_\n\n" + symbol, 
 					ast.getChemicalName(), textProcessor ) ) ;
 			
 			if( ast.getCommonName() != null ) {
 				
-				cards.add( new QACard( 
+				cards.add( new QACard( this,
 						"_What is the formulae for_\n\n" + ast.getCommonName(),
 						symbol, textProcessor ) ) ;
 				
-				cards.add( new QACard(
+				cards.add( new QACard( this,
 						"_What is the chemical name of_\n\n" + ast.getCommonName(), 
 						ast.getChemicalName(), textProcessor ) ) ;
 				
-				cards.add( new QACard(
+				cards.add( new QACard( this,
 						"_What is the common name of_\n\n" + ast.getChemicalName(), 
 						ast.getCommonName(), textProcessor ) ) ;
 				
-				cards.add( new QACard( 
+				cards.add( new QACard( this,
 						"_What is the common name for_\n\n" + symbol,
 						ast.getCommonName(), textProcessor ) ) ;
 				
@@ -763,12 +766,12 @@ public class NotesElements {
 				symbols.add( pair ) ; 
 			}
 			
-			cards.add( new QACard( "_What is the equation for_\n\n" + descr, 
+			cards.add( new QACard( this, "_What is the equation for_\n\n" + descr, 
 					               equation, textProcessor ) ) ;
 			
 			String caption = "For the following equation, match the symbols. " + 
 			                 equation ;
-			cards.add( new MatchCard( objIdSeed, caption, symbols ) ) ;
+			cards.add( new MatchCard( this, objIdSeed, caption, symbols ) ) ;
 		}
 		
 		public String getObjIdSeed() { return objIdSeed ; }
@@ -812,16 +815,16 @@ public class NotesElements {
 			log.debug( "\t\tInitializing ChemEquation notes element." ) ;
 			if( description != null ) {
 				fmtDescr = textProcessor.processText( description ) ;
-				cards.add( new QACard( 
+				cards.add( new QACard( this,
 					"_Write the chemical equation described by:_\n\n" + description,
 				    "$$\\ce{" + equation + "}$$", textProcessor ) ) ;
 			}
 			
-			cards.add( new QACard( 
+			cards.add( new QACard( this,
 					"$$\\ce{" + reactants + " " + produces + "} " + getBlanks( products ) + "$$",
 					"$$\\ce{" + equation + "}$$", textProcessor ) ) ;
 			
-			cards.add( new QACard( 
+			cards.add( new QACard( this,
 					"$$" + getBlanks( reactants ) + " \\ce{" + produces + " " + products + "}$$",
 					"$$\\ce{" + equation + "}$$", textProcessor ) ) ;
 		}
@@ -883,7 +886,7 @@ public class NotesElements {
 				aFmtQA.add( aRawQA.get(1) ) ;
 				fmtQAList.add( aFmtQA ) ;
 				
-				cards.add( new QACard( 
+				cards.add( new QACard( this,
 						"<blockquote>" + context + "</blockquote>\n\n" + 
 						aRawQA.get(0), aRawQA.get(1), textProcessor ) ) ;
 			}

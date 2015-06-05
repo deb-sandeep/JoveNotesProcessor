@@ -243,8 +243,6 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 			if( psmt.executeUpdate() == 0 ) {
 				throw new Exception( "Could not update " + tableName ) ;
 			}
-			
-			log.debug( "Updated json " + json ) ;
 		}
 		finally {
 			JoveNotes.db.returnConnection( conn ) ;
