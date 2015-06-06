@@ -61,8 +61,6 @@ public class NotesElementDBO extends AbstractDBO {
 		objCorrelId     = rs.getString ( "obj_correl_id"    ) ;
 		ready           = rs.getBoolean( "ready"            ) ;
 		hiddenFromView  = rs.getBoolean( "hidden_from_view" ) ;
-		
-		log.debug( "\t  Loaded notes element " + notesElementId + " from DB" ) ;
 	}
 	
 	public int getNotesElementId() {
@@ -225,7 +223,7 @@ public class NotesElementDBO extends AbstractDBO {
 
 	public int create() throws Exception {
 
-		log.debug( "\t  Creating notes element - " + 
+		log.info( "\t  Creating notes element - " + 
 		           getElementType() + "::" + getObjCorrelId() ) ;
 		
 		final String sql = 
@@ -320,9 +318,6 @@ public class NotesElementDBO extends AbstractDBO {
 			throw new Exception( "Correlation id for NEDBO and NE don't match." ) ;
 		}
 		
-		log.debug( "\t    Existing notes element found. id=" + getNotesElementId() ) ;
-		log.debug( "\t      Tracing cards..." ) ;
-		
 		boolean updateRequired = false ;
 		this.sourceTrace = true ;
 		Map<String, CardDBO> dboMap = new HashMap<String, CardDBO>() ;
@@ -338,7 +333,8 @@ public class NotesElementDBO extends AbstractDBO {
 				cardDbo.setNotesElementId( getNotesElementId() ) ;
 				cards.add( cardDbo ) ;
 				if( !updateRequired ) updateRequired = true ;
-				log.debug( "\t      New card found..." ) ;
+				log.info( "\t      New card found for notes element " + 
+				           getNotesElementId() ) ;
 			}
 			else {
 				boolean bool = cardDbo.trace( card ) ;
@@ -359,13 +355,19 @@ public class NotesElementDBO extends AbstractDBO {
 			boolean hiddenEquals     = isHiddenFromView()   == ne.isHiddenFromView() ;
 			
 			if( !( contentEquals && difficultyEquals && hiddenEquals ) ) {
-				log.debug( "\t      Notes element found modfied.. id=" + getNotesElementId() ) ;
+				log.info( "\t      Notes element found modfied.. id=" + 
+			               getNotesElementId() ) ;
+				
 				this.isModified = true ;
 				this.content = ne.getContent() ;
 				this.hiddenFromView = ne.isHiddenFromView() ;
 				this.difficultyLevel = ne.getDifficultyLevel() ;
-				if( !updateRequired ) updateRequired = true ;
+				updateRequired = true ;
 			}
+		}
+		
+		if( ne.getCards().size() != cards.size() ) {
+			updateRequired = true ;
 		}
 		
 		return updateRequired ;
@@ -377,18 +379,22 @@ public class NotesElementDBO extends AbstractDBO {
 	 */
 	public void processTrace() throws Exception {
 
-		log.debug( "\t  Processing trace for NEDBO id = " + getNotesElementId() ) ;
+		log.debug( "\t  Processing trace for NEDBO id = " + 
+		           getNotesElementId() ) ;
+		
 		if( getNotesElementId() == -1 ) {
-			log.debug( "\t    Notes element will be created." ) ;
+			log.info( "\t    Notes element will be created." ) ;
 			create() ;
 			return ;
 		}
 		else if( isModified ) {
-			log.debug( "\t    Notes element will be updated. id=" + getNotesElementId() ) ;
+			log.info( "\t    Notes element will be updated. id=" + 
+		               getNotesElementId() ) ;
 			update() ;
 		}
 		else if( !sourceTrace ) {
-			log.debug( "\t    Notes element will be deleted. id=" + getNotesElementId() ) ;
+			log.info( "\t    Notes element will be deleted. id=" + 
+		               getNotesElementId() ) ;
 			delete() ;
 			return ;
 			// The associated cards will be cascade deleted at the database.

@@ -38,7 +38,7 @@ public class Chapter {
 		this.syllabusName = getSyllabusName( srcFile ) ;
 		this.notesAST = notesAST ;
 		
-		log.debug( "\tObject transforming chapter - " + getChapterFQN() );
+		log.info( "\tObject transforming chapter - " + getChapterFQN() );
 		
 		for( NotesElement element : this.notesAST.getNotesElements() ) {
 			
@@ -46,7 +46,7 @@ public class Chapter {
 			String distinctKey = ne.getType() + "-" + ne.getObjIdSeed() ;
 			
 			if( distinctNEMap.containsKey( distinctKey ) ) {
-				log.warn( "\t\tDuplicate notes element found. Skipping. " +
+				log.warn( "\t  Duplicate notes element found. Skipping. " +
 			              "key = " + distinctKey ) ;
 			}
 			else {
@@ -60,7 +60,7 @@ public class Chapter {
 	private void initializeNotesElements() 
 			throws Exception {
 			
-		log.debug( "\tProcessing notes elements" ) ;
+		log.info( "\tProcessing notes elements" ) ;
 		ArrayList<File> existingMediaFiles = new ArrayList<File>() ;
 		existingMediaFiles.addAll( FileUtils.listFiles( getMediaDirectory(), null, true ) ) ;
 		log.debug( "\tRetrieved existing media files" ) ;
@@ -74,7 +74,7 @@ public class Chapter {
 		// Now delete the media files that were present but not have been found
 		// relevant in this version of source processing.
 		for( File redundantFile : existingMediaFiles ) {
-			log.debug( "\tDeleting redundant file - " + redundantFile.getAbsolutePath() ) ;
+			log.info( "\tDeleting redundant file - " + redundantFile.getAbsolutePath() ) ;
 			FileUtils.deleteQuietly( redundantFile ) ;
 		}
 	}

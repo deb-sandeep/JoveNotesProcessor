@@ -241,7 +241,7 @@ public class ChapterDBO extends AbstractDBO {
 	
 	public int create() throws Exception {
 
-		log.debug( "\tCreating chapter - " + chapterFQN ) ;
+		log.info( "\tCreating chapter - " + chapterFQN ) ;
 		
 		final String sql = 
 		"INSERT INTO `jove_notes`.`chapter` " +
@@ -348,7 +348,7 @@ public class ChapterDBO extends AbstractDBO {
 	 */
 	public boolean trace( Chapter chapter ) throws Exception {
 		
-		log.debug( "\tTracing source model to database model." ) ;
+		log.info( "\tTracing source model to database model." ) ;
 		
 		boolean updateRequired = false ;
 		
@@ -367,7 +367,7 @@ public class ChapterDBO extends AbstractDBO {
 				dbo.setChapterId( this.getChapterId() ) ;
 				notesElements.add( dbo ) ;
 				if( !updateRequired ) updateRequired = true ;
-				log.debug( "\t    New notes element found." ) ;
+				log.info( "\t    New notes element found. " + ne.getType() ) ;
 			}
 			else {
 				boolean bool = dbo.trace( ne ) ;
@@ -376,11 +376,15 @@ public class ChapterDBO extends AbstractDBO {
 		}
 		
 		if( !chapter.getChapterName().equals( getChapterName() ) ) {
+			log.info( "\t    Chapter name found changed. " + getChapterName() ) ;
 			isModified = true ;
 			this.chapterName = chapter.getChapterName() ;
 		}
 		
 		if( chapter.getNotesElements().size() != notesElements.size() ) {
+			log.info( "\t    Number of cards have changed. " + 
+		               "#C[old] = " + notesElements.size() + ", " + 
+					   "#C[new] = " + chapter.getNotesElements().size() ) ;
 			updateRequired = true ;
 		}
 		

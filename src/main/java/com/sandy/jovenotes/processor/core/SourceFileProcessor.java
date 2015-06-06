@@ -19,9 +19,9 @@ public class SourceFileProcessor {
 			throws Exception {
 		
 		JoveNotes ast = ( JoveNotes )modelParser.parseFile( file ) ;
-		log.debug( "\tAST created." ) ;
+		log.info( "\tAST created." ) ;
 		if( shouldSkipProcessing( ast ) ) {
-			log.debug( "\tProcessing skipped as @skip_processing is on." ) ;
+			log.info( "\tProcessing skipped as @skip_processing is on." ) ;
 			return ;
 		}
 		
@@ -35,20 +35,20 @@ public class SourceFileProcessor {
 		
 		boolean chapterUpdateRequired = true ;
 		if( chapterDBO == null ) {
-			log.debug( "\tChapter " + chapter + " does not exist." ) ;
+			log.info( "\tChapter " + chapter + " does not exist." ) ;
 			chapterDBO = insertNewChapter( chapter ) ;
 		}
 		else {
 			log.debug( "\tChapter " + chapter + " is present in database." ) ;
 			chapterUpdateRequired = chapterDBO.trace( chapter ) ;
 			if( chapterUpdateRequired ){
-				log.debug( "\tChapter update required. Processing trace." ) ;
+				log.info( "\tChapter update required. Processing trace." ) ;
 				chapterDBO.processTrace() ;
 			}
 		}
 		
 		if( chapterUpdateRequired ) {
-			log.debug( "\tChapter has been updated. Refreshing meta data." ) ;
+			log.info( "\tChapter has been updated. Refreshing meta data." ) ;
 			com.sandy.jovenotes.processor.JoveNotes.persistentQueue.add( 
 				 new RefreshChapterCmd( chapter, chapterDBO.getChapterId() ) ) ;
 		}
@@ -57,7 +57,7 @@ public class SourceFileProcessor {
 	private ChapterDBO insertNewChapter( Chapter chapter ) 
 		throws Exception {
 		
-		log.debug( "\tInserting new chapter." ) ;
+		log.info( "\tInserting new chapter." ) ;
 		ChapterDBO chapterDBO = new ChapterDBO( chapter ) ;
 		chapterDBO.create() ;
 		log.debug( "\tNew chapter created. id = " + chapterDBO.getChapterId() );

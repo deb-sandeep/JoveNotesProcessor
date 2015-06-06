@@ -109,7 +109,6 @@ public class NotesElements {
 			notesElement = new RefToContextElement( chapter, ( RefToContext )ast ) ;
 		}
 		
-		log.debug( "\t  Built notes element. type = " + notesElement.getType() );
 		return notesElement ;
 	}
 
@@ -604,7 +603,6 @@ public class NotesElements {
 												super.getObjId(), 
 												card.getObjId() ) ;
 			
-			log.debug( "\tPersisting async spellbee command." ) ;
 			JoveNotes.persistentQueue.add( cmd ) ;
 			cards.add( card ) ;
 		}
@@ -632,8 +630,6 @@ public class NotesElements {
 		
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
-			
-			log.debug( "\t\tInitializing image label notes element." ) ;
 			
 			textProcessor.processImg( ast.getImageName() ) ;
 			
@@ -685,8 +681,9 @@ public class NotesElements {
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
-			log.debug( "\t\tInitializing ChemCompound notes element." ) ;
-			symbol    = "$$\\ce{" + ast.getSymbol() + "}$$" ;
+			symbol = "$$\\ce{" + ast.getSymbol() + "}$$" ;
+			
+			log.debug( ast.getSymbol() ) ;
 			
 			if( StringUtil.isNotEmptyOrNull( ast.getChemicalName() ) ) {
 				cards.add( new QACard( this,
@@ -704,17 +701,19 @@ public class NotesElements {
 						symbol, textProcessor ) ) ;
 				
 				cards.add( new QACard( this,
-						"_What is the **chemical name** of_\n\n" + ast.getCommonName(), 
-						ast.getChemicalName(), textProcessor ) ) ;
-				
-				cards.add( new QACard( this,
-						"_What is the **common name** of_\n\n" + ast.getChemicalName(), 
-						ast.getCommonName(), textProcessor ) ) ;
-				
-				cards.add( new QACard( this,
 						"_What is the **common name** for_\n\n" + symbol,
 						ast.getCommonName(), textProcessor ) ) ;
 				
+				if( StringUtil.isNotEmptyOrNull( ast.getChemicalName() ) ) {
+					
+					cards.add( new QACard( this,
+					"_What is the **chemical name** of_\n\n" + ast.getCommonName(), 
+					ast.getChemicalName(), textProcessor ) ) ;
+					
+					cards.add( new QACard( this,
+				    "_What is the **common name** of_\n\n" + ast.getChemicalName(), 
+					ast.getCommonName(), textProcessor ) ) ;
+				}
 			}
 		}
 		
@@ -746,8 +745,6 @@ public class NotesElements {
 		
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
-			
-			log.debug( "\t\tInitializing Equation notes element." ) ;
 			
 			// Wrapping the user supplied equation in $$ will ensure that it
 			// gets rendered by MathJax on the client. It can be argued that
@@ -813,7 +810,6 @@ public class NotesElements {
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
-			log.debug( "\t\tInitializing ChemEquation notes element." ) ;
 			if( description != null ) {
 				fmtDescr = textProcessor.processText( description ) ;
 				cards.add( new QACard( this,
@@ -879,7 +875,6 @@ public class NotesElements {
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
-			log.debug( "\t\tInitializing RefToContext notes element." ) ;
 			this.fmtContext = textProcessor.processText( this.context ) ;
 			for( List<String> aRawQA : rawQAList ) {
 				List<String> aFmtQA = new ArrayList<String>() ;

@@ -29,7 +29,7 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 	}
 
 	public void execute() throws Exception {
-		log.debug( "\tExecuting RefreshChapterCmd for id - " + chapterId ) ;
+		log.info( "\tExecuting RefreshChapterCmd for id - " + chapterId ) ;
 		
 		try {
 			refreshMetaData() ;

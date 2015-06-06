@@ -68,8 +68,8 @@ public class JoveNotes {
 		journal = new SourceProcessingJournal( journalFile ) ;
 		log.debug( "\tSource processing journal initialized." ) ;
 		
-		log.debug( "JoveNotes processor - initialized." ) ;
-		log.debug( "" ) ;
+		log.info( "JoveNotes processor - initialized." ) ;
+		log.info( "" ) ;
 	}
 	
 	private void start() {
@@ -78,7 +78,11 @@ public class JoveNotes {
 		log.debug( "Processing files.." ) ;
 		
 		for( File file : filesForProcessing ) {
-			log.debug( "  Processing " + file.getAbsolutePath() ) ;
+			log.info( "  Processing " + 
+		             file.getAbsolutePath()
+		                 .substring( config.getSrcDir()
+		                		           .getAbsolutePath()
+		                		           .length() ) ) ;
 			try{
 				SourceFileProcessor processor = new SourceFileProcessor() ;
 				processor.process( file, modelParser ) ;
@@ -100,7 +104,7 @@ public class JoveNotes {
 	
 	private void processPersistedCommands() throws Exception {
 		
-		log.debug( "Processing persisted commands." ) ;
+		log.info( "Processing persisted commands." ) ;
 		
 		int numCommands = persistentQueue.size() ;
 		for( int i=0; i<numCommands; i++ ) {
@@ -136,14 +140,14 @@ public class JoveNotes {
 		for( File file : allFiles ) {
 			if( config.isForceProcessAllFiles() ) {
 				filesForProcessing.add( file ) ;
-				log.debug( "  Selecting file - " + file.getAbsolutePath() ) ;
+				log.info( "  Selecting file - " + file.getAbsolutePath() ) ;
 			}
 			else if( journal.hasFileChanged( file ) ) {
 				filesForProcessing.add( file ) ;
-				log.debug( "  Selecting file - " + file.getAbsolutePath() ) ;
+				log.info( "  Selecting file - " + file.getAbsolutePath() ) ;
 			}
 			else {
-				log.debug( "  Ignoring file - " + file.getAbsolutePath() ) ;
+				log.info( "  Ignoring file - " + file.getAbsolutePath() ) ;
 			}
 		}
 		log.debug( "" ) ;
@@ -151,7 +155,7 @@ public class JoveNotes {
 	}
 
 	public static void main( String[] args ) throws Exception {
-		log.debug( "Starting JoveNotes processor." ) ;
+		log.info( "Starting JoveNotes processor." ) ;
 		
 		JoveNotes processor = new JoveNotes( args ) ;
 		processor.start() ;

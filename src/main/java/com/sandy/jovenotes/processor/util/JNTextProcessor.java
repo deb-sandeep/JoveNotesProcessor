@@ -141,7 +141,7 @@ public class JNTextProcessor {
 			return imgFile.getName() ;
 		}
 
-		log.debug( "\tGenerating cmap image. " + imgFile.getName() );
+		log.info( "\tGenerating cmap image. " + imgFile.getName() );
 		CMapElement cmap = new CMapBuilder().buildCMapElement( cmapContent ) ;
         CMapDotSerializer dotSerializer = new CMapDotSerializer( cmap ) ;
         

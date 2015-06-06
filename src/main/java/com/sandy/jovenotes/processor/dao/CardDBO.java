@@ -186,7 +186,7 @@ public class CardDBO extends AbstractDBO {
 
 	public int create() throws Exception {
 
-		log.debug( "\t    Creating card - " + 
+		log.info( "\t    Creating card - " + 
 		           getCardType() + "::" + getObjCorrelId() ) ;
 		
 		final String sql = 
@@ -276,8 +276,6 @@ public class CardDBO extends AbstractDBO {
 			throw new Exception( "Correlation id for CardDBO and Card don't match." ) ;
 		}
 		
-		log.debug( "\t        Existing card found. id=" + getCardId() ) ;
-		
 		this.sourceTrace = true ;
 
 		// Only if the notes is ready - implying that it's content will not be 
@@ -292,7 +290,7 @@ public class CardDBO extends AbstractDBO {
 			boolean difficultyEquals = getDifficultyLevel() == card.getDifficultyLevel() ;
 			
 			if( !( contentEquals && difficultyEquals ) ) {
-				log.debug( "\t           Card found modififed. id=" + getCardId() ) ;
+				log.info( "\t           Card found modififed. id=" + getCardId() ) ;
 				this.isModified = true ;
 				this.content = card.getContent() ;
 				this.difficultyLevel = card.getDifficultyLevel() ;
@@ -310,15 +308,15 @@ public class CardDBO extends AbstractDBO {
 	public void processTrace() throws Exception {
 
 		if( getCardId() == -1 ) {
-			log.debug( "\t    Card will be created." ) ;
+			log.info( "\t    Card will be created." ) ;
 			create() ;
 		}
 		else if( isModified ) {
-			log.debug( "\t    Card will be updated. id=" + getCardId() ) ;
+			log.info( "\t    Card will be updated. id=" + getCardId() ) ;
 			update() ;
 		}
 		else if( !sourceTrace ) {
-			log.debug( "\t    Card will be deleted. id=" + getCardId() ) ;
+			log.info( "\t    Card will be deleted. id=" + getCardId() ) ;
 			delete() ;
 		}
 	}

@@ -58,7 +58,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 	}
 
 	public void execute() throws Exception {
-		log.debug( "\tExecuting SpellbeeCmd for word - " + word ) ;
+		log.info( "\tExecuting SpellbeeCmd for word - " + word ) ;
 		
 		File mediaDir = new File( JoveNotes.config.getDestMediaRootDir(), "_spellbee" ) ;
 		File clipFile = new File( mediaDir, word.toLowerCase() + ".mp3" ) ;
@@ -81,7 +81,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 	private void downloadSoundClip( File clipFile ) throws Exception {
 
 		if( !clipFile.exists() ) {
-			log.debug( "\t\tDownloading sound clip." ) ;
+			log.info( "\t\tDownloading sound clip." ) ;
 	        if( !downloadClipFromGoogle( clipFile ) ) {
 	            if( !downloadClipFromDictionaryDotCom( clipFile ) ) {
 	                throw new Exception( "Could not download sound clip." ) ;
@@ -147,7 +147,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 	private void downloadDescription( File descFile ) throws Exception {
 		
 		if( !descFile.exists() ) {
-			log.debug( "\t\tDownloading word meaning." ) ;
+			log.info( "\t\tDownloading word meaning." ) ;
             List<String> defs = new WordnicAdapter().getDefinitions( word ) ;
             if( defs.isEmpty() ) {
                 throw new Exception( "Word meaning could not be downloaded." ) ;
@@ -201,14 +201,14 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
 			String pronunciation = null ;
 			
 			if( !pronunciationFile.exists() ) {
-				log.debug( "\t\tDownloading pronunciation." ) ;
+				log.info( "\t\tDownloading pronunciation." ) ;
 				pronunciation = new WordnicAdapter().getPronounciation( word ) ;
 				pronunciation = ( pronunciation==null ) ? "" : pronunciation ;
 				FileUtils.writeStringToFile( pronunciationFile, pronunciation, 
 						                     "UTF-8" ) ;
 			}
 			else {
-				log.debug( "\t\tLoading pronunciation from cache." ) ;
+				log.info( "\t\tLoading pronunciation from cache." ) ;
 				pronunciation = FileUtils.readFileToString( pronunciationFile, 
 						                                    "UTF-8" ) ;
 			}
