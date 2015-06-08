@@ -30,6 +30,12 @@ public class JNTextProcessor {
 	private static final String JN_MARKER_PATTERN = 
 			                 "\\{\\{@([a-zA-Z0-9]*)\\s+((.(?!\\{\\{))*)\\}\\}" ;
 	
+	private static final String MJ_BLOCK_MARKER_PATTERN = 
+			                 "\\$\\$.*\\$\\$" ;
+	
+	private static final String MJ_INLINE_MARKER_PATTERN = 
+							 "\\\\\\(.*\\\\\\)" ;
+	
 	private Chapter chapter = null ;
 	private ArrayList<File> existingMediaFiles = null ;
 	
@@ -42,7 +48,11 @@ public class JNTextProcessor {
 	public String processText( String input ) 
 		throws Exception {
 		
-		String output = processJoveNotesMarkers( input ) ;
+		String output = null ;
+		output = processJoveNotesMarkers( input ) ;
+		output = processBlockMathJaxMarkers( output ) ;
+		output = processInlineMathJaxMarkers( output ) ;
+		
 		output = pdProcessor.markdownToHtml( output ) ;
 		if( output.startsWith( "<p>" ) && output.endsWith( "</p>" ) ) {
 			output = output.substring( 3, output.length()-4 ) ;
@@ -77,6 +87,58 @@ public class JNTextProcessor {
 				outputBuffer.append( processedString ) ;
 				lastEndMarker = end ;
 			}
+		}
+		outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
+		return outputBuffer.toString() ;
+	}
+	
+	private String processBlockMathJaxMarkers( String input ) 
+			throws Exception {
+		
+		StringBuilder outputBuffer = new StringBuilder() ;
+		
+		Pattern r = Pattern.compile( MJ_BLOCK_MARKER_PATTERN ) ;
+		Matcher m = r.matcher( input ) ;
+		
+		int lastEndMarker = 0 ;
+		
+		while( m.find() ) {
+			int start = m.start() ;
+			int end   = m.end() ;
+			
+			String markerData = m.group( 0 ) ;
+			String processedString = markerData.replace( "\\", "\\\\" ) ;
+
+			outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
+			outputBuffer.append( processedString ) ;
+			
+			lastEndMarker = end ;
+		}
+		outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
+		return outputBuffer.toString() ;
+	}
+	
+	private String processInlineMathJaxMarkers( String input ) 
+			throws Exception {
+		
+		StringBuilder outputBuffer = new StringBuilder() ;
+		
+		Pattern r = Pattern.compile( MJ_INLINE_MARKER_PATTERN ) ;
+		Matcher m = r.matcher( input ) ;
+		
+		int lastEndMarker = 0 ;
+		
+		while( m.find() ) {
+			int start = m.start() ;
+			int end   = m.end() ;
+			
+			String markerData = m.group( 0 ) ;
+			String processedString = markerData.replace( "\\", "\\\\" ) ;
+			
+			outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
+			outputBuffer.append( processedString ) ;
+			
+			lastEndMarker = end ;
 		}
 		outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
 		return outputBuffer.toString() ;
