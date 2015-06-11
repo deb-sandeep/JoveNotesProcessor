@@ -443,6 +443,7 @@ public class NotesElements {
 		private com.sandy.xtext.joveNotes.FIB ast = null ;
 		
 		private List<String> rawAnswers  = new ArrayList<String>() ;
+		private List<String> fmtAnswers  = new ArrayList<String>() ;
 		private String       fmtQuestion = null ;
 		private String       objIdSeed   = null ;
 		
@@ -462,8 +463,11 @@ public class NotesElements {
 				throws Exception {
 			
 			this.fmtQuestion = textProcessor.processText( ast.getQuestion() ) ;
+			for( String rawAns : this.rawAnswers ) {
+				this.fmtAnswers.add( textProcessor.processText( rawAns ) ) ;
+			}
 			cards.add( new FIBCard( this, ast.getQuestion(), 
-					                rawAnswers, textProcessor ) ) ;
+					                fmtAnswers, textProcessor ) ) ;
 		}
 		
 		public String getObjIdSeed() { 
@@ -472,7 +476,7 @@ public class NotesElements {
 		
 		public void collectContentAttributes( Map<String, Object> map ) {
 			map.put( "question", fmtQuestion ) ;
-			map.put( "answers",  rawAnswers ) ;
+			map.put( "answers",  fmtAnswers ) ;
 		}
 	}
 

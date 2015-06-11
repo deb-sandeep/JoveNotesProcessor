@@ -14,7 +14,7 @@ public class MJRegexpPOC {
 		// String to be scanned to find the pattern.
 		String line = "This is a $$N = \\{ 1, 2, $3, ... $\\}$$ MJ expression";
 		
-		String pattern = "\\$\\$(.*)\\$\\$" ;
+		String pattern = "\\$\\$(.*?)\\$\\$" ;
 
 		// Create a Pattern object
 		Pattern r = Pattern.compile( pattern ) ;

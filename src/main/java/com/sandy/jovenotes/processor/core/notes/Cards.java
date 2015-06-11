@@ -125,29 +125,30 @@ public class Cards {
 		private static final double MAX_LIMIT = 0.6 ;
 		
 		private String       rawQuestion = null ;
-		private List<String> rawAnswers  = null ;
+		private List<String> fmtAnswers  = null ;
 		
 		private JNTextProcessor textProcessor = null ;
 		
 		public FIBCard( AbstractNotesElement ne, String rawQ, 
-				        List<String> answers, JNTextProcessor textProcessor ) throws Exception {
+				        List<String> fmtAnsList, JNTextProcessor textProcessor ) 
+		    throws Exception {
 			
 			super( ne, FIB ) ;
 			this.textProcessor = textProcessor ;
 			this.rawQuestion   = rawQ ;
-			this.rawAnswers    = answers ;
+			this.fmtAnswers    = fmtAnsList ;
 		}
 		
 		public String getObjIdSeed() { 
 			StringBuilder seed = new StringBuilder() ;
-			for( String answer : rawAnswers ) {
+			for( String answer : fmtAnswers ) {
 				seed.append( answer ) ;
 			}
 			return seed.toString() ;
 		}
 		
 		public int getDifficultyLevel() {
-			int x = rawAnswers.size() ;
+			int x = fmtAnswers.size() ;
 			double nDiff = (2*(1/(1+Math.exp(-1*DIFFICULTY_FACTOR*(x-X_SHIFT)))-.5))*MAX_LIMIT ;
 			return (int)Math.ceil( nDiff*100 ) ;
 		}
@@ -156,7 +157,7 @@ public class Cards {
 			throws Exception {
 			
 			map.put( "question", textProcessor.processText( rawQuestion ) ) ;
-			map.put( "answers",  rawAnswers ) ;
+			map.put( "answers",  fmtAnswers ) ;
 		}
 	}
 

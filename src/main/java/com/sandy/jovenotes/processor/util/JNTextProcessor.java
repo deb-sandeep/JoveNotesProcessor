@@ -31,10 +31,10 @@ public class JNTextProcessor {
 			                 "\\{\\{@([a-zA-Z0-9]*)\\s+((.(?!\\{\\{))*)\\}\\}" ;
 	
 	private static final String MJ_BLOCK_MARKER_PATTERN = 
-			                 "\\$\\$.*\\$\\$" ;
+			                 "\\$\\$.*?\\$\\$" ;
 	
 	private static final String MJ_INLINE_MARKER_PATTERN = 
-							 "\\\\\\(.*\\\\\\)" ;
+							 "\\\\\\(.*?\\\\\\)" ;
 	
 	private Chapter chapter = null ;
 	private ArrayList<File> existingMediaFiles = null ;
