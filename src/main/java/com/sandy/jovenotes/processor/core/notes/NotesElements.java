@@ -451,7 +451,7 @@ public class NotesElements {
 			super( FIB, chapter, ast ) ;
 			this.ast = ast ;
 			
-			StringBuilder seed = new StringBuilder() ;
+			StringBuilder seed = new StringBuilder( this.ast.getQuestion() ) ;
 			for( String ans : ast.getAnswers() ) {
 				this.rawAnswers.add( ans ) ;
 				seed.append( ans ) ;
@@ -499,8 +499,8 @@ public class NotesElements {
 					   ( ast.getSkipReverseQuestion() == null ) ? true : false ; 
 			
 			for( MatchPair pair : ast.getPairs() ) {
-				this.objIdSeed        += pair.getMatchQuestion() ;
-				this.objIdSeedReverse += pair.getMatchAnswer() ;
+				this.objIdSeed        += ( pair.getMatchQuestion() + pair.getMatchAnswer() ) ;
+				this.objIdSeedReverse += ( pair.getMatchAnswer() + pair.getMatchQuestion() ) ;
 			}
 		}
 		
