@@ -1,5 +1,6 @@
 package com.sandy.jovenotes.processor.util;
 
+import java.net.URLEncoder;
 import java.util.ArrayList ;
 import java.util.List ;
 
@@ -28,7 +29,7 @@ public class WordnicAdapter {
         		                           JoveNotes.config.getWordnicAPIKey() ) ;
         
         List<Definition> defs = api.getDefinitions(
-                word,     
+                URLEncoder.encode( word, "UTF-8" ),     
                 null,     
                 "all",    
                 maxNumDefs,        
@@ -52,7 +53,7 @@ public class WordnicAdapter {
         		                           JoveNotes.config.getWordnicAPIKey() ) ;
         
         List<TextPron> pronounciations = api.getTextPronunciations( 
-        		                               word, null, null, "true", 1 ) ;
+        		URLEncoder.encode( word, "UTF-8" ), null, null, "true", 1 ) ;
         if( !pronounciations.isEmpty() ) {
         	return pronounciations.get(0).getRaw() ;
         }

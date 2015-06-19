@@ -2,6 +2,7 @@ package com.sandy.jovenotes.processor.async;
 
 import java.io.File;
 import java.io.Serializable;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -98,7 +99,10 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
         boolean result = false ;
         NetworkResourceDownloader downloader = null ;
         
-        String url = GOOGLE_CLIP_URL_TEMPLATE.replace( "{{word}}", word.toLowerCase() ) ;
+        String url = GOOGLE_CLIP_URL_TEMPLATE.replace( 
+        				"{{word}}", 
+        				URLEncoder.encode( word.toLowerCase(), "UTF-8" ) ) ;
+        
         downloader = new NetworkResourceDownloader( url ) ;
         if( downloader.execute() == 200 ) {
             downloader.saveResponseToFile( outputFile ) ;
@@ -120,7 +124,10 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
         boolean result = false ;
         NetworkResourceDownloader downloader = null ;
             
-        String url = DICTCOM_CLIP_URL_TEMPLATE.replace( "{{word}}", word ) ;
+        String url = DICTCOM_CLIP_URL_TEMPLATE.replace( 
+        				"{{word}}", 
+        				URLEncoder.encode( word, "UTF-8" ) ) ;
+        
         downloader = new NetworkResourceDownloader( url ) ;
         if( downloader.execute() == 200 ) {
             
