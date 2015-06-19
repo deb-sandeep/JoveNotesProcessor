@@ -151,6 +151,10 @@ public class JNTextProcessor {
 			processImg( data ) ;
 			return null ;
 		}
+		else if( type.equals( "audio" ) ) {
+			processAudio( data ) ;
+			return null ;
+		}
 		
 		return null ;
 	}
@@ -183,6 +187,32 @@ public class JNTextProcessor {
 		else {
 			FileUtils.copyFile( srcFile, destFile ) ;
 		}
+		existingMediaFiles.remove( destFile ) ;
+	}
+
+	public void processAudio( String audioClipName ) 
+			throws Exception {
+			
+		File srcFile  = new File( chapter.getSrcAudioFolder(), audioClipName ) ;
+		File destFile = new File( chapter.getMediaDirectory(), 
+				                  "audio" + File.separator + audioClipName ) ;
+		
+		if( !srcFile.exists() ) {
+			String msg = "Source audio file " + srcFile.getAbsolutePath() + 
+					     " does not exist." ;
+			throw new Exception( msg ) ;
+		}
+		
+		if( destFile.exists() ) {
+			if( ( srcFile.length() != destFile.length() ) || 
+				( srcFile.lastModified() > destFile.lastModified() ) ) {
+				FileUtils.copyFile( srcFile, destFile ) ;
+			}
+		}
+		else {
+			FileUtils.copyFile( srcFile, destFile ) ;
+		}
+		
 		existingMediaFiles.remove( destFile ) ;
 	}
 

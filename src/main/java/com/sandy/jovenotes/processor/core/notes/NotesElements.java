@@ -268,8 +268,8 @@ public class NotesElements {
 			this.word    = textProcessor.processText( ast.getWord() ) ;
 			this.meaning = textProcessor.processText( ast.getMeaning() ) ;
 			
-			String wmQ = "_What is the meaning of_\n\n**" + ast.getWord() + "**" ;
-			String mqQ = "_Which word means_\n\n**" + ast.getMeaning() + "**" ;
+			String wmQ = "_What is the meaning of_\n\n**" + this.word + "**" ;
+			String mqQ = "_Which word means_\n\n**" + this.meaning + "**" ;
 			
 			cards.add( new QACard( this, wmQ, ast.getMeaning(), textProcessor ) ) ;
 			cards.add( new QACard( this, mqQ, ast.getWord(), textProcessor ) ) ;
@@ -835,9 +835,9 @@ public class NotesElements {
 			StringBuilder buffer = new StringBuilder() ;
 			String[] parts = string.split( "\\s+\\+\\s+" ) ;
 			for( int i=0; i<parts.length; i++ ) {
-				buffer.append( "\\\\_\\\\_\\\\_\\\\_" ) ;
+				buffer.append( "\\_\\_\\_\\_" ) ;
 				if( i < parts.length-1 ) {
-					buffer.append( " \\+ " ) ;
+					buffer.append( " + " ) ;
 				}
 			}
 			return buffer.toString() ;

@@ -134,6 +134,10 @@ public class Chapter {
 		return new File( this.srcFile.getParentFile(), "img" ) ;
 	}
 	
+	public File getSrcAudioFolder() { 
+		return new File( this.srcFile.getParentFile(), "audio" ) ;
+	}
+	
 	public String toString() {
 		return getChapterFQN() ;
 	}
