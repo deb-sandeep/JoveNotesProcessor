@@ -155,6 +155,10 @@ public class JNTextProcessor {
 			processAudio( data ) ;
 			return null ;
 		}
+		else if( type.equals( "doc" ) ) {
+			processDoc( data ) ;
+			return null ;
+		}
 		
 		return null ;
 	}
@@ -170,24 +174,10 @@ public class JNTextProcessor {
 		}
 		
 		File srcFile  = new File( chapter.getSrcImagesFolder(), imgName ) ;
-		File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
+		File destFile = new File( chapter.getMediaDirectory(), 
+				                  "img" + File.separator + imgName ) ;
 		
-		if( !srcFile.exists() ) {
-			String msg = "Source image file " + srcFile.getAbsolutePath() + 
-					     " does not exist." ;
-			throw new Exception( msg ) ;
-		}
-		
-		if( destFile.exists() ) {
-			if( ( srcFile.length() != destFile.length() ) || 
-				( srcFile.lastModified() > destFile.lastModified() ) ) {
-				FileUtils.copyFile( srcFile, destFile ) ;
-			}
-		}
-		else {
-			FileUtils.copyFile( srcFile, destFile ) ;
-		}
-		existingMediaFiles.remove( destFile ) ;
+		processSrcMediaFile( srcFile, destFile ) ;
 	}
 
 	public void processAudio( String audioClipName ) 
@@ -197,8 +187,25 @@ public class JNTextProcessor {
 		File destFile = new File( chapter.getMediaDirectory(), 
 				                  "audio" + File.separator + audioClipName ) ;
 		
+		processSrcMediaFile( srcFile, destFile ) ;
+	}
+
+	public void processDoc( String docName ) 
+			throws Exception {
+			
+		File srcFile  = new File( chapter.getSrcDocFolder(), docName ) ;
+		File destFile = new File( chapter.getMediaDirectory(), 
+				                  "doc" + File.separator + docName ) ;
+		
+		processSrcMediaFile( srcFile, destFile ) ;
+	}
+	
+	
+	private void processSrcMediaFile( File srcFile, File destFile ) 
+		throws Exception {
+		
 		if( !srcFile.exists() ) {
-			String msg = "Source audio file " + srcFile.getAbsolutePath() + 
+			String msg = "Source media file " + srcFile.getAbsolutePath() + 
 					     " does not exist." ;
 			throw new Exception( msg ) ;
 		}
@@ -212,10 +219,9 @@ public class JNTextProcessor {
 		else {
 			FileUtils.copyFile( srcFile, destFile ) ;
 		}
-		
 		existingMediaFiles.remove( destFile ) ;
 	}
-
+	
 	public String processCMap( CMap ast )
 			throws Exception {
 		

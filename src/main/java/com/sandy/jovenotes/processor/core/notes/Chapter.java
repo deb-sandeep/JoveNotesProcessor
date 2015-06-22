@@ -138,6 +138,10 @@ public class Chapter {
 		return new File( this.srcFile.getParentFile(), "audio" ) ;
 	}
 	
+	public File getSrcDocFolder() { 
+		return new File( this.srcFile.getParentFile(), "doc" ) ;
+	}
+	
 	public String toString() {
 		return getChapterFQN() ;
 	}
