@@ -310,7 +310,7 @@ public class NotesElements {
 				this.definition += "<p>{{@img " + this.cmapImg + "}}" ;
 			}
 
-			String fmtQ = "_Define_\n\n'**" + ast.getTerm() + "**'" ;
+			String fmtQ = "_Define_\n\n'**" + ast.getTerm().trim() + "**'" ;
 			cards.add( new QACard( this, fmtQ, ast.getDefinition(), 
 					               cmapImg, textProcessor ) ) ;
 		}
