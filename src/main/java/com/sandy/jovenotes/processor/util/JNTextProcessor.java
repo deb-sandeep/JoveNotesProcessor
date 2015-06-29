@@ -192,6 +192,10 @@ public class JNTextProcessor {
 
 	public void processDoc( String docName ) 
 			throws Exception {
+		
+		if( docName.indexOf( '|' ) != -1 ) {
+			docName = docName.substring( 0, docName.indexOf( '|' ) ).trim() ;
+		}
 			
 		File srcFile  = new File( chapter.getSrcDocFolder(), docName ) ;
 		File destFile = new File( chapter.getMediaDirectory(), 
