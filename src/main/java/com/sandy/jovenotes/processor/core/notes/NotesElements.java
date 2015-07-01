@@ -330,6 +330,7 @@ public class NotesElements {
 		
 		private TeacherNote ast = null ;
 		
+		private String caption    = null ;
 		private String note       = null ;
 		private String cmapImg    = null ;
 		
@@ -341,11 +342,16 @@ public class NotesElements {
 		public void initialize( JNTextProcessor textProcessor ) 
 				throws Exception {
 			
+			this.caption = textProcessor.processText( ast.getCaption() ) ;
 			this.cmapImg = textProcessor.processCMap( ast.getCmap() ) ;
 			this.note    = textProcessor.processText( ast.getNote() ) ;
 			
 			if( cmapImg != null ) {
 				this.note += "<p>{{@img " + this.cmapImg + "}}" ;
+			}
+			
+			if( StringUtil.isEmptyOrNull( this.caption ) ) {
+				this.caption = "Note" ;
 			}
 		}
 		
@@ -354,6 +360,7 @@ public class NotesElements {
 		}
 		
 		public void collectContentAttributes( Map<String, Object> map ) {
+			map.put( "caption", this.caption ) ;
 			map.put( "note", this.note ) ;
 		}
 	}

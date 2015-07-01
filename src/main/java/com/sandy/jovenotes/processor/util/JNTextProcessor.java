@@ -48,6 +48,8 @@ public class JNTextProcessor {
 	public String processText( String input ) 
 		throws Exception {
 		
+		if( input == null ) return null ;
+		
 		String output = null ;
 		output = processJoveNotesMarkers( input ) ;
 		output = processBlockMathJaxMarkers( output ) ;
