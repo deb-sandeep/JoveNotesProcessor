@@ -1,12 +1,18 @@
 package com.sandy.jovenotes.processor.util;
 
+import java.io.BufferedReader ;
 import java.io.File;
+import java.io.InputStream ;
+import java.io.InputStreamReader ;
 import java.util.ArrayList;
+import java.util.HashMap ;
+import java.util.Map ;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.jsoup.Jsoup ;
 import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
@@ -20,233 +26,280 @@ import com.sandy.xtext.joveNotes.CMap;
 
 public class JNTextProcessor {
 
-	private static final Logger log = Logger.getLogger(JNTextProcessor.class) ;
-	
-	private static PegDownProcessor pdProcessor   = 
-			    new PegDownProcessor( Extensions.ALL & 
-			    		             ~Extensions.HARDWRAPS & 
-			    		             ~Extensions.ANCHORLINKS ) ;
-	
-	private static final String JN_MARKER_PATTERN = 
-			                 "\\{\\{@([a-zA-Z0-9]*)\\s+((.(?!\\{\\{))*)\\}\\}" ;
-	
-	private static final String MJ_BLOCK_MARKER_PATTERN = 
-			                 "\\$\\$.*?\\$\\$" ;
-	
-	private static final String MJ_INLINE_MARKER_PATTERN = 
-							 "\\\\\\(.*?\\\\\\)" ;
-	
-	private Chapter chapter = null ;
-	private ArrayList<File> existingMediaFiles = null ;
-	
-	public JNTextProcessor( Chapter chapter, ArrayList<File> existingMediaFiles ) {
-		
-		this.chapter = chapter ;
-		this.existingMediaFiles = existingMediaFiles ;
-	}
-	
-	public String processText( String input ) 
-		throws Exception {
-		
-		if( input == null ) return null ;
-		
-		String output = null ;
-		output = processJoveNotesMarkers( input ) ;
-		output = processBlockMathJaxMarkers( output ) ;
-		output = processInlineMathJaxMarkers( output ) ;
-		
-		output = pdProcessor.markdownToHtml( output ) ;
-		if( output.startsWith( "<p>" ) && output.endsWith( "</p>" ) ) {
-			output = output.substring( 3, output.length()-4 ) ;
-		}
-		
-		// Let's piggy back on bootstrap formatting of tables.
-		String customTableTag = "<table class=\"pure-table pure-table-horizontal\">" ;
-		output = output.replaceAll( "<table>", customTableTag ) ;
-		return output ;
-	}
-	
-	private String processJoveNotesMarkers( String input ) 
-		throws Exception {
-		
-		StringBuilder outputBuffer = new StringBuilder() ;
-		
-		Pattern r = Pattern.compile( JN_MARKER_PATTERN ) ;
-		Matcher m = r.matcher( input ) ;
-		
-		int lastEndMarker = 0 ;
-		
-		while( m.find() ) {
-			int start = m.start() ;
-			int end   = m.end() ;
-			
-			String markerType = m.group( 1 ) ;
-			String markerData = m.group( 2 ) ;
-			
-			String processedString = processMarker( markerType, markerData ) ;
-			if( processedString != null ) {
-				outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
-				outputBuffer.append( processedString ) ;
-				lastEndMarker = end ;
-			}
-		}
-		outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
-		return outputBuffer.toString() ;
-	}
-	
-	private String processBlockMathJaxMarkers( String input ) 
-			throws Exception {
-		
-		StringBuilder outputBuffer = new StringBuilder() ;
-		
-		Pattern r = Pattern.compile( MJ_BLOCK_MARKER_PATTERN ) ;
-		Matcher m = r.matcher( input ) ;
-		
-		int lastEndMarker = 0 ;
-		
-		while( m.find() ) {
-			int start = m.start() ;
-			int end   = m.end() ;
-			
-			String markerData = m.group( 0 ) ;
-			String processedString = markerData.replace( "\\", "\\\\" ) ;
+    private static final Logger log = Logger.getLogger(JNTextProcessor.class) ;
+    
+    private static PegDownProcessor pdProcessor   = 
+                new PegDownProcessor( Extensions.ALL & 
+                                     ~Extensions.HARDWRAPS & 
+                                     ~Extensions.ANCHORLINKS ) ;
+    
+    private static final String JN_MARKER_PATTERN = 
+                             "\\{\\{@([a-zA-Z0-9]*)\\s+((.(?!\\{\\{))*)\\}\\}" ;
+    
+    private static final String MJ_BLOCK_MARKER_PATTERN = 
+                             "\\$\\$.*?\\$\\$" ;
+    
+    private static final String MJ_INLINE_MARKER_PATTERN = 
+                             "\\\\\\(.*?\\\\\\)" ;
+    
+    private Chapter chapter = null ;
+    private ArrayList<File> existingMediaFiles = null ;
+    
+    private static Map<String, Boolean> stopWords = new HashMap<String, Boolean>() ;
+    
+    {
+        try {
+            loadStopWords() ;
+        }
+        catch( Exception e ) {
+            log.error( "Could not load stop words. ", e ) ;
+        }
+    }
+    
+    private static void loadStopWords() throws Exception {
+        
+        InputStream is = JNTextProcessor.class.getResourceAsStream( "/stopwords.txt" ) ;
+        if( is != null ) {
+            BufferedReader br = new BufferedReader( new InputStreamReader( is ) ) ;
+            String line = null ;
+            while( ( line = br.readLine() ) != null ) {
+                if( StringUtil.isNotEmptyOrNull( line ) ) {
+                    stopWords.put( line.toLowerCase(), Boolean.TRUE ) ;
+                }
+            }
+        }
+        else {
+            throw new Exception( "stopwords list not found." ) ;
+        }
+    }
+    
+    public JNTextProcessor( Chapter chapter, ArrayList<File> existingMediaFiles ) {
+        
+        this.chapter = chapter ;
+        this.existingMediaFiles = existingMediaFiles ;
+    }
+    
+    public int getNormalizedWordsInFormattedText( String text ) {
+        
+        String normAnswer = Jsoup.parse( text )
+                                 .text().toLowerCase()
+                                 .replaceAll( "[^A-Za-z0-9\u0900-\u097F ]", "" ) ;
+        
+        String[] wordsInAnswer = normAnswer.split( "\\s+" ) ;
+        int numNormalizedWords = 0 ;
+        
+        for( String word : wordsInAnswer ) {
+            if( StringUtil.isNotEmptyOrNull( word ) ) {
+                if( !stopWords.containsKey( word.trim() ) ) {
+                    numNormalizedWords++ ;
+                }
+            }
+        }
+        return numNormalizedWords ;
+    }
+    
+    public String processText( String input ) 
+        throws Exception {
+        
+        if( input == null ) return null ;
+        
+        String output = null ;
+        output = processJoveNotesMarkers( input ) ;
+        output = processBlockMathJaxMarkers( output ) ;
+        output = processInlineMathJaxMarkers( output ) ;
+        
+        output = pdProcessor.markdownToHtml( output ) ;
+        if( output.startsWith( "<p>" ) && output.endsWith( "</p>" ) ) {
+            output = output.substring( 3, output.length()-4 ) ;
+        }
+        
+        // Let's piggy back on bootstrap formatting of tables.
+        String customTableTag = "<table class=\"pure-table pure-table-horizontal\">" ;
+        output = output.replaceAll( "<table>", customTableTag ) ;
+        return output ;
+    }
+    
+    private String processJoveNotesMarkers( String input ) 
+        throws Exception {
+        
+        StringBuilder outputBuffer = new StringBuilder() ;
+        
+        Pattern r = Pattern.compile( JN_MARKER_PATTERN ) ;
+        Matcher m = r.matcher( input ) ;
+        
+        int lastEndMarker = 0 ;
+        
+        while( m.find() ) {
+            int start = m.start() ;
+            int end   = m.end() ;
+            
+            String markerType = m.group( 1 ) ;
+            String markerData = m.group( 2 ) ;
+            
+            String processedString = processMarker( markerType, markerData ) ;
+            if( processedString != null ) {
+                outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
+                outputBuffer.append( processedString ) ;
+                lastEndMarker = end ;
+            }
+        }
+        outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
+        return outputBuffer.toString() ;
+    }
+    
+    private String processBlockMathJaxMarkers( String input ) 
+            throws Exception {
+        
+        StringBuilder outputBuffer = new StringBuilder() ;
+        
+        Pattern r = Pattern.compile( MJ_BLOCK_MARKER_PATTERN ) ;
+        Matcher m = r.matcher( input ) ;
+        
+        int lastEndMarker = 0 ;
+        
+        while( m.find() ) {
+            int start = m.start() ;
+            int end   = m.end() ;
+            
+            String markerData = m.group( 0 ) ;
+            String processedString = markerData.replace( "\\", "\\\\" ) ;
 
-			outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
-			outputBuffer.append( processedString ) ;
-			
-			lastEndMarker = end ;
-		}
-		outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
-		return outputBuffer.toString() ;
-	}
-	
-	private String processInlineMathJaxMarkers( String input ) 
-			throws Exception {
-		
-		StringBuilder outputBuffer = new StringBuilder() ;
-		
-		Pattern r = Pattern.compile( MJ_INLINE_MARKER_PATTERN ) ;
-		Matcher m = r.matcher( input ) ;
-		
-		int lastEndMarker = 0 ;
-		
-		while( m.find() ) {
-			int start = m.start() ;
-			int end   = m.end() ;
-			
-			String markerData = m.group( 0 ) ;
-			String processedString = markerData.replace( "\\", "\\\\" ) ;
-			
-			outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
-			outputBuffer.append( processedString ) ;
-			
-			lastEndMarker = end ;
-		}
-		outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
-		return outputBuffer.toString() ;
-	}
-	
-	private String processMarker( String type, String data ) 
-		throws Exception {
-		
-		if( type.equals( "img" ) ) {
-			processImg( data ) ;
-			return null ;
-		}
-		else if( type.equals( "audio" ) ) {
-			processAudio( data ) ;
-			return null ;
-		}
-		else if( type.equals( "doc" ) ) {
-			processDoc( data ) ;
-			return null ;
-		}
-		
-		return null ;
-	}
-	
-	public void processImg( String imgName ) 
-		throws Exception {
-		
-		// If the image name ends with .cmap.png, we do nothing. This is so 
-		// because cmap files are generated and stored in the media directory.
-		// CMap image files are not expected in the source folder.
-		if( imgName.endsWith( ".cmap.png" ) ) {
-			return ;
-		}
-		
-		File srcFile  = new File( chapter.getSrcImagesFolder(), imgName ) ;
-		File destFile = new File( chapter.getMediaDirectory(), 
-				                  "img" + File.separator + imgName ) ;
-		
-		processSrcMediaFile( srcFile, destFile ) ;
-	}
+            outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
+            outputBuffer.append( processedString ) ;
+            
+            lastEndMarker = end ;
+        }
+        outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
+        return outputBuffer.toString() ;
+    }
+    
+    private String processInlineMathJaxMarkers( String input ) 
+            throws Exception {
+        
+        StringBuilder outputBuffer = new StringBuilder() ;
+        
+        Pattern r = Pattern.compile( MJ_INLINE_MARKER_PATTERN ) ;
+        Matcher m = r.matcher( input ) ;
+        
+        int lastEndMarker = 0 ;
+        
+        while( m.find() ) {
+            int start = m.start() ;
+            int end   = m.end() ;
+            
+            String markerData = m.group( 0 ) ;
+            String processedString = markerData.replace( "\\", "\\\\" ) ;
+            
+            outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
+            outputBuffer.append( processedString ) ;
+            
+            lastEndMarker = end ;
+        }
+        outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
+        return outputBuffer.toString() ;
+    }
+    
+    private String processMarker( String type, String data ) 
+        throws Exception {
+        
+        if( type.equals( "img" ) ) {
+            processImg( data ) ;
+            return null ;
+        }
+        else if( type.equals( "audio" ) ) {
+            processAudio( data ) ;
+            return null ;
+        }
+        else if( type.equals( "doc" ) ) {
+            processDoc( data ) ;
+            return null ;
+        }
+        
+        return null ;
+    }
+    
+    public void processImg( String imgName ) 
+        throws Exception {
+        
+        // If the image name ends with .cmap.png, we do nothing. This is so 
+        // because cmap files are generated and stored in the media directory.
+        // CMap image files are not expected in the source folder.
+        if( imgName.endsWith( ".cmap.png" ) ) {
+            return ;
+        }
+        
+        File srcFile  = new File( chapter.getSrcImagesFolder(), imgName ) ;
+        File destFile = new File( chapter.getMediaDirectory(), 
+                                  "img" + File.separator + imgName ) ;
+        
+        processSrcMediaFile( srcFile, destFile ) ;
+    }
 
-	public void processAudio( String audioClipName ) 
-			throws Exception {
-			
-		File srcFile  = new File( chapter.getSrcAudioFolder(), audioClipName ) ;
-		File destFile = new File( chapter.getMediaDirectory(), 
-				                  "audio" + File.separator + audioClipName ) ;
-		
-		processSrcMediaFile( srcFile, destFile ) ;
-	}
+    public void processAudio( String audioClipName ) 
+            throws Exception {
+            
+        File srcFile  = new File( chapter.getSrcAudioFolder(), audioClipName ) ;
+        File destFile = new File( chapter.getMediaDirectory(), 
+                                  "audio" + File.separator + audioClipName ) ;
+        
+        processSrcMediaFile( srcFile, destFile ) ;
+    }
 
-	public void processDoc( String docName ) 
-			throws Exception {
-		
-		if( docName.indexOf( '|' ) != -1 ) {
-			docName = docName.substring( 0, docName.indexOf( '|' ) ).trim() ;
-		}
-			
-		File srcFile  = new File( chapter.getSrcDocFolder(), docName ) ;
-		File destFile = new File( chapter.getMediaDirectory(), 
-				                  "doc" + File.separator + docName ) ;
-		
-		processSrcMediaFile( srcFile, destFile ) ;
-	}
-	
-	
-	private void processSrcMediaFile( File srcFile, File destFile ) 
-		throws Exception {
-		
-		if( !srcFile.exists() ) {
-			String msg = "Source media file " + srcFile.getAbsolutePath() + 
-					     " does not exist." ;
-			throw new Exception( msg ) ;
-		}
-		
-		if( destFile.exists() ) {
-			if( ( srcFile.length() != destFile.length() ) || 
-				( srcFile.lastModified() > destFile.lastModified() ) ) {
-				FileUtils.copyFile( srcFile, destFile ) ;
-			}
-		}
-		else {
-			FileUtils.copyFile( srcFile, destFile ) ;
-		}
-		existingMediaFiles.remove( destFile ) ;
-	}
-	
-	public String processCMap( CMap ast )
-			throws Exception {
-		
-		// If there is no CMap in the source, nothing is to be done.
-		if( ast == null )return null ;
+    public void processDoc( String docName ) 
+            throws Exception {
+        
+        if( docName.indexOf( '|' ) != -1 ) {
+            docName = docName.substring( 0, docName.indexOf( '|' ) ).trim() ;
+        }
+            
+        File srcFile  = new File( chapter.getSrcDocFolder(), docName ) ;
+        File destFile = new File( chapter.getMediaDirectory(), 
+                                  "doc" + File.separator + docName ) ;
+        
+        processSrcMediaFile( srcFile, destFile ) ;
+    }
+    
+    
+    private void processSrcMediaFile( File srcFile, File destFile ) 
+        throws Exception {
+        
+        if( !srcFile.exists() ) {
+            String msg = "Source media file " + srcFile.getAbsolutePath() + 
+                         " does not exist." ;
+            throw new Exception( msg ) ;
+        }
+        
+        if( destFile.exists() ) {
+            if( ( srcFile.length() != destFile.length() ) || 
+                ( srcFile.lastModified() > destFile.lastModified() ) ) {
+                FileUtils.copyFile( srcFile, destFile ) ;
+            }
+        }
+        else {
+            FileUtils.copyFile( srcFile, destFile ) ;
+        }
+        existingMediaFiles.remove( destFile ) ;
+    }
+    
+    public String processCMap( CMap ast )
+            throws Exception {
+        
+        // If there is no CMap in the source, nothing is to be done.
+        if( ast == null )return null ;
 
-		String cmapContent = ast.getContent() ;
-		File imgFile = getCMapDestImageFilePath( cmapContent ) ;
+        String cmapContent = ast.getContent() ;
+        File imgFile = getCMapDestImageFilePath( cmapContent ) ;
 
-		// If the image file exists, we do not regenerate. We have named the file
-		// based on its content hash. Which implies, if the content would have
-		// changed, the file name would change too.
-		if( imgFile.exists() ) {
-			this.existingMediaFiles.remove( imgFile ) ;
-			return imgFile.getName() ;
-		}
+        // If the image file exists, we do not regenerate. We have named the file
+        // based on its content hash. Which implies, if the content would have
+        // changed, the file name would change too.
+        if( imgFile.exists() ) {
+            this.existingMediaFiles.remove( imgFile ) ;
+            return imgFile.getName() ;
+        }
 
-		log.info( "\tGenerating cmap image. " + imgFile.getName() );
-		CMapElement cmap = new CMapBuilder().buildCMapElement( cmapContent ) ;
+        log.info( "\tGenerating cmap image. " + imgFile.getName() );
+        CMapElement cmap = new CMapBuilder().buildCMapElement( cmapContent ) ;
         CMapDotSerializer dotSerializer = new CMapDotSerializer( cmap ) ;
         
         File dotFile = new File( JoveNotes.config.getWorkspaceDir(), "temp.dot" ) ;
@@ -261,11 +314,11 @@ public class JNTextProcessor {
         dotFile.delete() ;
         
         return imgFile.getName() ;
-	}
-	
-	private File getCMapDestImageFilePath( String cmapContent ) {
-		String imgName = StringUtil.getHash( cmapContent ) + ".cmap.png" ;
-		File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
-		return destFile ;
-	}
+    }
+    
+    private File getCMapDestImageFilePath( String cmapContent ) {
+        String imgName = StringUtil.getHash( cmapContent ) + ".cmap.png" ;
+        File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
+        return destFile ;
+    }
 }
