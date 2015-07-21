@@ -137,5 +137,10 @@
 		    <artifactId>jsoup</artifactId>
 		    <version>1.8.2</version>
 		</dependency>
+		<dependency>
+		    <groupId>net.sourceforge.plantuml</groupId>
+		    <artifactId>plantuml</artifactId>
+		    <version>8028</version>
+		</dependency>
     </dependencies>
 </project>

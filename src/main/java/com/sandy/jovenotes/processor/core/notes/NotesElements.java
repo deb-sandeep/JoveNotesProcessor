@@ -231,7 +231,7 @@ public class NotesElements {
             String consRawA = consolidateAnswerParts( this.ast.getAnswerParts(),
                                                       textProcessor ) ;
             
-            this.cmapImg     = textProcessor.processCMap( ast.getCmap() ) ;
+            this.cmapImg     = textProcessor.processCMapAST( ast.getCmap() ) ;
             this.fmtQuestion = textProcessor.processText( ast.getQuestion() ) ;
             this.fmtAnswer   = textProcessor.processText( consRawA ) ; 
             
@@ -334,7 +334,7 @@ public class NotesElements {
         public void initialize( JNTextProcessor textProcessor ) 
                 throws Exception {
             
-            this.cmapImg    = textProcessor.processCMap( ast.getCmap() ) ;
+            this.cmapImg    = textProcessor.processCMapAST( ast.getCmap() ) ;
             this.term       = textProcessor.processText( ast.getTerm() ) ;
             this.definition = textProcessor.processText( ast.getDefinition() ) ; 
             
@@ -375,7 +375,7 @@ public class NotesElements {
                 throws Exception {
             
             this.caption = textProcessor.processText( ast.getCaption() ) ;
-            this.cmapImg = textProcessor.processCMap( ast.getCmap() ) ;
+            this.cmapImg = textProcessor.processCMapAST( ast.getCmap() ) ;
             this.note    = textProcessor.processText( ast.getNote() ) ;
             
             if( cmapImg != null ) {
@@ -414,7 +414,7 @@ public class NotesElements {
         public void initialize( JNTextProcessor textProcessor ) 
                 throws Exception {
             
-            this.cmapImg   = textProcessor.processCMap( ast.getCmap() ) ;
+            this.cmapImg   = textProcessor.processCMapAST( ast.getCmap() ) ;
             this.character = textProcessor.processText( ast.getCharacter() ) ;
             this.estimate  = textProcessor.processText( ast.getEstimate() ) ; 
             

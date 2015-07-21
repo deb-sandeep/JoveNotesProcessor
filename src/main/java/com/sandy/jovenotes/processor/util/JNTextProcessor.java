@@ -124,7 +124,7 @@ public class JNTextProcessor {
         
         StringBuilder outputBuffer = new StringBuilder() ;
         
-        Pattern r = Pattern.compile( JN_MARKER_PATTERN ) ;
+        Pattern r = Pattern.compile( JN_MARKER_PATTERN, Pattern.DOTALL ) ;
         Matcher m = r.matcher( input ) ;
         
         int lastEndMarker = 0 ;
@@ -214,6 +214,9 @@ public class JNTextProcessor {
             processDoc( data ) ;
             return null ;
         }
+        else if( type.equals( "cmap" ) ) {
+            return "<p>{{@img " + processCMapContent( data ) + "}}<p>" ;
+        }
         
         return null ;
     }
@@ -281,13 +284,15 @@ public class JNTextProcessor {
         existingMediaFiles.remove( destFile ) ;
     }
     
-    public String processCMap( CMap ast )
-            throws Exception {
-        
+    public String processCMapAST( CMap ast ) throws Exception {
         // If there is no CMap in the source, nothing is to be done.
         if( ast == null )return null ;
-
-        String cmapContent = ast.getContent() ;
+        return processCMapContent( ast.getContent() ) ;
+    }
+    
+    private String processCMapContent( String cmapContent ) 
+        throws Exception {
+        
         File imgFile = getCMapDestImageFilePath( cmapContent ) ;
 
         // If the image file exists, we do not regenerate. We have named the file
