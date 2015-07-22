@@ -10,6 +10,8 @@ import java.util.Map ;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.plantuml.SourceStringReader ;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup ;
@@ -217,6 +219,9 @@ public class JNTextProcessor {
         else if( type.equals( "cmap" ) ) {
             return "<p>{{@img " + processCMapContent( data ) + "}}<p>" ;
         }
+        else if( type.equals( "uml" ) ) {
+            return "<p>{{@img " + processUMLContent( data ) + "}}<p>" ;
+        }
         
         return null ;
     }
@@ -224,10 +229,10 @@ public class JNTextProcessor {
     public void processImg( String imgName ) 
         throws Exception {
         
-        // If the image name ends with .cmap.png, we do nothing. This is so 
-        // because cmap files are generated and stored in the media directory.
-        // CMap image files are not expected in the source folder.
-        if( imgName.endsWith( ".cmap.png" ) ) {
+        // If the image name ends with .cmap.png or .uml.png, we do nothing. 
+        // This is so because cmap and uml files are generated and stored in 
+        // the media directory. They are not expected in the source folder.
+        if( imgName.endsWith( ".cmap.png" ) || imgName.endsWith( ".uml.png" ) ) {
             return ;
         }
         
@@ -323,6 +328,37 @@ public class JNTextProcessor {
     
     private File getCMapDestImageFilePath( String cmapContent ) {
         String imgName = StringUtil.getHash( cmapContent ) + ".cmap.png" ;
+        File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
+        return destFile ;
+    }
+
+    private String processUMLContent( String umlContent ) 
+            throws Exception {
+            
+        File imgFile = getUMLDestImageFilePath( umlContent ) ;
+
+        // If the image file exists, we do not regenerate. We have named the file
+        // based on its content hash. Which implies, if the content would have
+        // changed, the file name would change too.
+        if( imgFile.exists() ) {
+            this.existingMediaFiles.remove( imgFile ) ;
+            return imgFile.getName() ;
+        }
+
+        log.info( "\tGenerating uml image. " + imgFile.getName() );
+        String processedUMLContent = preProcessUMLContent( umlContent ) ;
+        SourceStringReader reader = new SourceStringReader( processedUMLContent ) ;
+        reader.generateImage( imgFile ) ;
+        
+        return imgFile.getName() ;
+    }
+    
+    private String preProcessUMLContent( String umlContent ) {
+        return "@startuml\n" + umlContent + "\n@enduml" ;
+    }
+    
+    private File getUMLDestImageFilePath( String umlContent ) {
+        String imgName = StringUtil.getHash( umlContent ) + ".uml.png" ;
         File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
         return destFile ;
     }

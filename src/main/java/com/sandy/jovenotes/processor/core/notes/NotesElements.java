@@ -267,7 +267,7 @@ public class NotesElements {
                 buffer.append( "<table class=\"cons_ans\">" ) ;
                 buffer.append( "<tr>" ) ; 
                 for( String part : textParts ) {
-                    buffer.append( "<td>" )
+                    buffer.append( "<td style=\"vertical-align:top\">" )
                           .append( textProcessor.processText( part ) )
                           .append( "</td>" ) ; 
                 }
