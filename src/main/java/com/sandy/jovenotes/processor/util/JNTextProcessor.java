@@ -348,6 +348,11 @@ public class JNTextProcessor {
         log.info( "\tGenerating uml image. " + imgFile.getName() );
         String processedUMLContent = preProcessUMLContent( umlContent ) ;
         SourceStringReader reader = new SourceStringReader( processedUMLContent ) ;
+        
+        if( !imgFile.getParentFile().exists() ) {
+            imgFile.getParentFile().mkdirs() ;
+        }
+        
         reader.generateImage( imgFile ) ;
         
         return imgFile.getName() ;
