@@ -222,6 +222,9 @@ public class JNTextProcessor {
         else if( type.equals( "uml" ) ) {
             return "<p>{{@img " + processUMLContent( data ) + "}}<p>" ;
         }
+        else if( type.equals( "youtube" ) ) {
+            return processYouTubeVideoId( data ) ;
+        }
         
         return null ;
     }
@@ -366,5 +369,13 @@ public class JNTextProcessor {
         String imgName = StringUtil.getHash( umlContent ) + ".uml.png" ;
         File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
         return destFile ;
+    }
+    
+    private String processYouTubeVideoId( String youTubeVideoId ) {
+        StringBuilder buffer = new StringBuilder() ;
+        buffer.append( "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/" ) ;
+        buffer.append( youTubeVideoId.trim() ) ;
+        buffer.append( "\" frameborder=\"0\" allowfullscreen></iframe>" ) ;
+        return buffer.toString() ;
     }
 }
