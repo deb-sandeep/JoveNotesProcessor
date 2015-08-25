@@ -15,7 +15,7 @@ public class SourceFileProcessor {
     
     private static final Logger log = Logger.getLogger( SourceFileProcessor.class ) ;
     
-    public void process( File file, XTextModelParser modelParser ) 
+    public void process( File baseDir, File file, XTextModelParser modelParser ) 
             throws Exception {
         
         JoveNotes ast = ( JoveNotes )modelParser.parseFile( file ) ;
@@ -27,7 +27,7 @@ public class SourceFileProcessor {
         // Create the source side object model. This includes source translation
         // and any required content transformation recursively for notes elements
         // and associated cards.
-        Chapter chapter = new Chapter( file, ast ) ;
+        Chapter chapter = new Chapter( baseDir, file, ast ) ;
 
         // Retrieve the database object model if one exists
         ChapterDBO chapterDBO = ChapterDBO.get( chapter ) ;

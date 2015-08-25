@@ -75,23 +75,28 @@ public class JoveNotes {
     
     private void start() throws Exception {
         
-        List<File> filesForProcessing = getFilesForProcessing() ;
-        log.debug( "Processing files.." ) ;
-        
-        for( File file : filesForProcessing ) {
-            log.info( "  Processing " + 
-                     file.getAbsolutePath()
-                         .substring( config.getSrcDir()
-                                           .getAbsolutePath()
-                                           .length() ) ) ;
-            try{
-                SourceFileProcessor processor = new SourceFileProcessor() ;
-                processor.process( file, modelParser ) ;
-                journal.updateSuccessfulProcessingStatus( file ) ;
-            }
-            catch( Exception e ) {
-                log.error( "Failure in processing " + file.getAbsolutePath(), e ) ;
-                journal.updateFailureProcessingStatus( file ) ;
+        if( config.isForceProcessAllFiles() ) {
+            journal.clean() ;
+        }
+        List<File> srcDirs = config.getSrcDirs() ;
+        for( File srcDir : srcDirs ) {
+            
+            log.info( "\nLoading files from : " + srcDir.getAbsolutePath() ) ;
+            log.info( "--------------------------------------------------------" );
+            List<File> filesForProcessing = getFilesForProcessing( srcDir ) ;
+            log.debug( "Processing files.." ) ;
+            
+            for( File file : filesForProcessing ) {
+                log.info( "  Processing " + file.getAbsolutePath() ) ;
+                try{
+                    SourceFileProcessor processor = new SourceFileProcessor() ;
+                    processor.process( srcDir, file, modelParser ) ;
+                    journal.updateSuccessfulProcessingStatus( file ) ;
+                }
+                catch( Exception e ) {
+                    log.error( "Failure in processing " + file.getAbsolutePath(), e ) ;
+                    journal.updateFailureProcessingStatus( file ) ;
+                }
             }
         }
         
@@ -103,6 +108,29 @@ public class JoveNotes {
         }
     }
     
+    private List<File> getFilesForProcessing( File srcDir ) throws Exception {
+        
+        List<File> filesForProcessing = new ArrayList<File>() ;
+            
+        Collection<File> allFiles = FileUtils.listFiles( srcDir, 
+                                                new String[]{"jn"}, true ) ;
+        for( File file : allFiles ) {
+            if( config.isForceProcessAllFiles() ) {
+                filesForProcessing.add( file ) ;
+                log.info( "  Selecting file - " + file.getAbsolutePath() ) ;
+            }
+            else if( journal.hasFileChanged( file ) ) {
+                filesForProcessing.add( file ) ;
+                log.info( "  Selecting file - " + file.getAbsolutePath() ) ;
+            }
+            else {
+                log.debug( "  Ignoring file - " + file.getAbsolutePath() ) ;
+            }
+        }
+        
+        return filesForProcessing ;
+    }
+
     private void processPersistedCommands() throws Exception {
         
         log.info( "Processing persisted commands." ) ;
@@ -130,35 +158,6 @@ public class JoveNotes {
         }
     }
     
-    private List<File> getFilesForProcessing() throws Exception {
-        
-        log.debug( "Selecting files for processing." ) ;
-        
-        Collection<File> allFiles = FileUtils.listFiles( 
-                                config.getSrcDir(), new String[]{"jn"}, true ) ;
-        List<File> filesForProcessing = new ArrayList<File>() ;
-        
-        if( config.isForceProcessAllFiles() ) {
-            journal.clean() ;
-        }
-        
-        for( File file : allFiles ) {
-            if( config.isForceProcessAllFiles() ) {
-                filesForProcessing.add( file ) ;
-                log.info( "  Selecting file - " + file.getAbsolutePath() ) ;
-            }
-            else if( journal.hasFileChanged( file ) ) {
-                filesForProcessing.add( file ) ;
-                log.info( "  Selecting file - " + file.getAbsolutePath() ) ;
-            }
-            else {
-                log.debug( "  Ignoring file - " + file.getAbsolutePath() ) ;
-            }
-        }
-        log.debug( "" ) ;
-        return filesForProcessing ;
-    }
-
     public static void main( String[] args ) throws Exception {
         log.info( "Starting JoveNotes processor." ) ;
         

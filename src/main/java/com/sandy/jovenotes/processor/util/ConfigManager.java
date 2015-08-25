@@ -2,6 +2,8 @@ package com.sandy.jovenotes.processor.util;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList ;
+import java.util.List ;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -15,6 +17,11 @@ import org.apache.log4j.Logger;
  * entities are accessible by getter methods.
  * 
  * @author Sandeep
+ */
+/**
+ * 
+ * @author Sandeep
+ *
  */
 public class ConfigManager{
 
@@ -30,13 +37,13 @@ public class ConfigManager{
     private static String CK_GRAPHVIZ_PATH = "graphviz.dot.path" ;
     private static String CK_WORDNIC_API   = "wordnic.api.key" ;
     
-    private boolean showUsage            = false ;
-    private boolean showUI               = false ;
-    private boolean forceProcessAllFiles = false ;
-    private File    srcDir               = null ;
-    private File    wkspDir              = null ;
-    private File    destMediaRootDir     = null ;
-    private File    graphvizDotPath      = null ;
+    private boolean     showUsage            = false ;
+    private boolean     showUI               = false ;
+    private boolean     forceProcessAllFiles = false ;
+    private File        wkspDir              = null ;
+    private File        destMediaRootDir     = null ;
+    private File        graphvizDotPath      = null ;
+    private List<File>  srcDirs              = new ArrayList<File>() ;
     
     private String  databaseURL        = null ;
     private String  databaseDriverName = null ;
@@ -45,13 +52,13 @@ public class ConfigManager{
     private String  wordnicAPIKey      = null ;
     private String  runMode            = null ;
 
-    public boolean isShowUsage()           { return this.showUsage; }
-    public boolean isShowUI()              { return this.showUI; }
-    public boolean isForceProcessAllFiles(){ return this.forceProcessAllFiles; }
-    public File    getSrcDir()             { return this.srcDir; }
-    public File    getWorkspaceDir()       { return this.wkspDir ; }
-    public File    getDestMediaRootDir()   { return this.destMediaRootDir ; }
-    public File    getGraphvizDotPath()    { return this.graphvizDotPath; }
+    public boolean    isShowUsage()            { return this.showUsage; }
+    public boolean    isShowUI()               { return this.showUI; }
+    public boolean    isForceProcessAllFiles() { return this.forceProcessAllFiles; }
+    public List<File> getSrcDirs()             { return this.srcDirs; }
+    public File       getWorkspaceDir()        { return this.wkspDir ; }
+    public File       getDestMediaRootDir()    { return this.destMediaRootDir ; }
+    public File       getGraphvizDotPath()     { return this.graphvizDotPath; }
     
     public String getDatabaseURL()        { return this.databaseURL; }
     public String getDatabaseDriverName() { return this.databaseDriverName; }
@@ -89,7 +96,14 @@ public class ConfigManager{
     private void parseSrcDir( PropertiesConfiguration config ) 
         throws Exception {
         
-        srcDir  = getMandatoryDirFromConfig( CK_SRC_DIR, config ) ;
+        if( this.srcDirs.isEmpty() ) {
+            String srcDirList = config.getString( CK_SRC_DIR ) ;
+            if( StringUtil.isEmptyOrNull( srcDirList ) ) {
+                throw new Exception( "Source directories not specified." ) ;
+            }
+            parseSourceDirs( srcDirList ) ;
+        }
+        
         wkspDir = getMandatoryDirFromConfig( CK_WKSP_DIR, config ) ;
         destMediaRootDir = getMandatoryDirFromConfig( CK_DEST_ROOT_DIR, config) ;
         graphvizDotPath  = getMandatoryDirFromConfig( CK_GRAPHVIZ_PATH, config ) ;
@@ -140,12 +154,20 @@ public class ConfigManager{
         return value ;
     }
     
+    /**
+     * NOTE:
+     * 
+     * 1. --runMode defaults to development
+     * 2. If the same configuration exists in configuration file, then 
+     *    command line parameters override the configuration values.
+     */
     public void printUsage() {
         
         String usageStr = "JoveNotes [hif] [--dbUser <database user>] " + 
                           "[--dbPassword <database password>] " +
                           "[--wordnicKey <key>] " + 
-                          "[--runMode development | production]";
+                          "[--runMode development | production] " + 
+                          "[--srcDirs <list of directories>]";
         
         HelpFormatter helpFormatter = new HelpFormatter() ;
         helpFormatter.printHelp( 80, usageStr, null, this.clOptions, null ) ;
@@ -161,6 +183,7 @@ public class ConfigManager{
         options.addOption( null, "dbPassword", true, "The database password" ) ;
         options.addOption( null, "wordnicKey", true, "Wordnic API key" ) ;
         options.addOption( null, "runMode",    true, "Run mode, either 'development' or 'production'" ) ;
+        options.addOption( null, "srcDirs",    true, "List of directories separated by path separator" ) ;
 
         return options ;
     }
@@ -186,6 +209,11 @@ public class ConfigManager{
             this.databasePassword = cmdLine.getOptionValue( "dbPassword" ) ;
             this.wordnicAPIKey    = cmdLine.getOptionValue( "wordnicKey" ) ;
             this.runMode          = cmdLine.getOptionValue( "runMode" ) ;
+
+            String sourceDirs = cmdLine.getOptionValue( "srcDirs" ) ;
+            if( sourceDirs != null ) {
+                parseSourceDirs( sourceDirs ) ;
+            }
             
             if( this.runMode == null ) {
                 log.warn( "runMode is not specified, defaulting to development" ) ;
@@ -205,6 +233,23 @@ public class ConfigManager{
             log.error( "Error parsing command line arguments.", e ) ;
             printUsage() ;
             throw e ;
+        }
+    }
+    
+    private void parseSourceDirs( String dirsList ) throws Exception {
+        
+        String[] dirs = dirsList.split( File.pathSeparator ) ;
+        for( String path : dirs ) {
+            File file = new File( path ) ;
+            if( !file.exists() ) {
+                throw new Exception( "Folder referred to by " + path + 
+                        " configuration does not exist." ) ;
+            }
+            else {
+                if( !this.srcDirs.contains( file ) ) {
+                    this.srcDirs.add( file ) ;
+                }
+            }
         }
     }
 }
