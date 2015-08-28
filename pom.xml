@@ -125,7 +125,7 @@
         <dependency>
             <groupId>com.sandy.xtext.jovenotes</groupId>
             <artifactId>jovenotes.xtext</artifactId>
-            <version>1.05</version>
+            <version>1.07</version>
         </dependency>
         <dependency>
             <groupId>com.sandy</groupId>
