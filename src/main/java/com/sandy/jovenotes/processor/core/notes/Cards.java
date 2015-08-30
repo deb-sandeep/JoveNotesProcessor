@@ -1,5 +1,6 @@
 package com.sandy.jovenotes.processor.core.notes;
 
+import java.util.ArrayList ;
 import java.util.LinkedHashMap ;
 import java.util.List ;
 import java.util.Map ;
@@ -9,17 +10,20 @@ import org.json.simple.JSONValue ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.jovenotes.processor.util.StringUtil ;
+import com.sandy.xtext.joveNotes.MultiChoice ;
+import com.sandy.xtext.joveNotes.Option ;
 
 public class Cards {
 
     //private static Logger log = Logger.getLogger( Cards.class ) ;
+    public static final String QA            = "question_answer" ;
+    public static final String FIB           = "fib" ;
+    public static final String TF            = "true_false" ;
+    public static final String MATCHING      = "matching" ;
+    public static final String IMGLABEL      = "image_label" ;
+    public static final String SPELLBEE      = "spellbee" ;
+    public static final String MULTI_CHOICE  = "multi_choice" ;  
     
-    public static final String QA       = "question_answer" ;
-    public static final String FIB      = "fib" ;
-    public static final String TF       = "true_false" ;
-    public static final String MATCHING = "matching" ;
-    public static final String IMGLABEL = "image_label" ;
-    public static final String SPELLBEE = "spellbee" ;
     
     // -------------------------------------------------------------------------
     public static abstract class AbstractCard {
@@ -286,5 +290,81 @@ public class Cards {
         public void collectContentAttributes( Map<String, Object> map ){
             map.putAll( contentAttributes ) ;
         } 
+    }
+
+    // -------------------------------------------------------------------------
+    /**
+     * The multi-choice card has the following JSON structure
+     * 
+     * {
+     *   question          : "Question text",
+     *   options           : [[ "Option1", false ], [ "Option2", true ]],
+     *   numCorrectAnswers : 2,
+     *   explanation       : "Explanation text"
+     * }
+     */
+    public static class MultiChoiceCard extends AbstractCard {
+        
+        private String objIdSeed = null ;
+        private int    numCorrectAnswers = 0 ;
+        
+        private Map<String, Object> contentAttributes = 
+                                           new LinkedHashMap<String, Object>() ;
+        
+        public MultiChoiceCard( AbstractNotesElement ne, String objIdSeed,
+                                MultiChoice ast, JNTextProcessor textProcessor ) 
+            throws Exception {
+            
+            super( ne, MULTI_CHOICE ) ;
+            this.objIdSeed = objIdSeed ;
+            initialize( ast, textProcessor ) ;
+        }
+        
+        public String getObjIdSeed() { return objIdSeed ; }
+        
+        public int getDifficultyLevel() { 
+            if( numCorrectAnswers <= 3 ) {
+                return 10*3 ;
+            }
+            return 40 ;
+        }
+        
+        public void collectContentAttributes( Map<String, Object> map ) {
+            map.putAll( contentAttributes ) ;
+        }
+        
+        private void initialize( MultiChoice ast, JNTextProcessor textProcessor ) 
+                throws Exception {
+            
+            String fmtQ = textProcessor.processText( ast.getQuestion() ) ;
+            String fmtE = "" ;
+            List<List<Object>> options = new ArrayList<List<Object>>() ;
+            
+            if( ast.getExplanation() != null ) {
+                fmtE = textProcessor.processText( ast.getExplanation() ) ;
+            }
+            
+            for( int i=0; i<ast.getOptions().size(); i++ ) {
+                
+                Option       opt        = ast.getOptions().get( i ) ;
+                String       optValue   = textProcessor.processText( opt.getOptionValue() ) ;
+                Boolean      correct    = Boolean.FALSE ;
+                List<Object> optionPair = new ArrayList<Object>() ;
+                
+                if( opt.getCorrectOption() != null ) {
+                    correct = Boolean.TRUE ;
+                    numCorrectAnswers++ ;
+                }
+                optionPair.add( optValue ) ;
+                optionPair.add( correct ) ;
+                
+                options.add( optionPair ) ;
+            }
+            
+            contentAttributes.put( "question",          fmtQ ) ;
+            contentAttributes.put( "options",           options ) ;
+            contentAttributes.put( "numCorrectAnswers", numCorrectAnswers ) ;
+            contentAttributes.put( "explanation",       fmtE ) ;
+        }
     }
 }

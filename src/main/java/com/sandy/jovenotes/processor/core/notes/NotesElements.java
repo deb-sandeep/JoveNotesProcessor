@@ -1,43 +1,46 @@
 package com.sandy.jovenotes.processor.core.notes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList ;
+import java.util.HashMap ;
+import java.util.LinkedHashMap ;
+import java.util.List ;
+import java.util.Map ;
 
-import org.apache.log4j.Logger;
-import org.json.simple.JSONValue;
+import org.apache.log4j.Logger ;
+import org.json.simple.JSONValue ;
 
-import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.async.SpellbeeCmd;
-import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
-import com.sandy.jovenotes.processor.core.notes.Cards.FIBCard;
-import com.sandy.jovenotes.processor.core.notes.Cards.ImageLabelCard;
-import com.sandy.jovenotes.processor.core.notes.Cards.MatchCard;
-import com.sandy.jovenotes.processor.core.notes.Cards.QACard;
-import com.sandy.jovenotes.processor.core.notes.Cards.SpellbeeCard;
-import com.sandy.jovenotes.processor.core.notes.Cards.TrueFalseCard;
-import com.sandy.jovenotes.processor.util.JNTextProcessor;
-import com.sandy.jovenotes.processor.util.StringUtil;
-import com.sandy.xtext.joveNotes.Character;
-import com.sandy.xtext.joveNotes.ChemCompound;
-import com.sandy.xtext.joveNotes.ChemEquation;
-import com.sandy.xtext.joveNotes.Definition;
-import com.sandy.xtext.joveNotes.EqSymbol;
-import com.sandy.xtext.joveNotes.Equation;
-import com.sandy.xtext.joveNotes.Event;
-import com.sandy.xtext.joveNotes.HotSpot;
-import com.sandy.xtext.joveNotes.ImageLabel;
-import com.sandy.xtext.joveNotes.MatchPair;
-import com.sandy.xtext.joveNotes.Matching;
-import com.sandy.xtext.joveNotes.NotesElement;
-import com.sandy.xtext.joveNotes.QuestionAnswer;
-import com.sandy.xtext.joveNotes.RefToContext;
-import com.sandy.xtext.joveNotes.Spellbee;
-import com.sandy.xtext.joveNotes.TeacherNote;
-import com.sandy.xtext.joveNotes.TrueFalse;
-import com.sandy.xtext.joveNotes.WordMeaning;
+import com.sandy.jovenotes.processor.JoveNotes ;
+import com.sandy.jovenotes.processor.async.SpellbeeCmd ;
+import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard ;
+import com.sandy.jovenotes.processor.core.notes.Cards.FIBCard ;
+import com.sandy.jovenotes.processor.core.notes.Cards.ImageLabelCard ;
+import com.sandy.jovenotes.processor.core.notes.Cards.MatchCard ;
+import com.sandy.jovenotes.processor.core.notes.Cards.MultiChoiceCard ;
+import com.sandy.jovenotes.processor.core.notes.Cards.QACard ;
+import com.sandy.jovenotes.processor.core.notes.Cards.SpellbeeCard ;
+import com.sandy.jovenotes.processor.core.notes.Cards.TrueFalseCard ;
+import com.sandy.jovenotes.processor.util.JNTextProcessor ;
+import com.sandy.jovenotes.processor.util.StringUtil ;
+import com.sandy.xtext.joveNotes.Character ;
+import com.sandy.xtext.joveNotes.ChemCompound ;
+import com.sandy.xtext.joveNotes.ChemEquation ;
+import com.sandy.xtext.joveNotes.Definition ;
+import com.sandy.xtext.joveNotes.EqSymbol ;
+import com.sandy.xtext.joveNotes.Equation ;
+import com.sandy.xtext.joveNotes.Event ;
+import com.sandy.xtext.joveNotes.HotSpot ;
+import com.sandy.xtext.joveNotes.ImageLabel ;
+import com.sandy.xtext.joveNotes.MatchPair ;
+import com.sandy.xtext.joveNotes.Matching ;
+import com.sandy.xtext.joveNotes.MultiChoice ;
+import com.sandy.xtext.joveNotes.NotesElement ;
+import com.sandy.xtext.joveNotes.Option ;
+import com.sandy.xtext.joveNotes.QuestionAnswer ;
+import com.sandy.xtext.joveNotes.RefToContext ;
+import com.sandy.xtext.joveNotes.Spellbee ;
+import com.sandy.xtext.joveNotes.TeacherNote ;
+import com.sandy.xtext.joveNotes.TrueFalse ;
+import com.sandy.xtext.joveNotes.WordMeaning ;
 
 public class NotesElements {
     
@@ -58,6 +61,7 @@ public class NotesElements {
     public static final String IMAGE_LABEL   = "image_label" ;
     public static final String EQUATION      = "equation" ; 
     public static final String RTC           = "rtc" ;  
+    public static final String MULTI_CHOICE  = "multi_choice" ;  
     
     // -------------------------------------------------------------------------
     public static AbstractNotesElement build( Chapter chapter, NotesElement ast ) {
@@ -107,6 +111,9 @@ public class NotesElements {
         }
         else if( ast instanceof RefToContext ){
             notesElement = new RefToContextElement( chapter, ( RefToContext )ast ) ;
+        }
+        else if( ast instanceof MultiChoice ){
+            notesElement = new MultiChoiceElement( chapter, ( MultiChoice )ast ) ;
         }
         
         return notesElement ;
@@ -948,6 +955,96 @@ public class NotesElements {
             
             map.put( "context",   this.fmtContext ) ;
             map.put( "questions", questionsObjArray ) ;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    public static class MultiChoiceElement extends AbstractNotesElement {
+        
+        private String objIdSeed  = null ;
+        private MultiChoice ast   = null ;
+        
+        private String fmtQ = null ;
+        private String fmtA = null ;
+        
+        public MultiChoiceElement( Chapter chapter, MultiChoice ast ) {
+            super( MULTI_CHOICE, chapter, ast ) ;
+            this.objIdSeed = constructObjId( ast ) ;
+            this.ast = ast ;
+        }
+        
+        public String getObjIdSeed() { return objIdSeed ; }
+        
+        public void initialize( JNTextProcessor textProcessor ) 
+                throws Exception {
+            
+            constructQuestionAndAnswerText( textProcessor ) ;
+            cards.add( new MultiChoiceCard( this, objIdSeed, this.ast, textProcessor ) ) ;
+        }
+        
+        public void collectContentAttributes( Map<String, Object> map ){
+            map.put( "question", fmtQ ) ;
+            map.put( "answer",   fmtA ) ;
+        }
+        
+        /**
+         * Unique identification of a multiple choice question is done by the
+         * concatenation of the question string and all the correct answers.
+         * 
+         * This leaves the tolerance of modifying the explanation and any 
+         * incorrect answers without impacting the identity of the question.
+         */
+        private String constructObjId( MultiChoice ast ) {
+            
+            StringBuilder buffer = new StringBuilder() ;
+            buffer.append( ast.getQuestion() ) ;
+            for( Option opt : ast.getOptions() ) {
+                if( opt.getOptionValue() != null ) {
+                    buffer.append( opt.getOptionValue() ) ;
+                }
+            }
+            return buffer.toString() ;
+        }
+        
+        /**
+         * Constructs the question text in the following format:
+         *
+         * [Question text]\n\n
+         * * 1. [Option 1]
+         * * 2. [Option 2]
+         * 
+         * Answer text is constructed as follows:
+         * * 2. [Option 2]
+         * 
+         * [Explanation]
+         */
+        private void constructQuestionAndAnswerText( JNTextProcessor textProcessor ) 
+            throws Exception {
+            
+            StringBuilder qBuffer = new StringBuilder() ;
+            StringBuilder aBuffer = new StringBuilder() ;
+            
+            qBuffer.append( this.ast.getQuestion() ) ;
+            qBuffer.append( "\n\n" ) ;
+            
+            for( int i=0; i<ast.getOptions().size(); i++ ) {
+                
+                Option opt = ast.getOptions().get( i ) ;
+                String optValue = opt.getOptionValue() ;
+                
+                qBuffer.append( "* [" + (i+1) + "] " + optValue + "\n" ) ;
+                if( opt.getCorrectOption() != null ) {
+                    aBuffer.append( "* [" + (i+1) + "] " + optValue + "\n" ) ;
+                }
+            }
+            
+            if( this.ast.getExplanation() != null ) {
+                String fmtE = this.ast.getExplanation() ;
+                aBuffer.append( "\n\n" + fmtE ) ;
+            }
+            
+            this.fmtQ = textProcessor.processText( qBuffer.toString() ) ;
+            this.fmtA = textProcessor.processText( aBuffer.toString() ) ;
         }
     }
 }
