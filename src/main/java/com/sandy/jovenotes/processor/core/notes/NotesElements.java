@@ -5,6 +5,7 @@ import java.util.HashMap ;
 import java.util.LinkedHashMap ;
 import java.util.List ;
 import java.util.Map ;
+import java.util.Map.Entry ;
 
 import org.apache.log4j.Logger ;
 import org.json.simple.JSONValue ;
@@ -30,6 +31,7 @@ import com.sandy.xtext.joveNotes.Equation ;
 import com.sandy.xtext.joveNotes.Event ;
 import com.sandy.xtext.joveNotes.HotSpot ;
 import com.sandy.xtext.joveNotes.ImageLabel ;
+import com.sandy.xtext.joveNotes.MatchMCQConfig ;
 import com.sandy.xtext.joveNotes.MatchPair ;
 import com.sandy.xtext.joveNotes.Matching ;
 import com.sandy.xtext.joveNotes.MultiChoice ;
@@ -41,6 +43,7 @@ import com.sandy.xtext.joveNotes.Spellbee ;
 import com.sandy.xtext.joveNotes.TeacherNote ;
 import com.sandy.xtext.joveNotes.TrueFalse ;
 import com.sandy.xtext.joveNotes.WordMeaning ;
+import com.sandy.xtext.joveNotes.impl.JoveNotesFactoryImpl ;
 
 public class NotesElements {
     
@@ -574,6 +577,10 @@ public class NotesElements {
                                           ast.getQuestion(), 
                                           pairsReverse ) ) ;
             }
+            
+            if( this.ast.getMcqConfig() != null ) {
+                addMCQuestions( textProcessor ) ;
+            }
         }
         
         public String getObjIdSeed() { 
@@ -582,6 +589,74 @@ public class NotesElements {
         
         public void collectContentAttributes( Map<String, Object> map ) {
             map.put( "matchData", pairs ) ;
+        }
+        
+        private void addMCQuestions( JNTextProcessor textProcessor ) 
+            throws Exception {
+            
+            Map<String, String> fwdMatchPairs = new HashMap<String, String>() ;
+            Map<String, String> revMatchPairs = new HashMap<String, String>() ;
+            
+            for( MatchPair pair : ast.getPairs() ) {
+                fwdMatchPairs.put( pair.getMatchQuestion(), pair.getMatchAnswer()   ) ;
+                revMatchPairs.put( pair.getMatchAnswer(),   pair.getMatchQuestion() ) ;
+            }
+            
+            MatchMCQConfig mcqCfg = ast.getMcqConfig() ;
+            int numOptionsToShow = mcqCfg.getNumOptionsToShow() ;
+            int numOptionsPerRow = mcqCfg.getNumOptionsPerRow() ;
+            
+            if( numOptionsToShow == 0 ) numOptionsToShow = 4 ;
+            if( numOptionsPerRow == 0 ) numOptionsPerRow = 4 ;
+            
+            addMCQsForMatchPairs( fwdMatchPairs, textProcessor, 
+                                  ast.getMcqConfig().getForwardCaption(),
+                                  numOptionsToShow, numOptionsPerRow ) ;
+            if( this.generateReverseQuestion ) {
+                
+                String caption = ast.getMcqConfig().getReverseCaption() ;
+                if( caption == null ) {
+                    caption = ast.getMcqConfig().getForwardCaption() ;
+                }
+                addMCQsForMatchPairs( revMatchPairs, textProcessor, caption,
+                                      numOptionsToShow, numOptionsPerRow ) ;
+            }
+        }
+        
+        private void addMCQsForMatchPairs( Map<String, String> matchPairs, 
+                                           JNTextProcessor textProcessor,
+                                           String caption,
+                                           int numOptionsToShow, 
+                                           int numOptionsPerRow ) 
+            throws Exception {
+            
+            JoveNotesFactoryImpl factory = new JoveNotesFactoryImpl() ;
+            
+            for( Entry<String, String> pair : matchPairs.entrySet() ) {
+                
+                MultiChoice mcqAST = factory.createMultiChoice() ;
+                
+                mcqAST.setQuestion( caption + "  \n### **" + pair.getKey() + "**" );
+                mcqAST.setExplanation( "" ) ; 
+                mcqAST.setHideFromView( "hide" ) ;
+                mcqAST.setNumOptionsToShow( numOptionsToShow ) ;
+                mcqAST.setNumOptionsPerRow( numOptionsPerRow ) ;
+                
+                List<Option> options = mcqAST.getOptions() ;
+                for( String value : matchPairs.values() ) {
+                    Option optAST = factory.createOption() ;
+                    optAST.setOptionValue( value ) ;
+                    if( value.equals( pair.getValue() ) ) {
+                        optAST.setCorrectOption( "correct" ) ;
+                    }
+                    options.add( optAST ) ;
+                }
+                
+                MultiChoiceElement mcqElement = new MultiChoiceElement( chapter, mcqAST ) ;
+                mcqElement.initialize( textProcessor ) ;
+                
+                cards.addAll( mcqElement.getCards() ) ;
+            }
         }
     }
 
