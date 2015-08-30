@@ -338,6 +338,8 @@ public class Cards {
             
             String fmtQ = textProcessor.processText( ast.getQuestion() ) ;
             String fmtE = "" ;
+            int    numOptionsToShow = ast.getNumOptionsToShow() ;
+            int    numOptionsPerRow = ast.getNumOptionsPerRow() ;
             List<List<Object>> options = new ArrayList<List<Object>>() ;
             
             if( ast.getExplanation() != null ) {
@@ -361,10 +363,28 @@ public class Cards {
                 options.add( optionPair ) ;
             }
             
+            numOptionsToShow = ( numOptionsToShow == 0 ) ? ast.getOptions().size() : numOptionsToShow ;
+            numOptionsPerRow = ( numOptionsPerRow == 0 ) ? ast.getOptions().size() : numOptionsPerRow ;
+            if( numOptionsPerRow > numOptionsToShow ) {
+                numOptionsPerRow = numOptionsToShow ;
+            }
+            
+            if( numOptionsToShow < numCorrectAnswers ) {
+                throw new Exception( "Number of options to show in a MCQ can't " + 
+                                     "be less than the number of correct answers." ) ;
+            }
+            
+            if( numOptionsPerRow <= 0 ) {
+                throw new Exception( "Number of options to show per row " + 
+                                     "can't be less than or equal to zero." ) ;
+            }
+            
             contentAttributes.put( "question",          fmtQ ) ;
             contentAttributes.put( "options",           options ) ;
             contentAttributes.put( "numCorrectAnswers", numCorrectAnswers ) ;
             contentAttributes.put( "explanation",       fmtE ) ;
+            contentAttributes.put( "numOptionsToShow",  numOptionsToShow ) ;
+            contentAttributes.put( "numOptionsPerRow",  numOptionsPerRow ) ;
         }
     }
 }
