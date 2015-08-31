@@ -174,7 +174,7 @@ public class Cards {
         
         private static final double DIFFICULTY_FACTOR = 0.26954 ;
         private static final double X_SHIFT = 0.0 ;
-        private static final double MAX_LIMIT = 0.75 ;
+        private static final double MAX_LIMIT = 0.7 ;
         
         private List<List<String>> fmtMatchPairs = null ;
         private String caption = null ;
@@ -230,7 +230,7 @@ public class Cards {
         
         public String getObjIdSeed() { return objIdSeed ; }
         
-        public int getDifficultyLevel() { return 20 ; }
+        public int getDifficultyLevel() { return 10 ; }
         
         public void collectContentAttributes( Map<String, Object> map ) 
             throws Exception {
@@ -255,7 +255,7 @@ public class Cards {
         }
         
         public String getObjIdSeed() { return objIdSeed ; }
-        public int getDifficultyLevel() { return objIdSeed.length()*3 ; }
+        public int getDifficultyLevel() { return (int)(objIdSeed.length()*1.5) ; }
         public void collectContentAttributes( Map<String, Object> map ){} 
     }
 
@@ -264,7 +264,7 @@ public class Cards {
         
         private static final double DIFFICULTY_FACTOR = 0.26954 ;
         private static final double X_SHIFT = 0.0 ;
-        private static final double MAX_LIMIT = 0.75 ;
+        private static final double MAX_LIMIT = 0.60 ;
         
         private String objIdSeed = null ;
         private Map<String, Object> contentAttributes = null ;
@@ -324,9 +324,9 @@ public class Cards {
         
         public int getDifficultyLevel() { 
             if( numCorrectAnswers <= 3 ) {
-                return 10*3 ;
+                return 5*numCorrectAnswers ;
             }
-            return 40 ;
+            return 20 ;
         }
         
         public void collectContentAttributes( Map<String, Object> map ) {
