@@ -3,7 +3,7 @@
   <groupId>com.sandy.xtext.jovenotes</groupId>
   <artifactId>jovenotes.xtext</artifactId>
   <versioning>
-    <release>1.09</release>
+    <release>1.10</release>
     <versions>
       <version>1.0</version>
       <version>1.01</version>
@@ -15,7 +15,8 @@
       <version>1.07</version>
       <version>1.08</version>
       <version>1.09</version>
+      <version>1.10</version>
     </versions>
-    <lastUpdated>20150830153839</lastUpdated>
+    <lastUpdated>20150901085622</lastUpdated>
   </versioning>
 </metadata>
