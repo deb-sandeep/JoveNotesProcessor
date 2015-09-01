@@ -21,9 +21,10 @@ public class Chapter {
 
     private ConfigManager config = null ;
     
-    private File srcFile = null ;
-    private String syllabusName = null ;
-    private JoveNotes notesAST = null ;
+    private File      srcFile      = null ;
+    private String    syllabusName = null ;
+    private JoveNotes notesAST     = null ;
+    private String    scriptBody   = null ;
     private ArrayList<AbstractNotesElement> notesElements = null ;
     
     private Map<String, Boolean> distinctNEMap = new HashMap<String, Boolean>() ;
@@ -34,9 +35,10 @@ public class Chapter {
         this.config = com.sandy.jovenotes.processor.JoveNotes.config ;
         
         this.notesElements = new ArrayList<AbstractNotesElement>() ;
-        this.srcFile = srcFile ;
-        this.syllabusName = getSyllabusName( baseDir, srcFile ) ;
-        this.notesAST = notesAST ;
+        this.srcFile       = srcFile ;
+        this.syllabusName  = getSyllabusName( baseDir, srcFile ) ;
+        this.notesAST      = notesAST ;
+        this.scriptBody    = getScriptBody() ;
         
         log.info( "\tObject transforming chapter - " + getChapterFQN() );
         
@@ -105,6 +107,16 @@ public class Chapter {
     
     public String getChapterName() {
         return notesAST.getChapterDetails().getChapterName() ;
+    }
+    
+    public String getScriptBody() {
+        if( this.scriptBody != null ) {
+            return this.scriptBody ;
+        }
+        else if( notesAST.getChapterDetails().getScript() != null ) {
+            return notesAST.getChapterDetails().getScript().getScriptBody() ;
+        }
+        return null ;
     }
     
     public String getChapterFQN() {

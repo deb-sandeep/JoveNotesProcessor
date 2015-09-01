@@ -125,11 +125,12 @@ public class NotesElements {
     // -------------------------------------------------------------------------
     public static abstract class AbstractNotesElement {
         
-        private String type              = null ;
-        private int    difficultyLevel   = -1 ;
-        private NotesElement ast         = null ;
-        protected boolean ready          = true ;
-        protected boolean hiddenFromView = false ;
+        private   String       type              = null ;
+        private   int          difficultyLevel   = -1 ;
+        private   NotesElement ast               = null ;
+        private   String       scriptBody        = null ;
+        protected boolean      ready             = true ;
+        protected boolean      hiddenFromView    = false ;
         
         protected Chapter chapter = null ;
         protected List<AbstractCard> cards = new ArrayList<AbstractCard>() ;
@@ -138,6 +139,11 @@ public class NotesElements {
             this.type    = type ;
             this.chapter = chapter ;
             this.ast     = ast ;
+            
+            if( ast.getScript() != null ) {
+                this.scriptBody = ast.getScript().getScriptBody() ;
+            }
+            
             if( ast.getHideFromView() != null ) {
                 this.hiddenFromView = true ;
             }
@@ -161,6 +167,10 @@ public class NotesElements {
         
         public boolean isHiddenFromView() {
             return this.hiddenFromView ;
+        }
+        
+        public String getScriptBody() {
+            return this.scriptBody ;
         }
         
         public final String getObjId() {

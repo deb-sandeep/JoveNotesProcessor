@@ -32,21 +32,24 @@ public class SourceFileProcessor {
         // Retrieve the database object model if one exists
         ChapterDBO chapterDBO = ChapterDBO.get( chapter ) ;
         
-        boolean chapterUpdateRequired = true ;
+        boolean nextLevelTraceRequired = true ;
         if( chapterDBO == null ) {
             log.info( "\tChapter " + chapter + " does not exist." ) ;
             chapterDBO = insertNewChapter( chapter ) ;
         }
         else {
             log.debug( "\tChapter " + chapter + " is present in database." ) ;
-            chapterUpdateRequired = chapterDBO.trace( chapter ) ;
-            if( chapterUpdateRequired ){
+            nextLevelTraceRequired = chapterDBO.trace( chapter ) ;
+            if( nextLevelTraceRequired ){
                 log.info( "\tChapter update required. Processing trace." ) ;
                 chapterDBO.processTrace() ;
             }
+            else if( chapterDBO.isModified() ) {
+                chapterDBO.update() ;
+            }
         }
         
-        if( chapterUpdateRequired ) {
+        if( nextLevelTraceRequired ) {
             log.info( "\tChapter has been updated. Refreshing meta data." ) ;
             com.sandy.jovenotes.processor.JoveNotes.persistentQueue.add( 
                  new RefreshChapterCmd( chapter, chapterDBO.getChapterId() ) ) ;
