@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.SourceStringReader ;
 
+import org.apache.commons.codec.binary.Base64 ;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup ;
@@ -83,7 +84,8 @@ public class JNTextProcessor {
     
     public int getNormalizedWordsInFormattedText( String text ) {
         
-        String normAnswer = Jsoup.parse( text )
+        String normAnswer = text.toLowerCase().replaceAll( JN_MARKER_PATTERN, "" ) ; 
+        normAnswer = Jsoup.parse( normAnswer )
                                  .text().toLowerCase()
                                  .replaceAll( "[^A-Za-z0-9\u0900-\u097F ]", "" ) ;
         
@@ -224,6 +226,9 @@ public class JNTextProcessor {
         }
         else if( type.equals( "youtube" ) ) {
             return processYouTubeVideoId( data ) ;
+        }
+        else if( type.equals( "eval" ) ) {
+            return processEval( data ) ;
         }
         
         return null ;
@@ -377,5 +382,10 @@ public class JNTextProcessor {
         buffer.append( youTubeVideoId.trim() ) ;
         buffer.append( "\" frameborder=\"0\" allowfullscreen></iframe>" ) ;
         return buffer.toString() ;
+    }
+    
+    private String processEval( String expression ) {
+        String b64Encoded = Base64.encodeBase64String( expression.getBytes() ) ;
+        return "{{@eval " + b64Encoded + "}}" ;
     }
 }
