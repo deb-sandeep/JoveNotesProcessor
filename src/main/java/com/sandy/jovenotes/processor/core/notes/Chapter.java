@@ -113,8 +113,8 @@ public class Chapter {
         if( this.scriptBody != null ) {
             return this.scriptBody ;
         }
-        else if( notesAST.getChapterDetails().getScript() != null ) {
-            return notesAST.getChapterDetails().getScript().getScriptBody() ;
+        else if( notesAST.getChapterDetails().getScriptBody() != null ) {
+            return notesAST.getChapterDetails().getScriptBody().getScript() ;
         }
         return null ;
     }

@@ -28,6 +28,7 @@ import com.sandy.xtext.joveNotes.ChemEquation ;
 import com.sandy.xtext.joveNotes.Definition ;
 import com.sandy.xtext.joveNotes.EqSymbol ;
 import com.sandy.xtext.joveNotes.Equation ;
+import com.sandy.xtext.joveNotes.EvalVar ;
 import com.sandy.xtext.joveNotes.Event ;
 import com.sandy.xtext.joveNotes.HotSpot ;
 import com.sandy.xtext.joveNotes.ImageLabel ;
@@ -135,13 +136,28 @@ public class NotesElements {
         protected Chapter chapter = null ;
         protected List<AbstractCard> cards = new ArrayList<AbstractCard>() ;
         
+        private Map<String, String> evalVars = new HashMap<String, String>() ;
+        
         public AbstractNotesElement( String type, Chapter chapter, NotesElement ast ) {
             this.type    = type ;
             this.chapter = chapter ;
             this.ast     = ast ;
             
             if( ast.getScript() != null ) {
-                this.scriptBody = ast.getScript().getScriptBody() ;
+                
+                if( ast.getScript().getEvalVars() != null ) {
+                    for( EvalVar var : ast.getScript().getEvalVars() ) {
+                        if( evalVars.containsKey( var.getVarName() ) ) {
+                            log.warn( "Script eval var " + var.getVarName() + 
+                                      " is declared multiple times." ) ;
+                        }
+                        evalVars.put( var.getVarName(), var.getVarExpression() ) ;
+                    }
+                }
+                
+                if( ast.getScript().getScriptBody() != null ) {
+                    this.scriptBody = ast.getScript().getScriptBody().getScript() ;
+                }
             }
             
             if( ast.getHideFromView() != null ) {
@@ -173,6 +189,10 @@ public class NotesElements {
             return this.scriptBody ;
         }
         
+        public Map<String, String> getEvalVars() {
+            return this.evalVars ;
+        }
+        
         public final String getObjId() {
             return StringUtil.getHash( chapter.getChapterFQN() + "NE" + getType() + getObjIdSeed() ) ; 
         } ;
@@ -199,6 +219,10 @@ public class NotesElements {
             String content = JSONValue.toJSONString( map ) ;
             
             return content ;
+        }
+        
+        public final String getEvalVarsAsJSON() {
+            return JSONValue.toJSONString( this.evalVars ) ;
         }
         
         /**
