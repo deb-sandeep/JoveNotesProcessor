@@ -1039,8 +1039,8 @@ public class NotesElements {
             this.fmtContext = textProcessor.processText( this.context ) ;
             for( List<String> aRawQA : rawQAList ) {
                 List<String> aFmtQA = new ArrayList<String>() ;
-                aFmtQA.add( aRawQA.get(0) ) ;
-                aFmtQA.add( aRawQA.get(1) ) ;
+                aFmtQA.add( textProcessor.processText( aRawQA.get(0) ) ) ;
+                aFmtQA.add( textProcessor.processText( aRawQA.get(1) ) ) ;
                 fmtQAList.add( aFmtQA ) ;
                 
                 cards.add( new QACard( this,
