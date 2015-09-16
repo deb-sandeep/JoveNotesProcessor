@@ -24,7 +24,7 @@ import com.sandy.jcmap.util.CMapDotSerializer;
 import com.sandy.jcmap.util.CMapElement;
 import com.sandy.jcmap.util.GraphvizAdapter;
 import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.core.notes.Chapter;
+import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.xtext.joveNotes.CMap;
 
 public class JNTextProcessor {

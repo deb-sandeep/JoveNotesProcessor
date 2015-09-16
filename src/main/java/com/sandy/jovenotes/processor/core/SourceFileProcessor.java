@@ -5,7 +5,6 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
-import com.sandy.jovenotes.processor.core.notes.Chapter;
 import com.sandy.jovenotes.processor.dao.ChapterDBO;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 import com.sandy.xtext.joveNotes.JoveNotes;

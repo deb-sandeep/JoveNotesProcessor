@@ -2,7 +2,7 @@ package com.sandy.jovenotes.processor.async;
 
 import java.io.Serializable;
 
-import com.sandy.jovenotes.processor.core.notes.Chapter;
+import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.dao.AbstractDBO;
 
 /**

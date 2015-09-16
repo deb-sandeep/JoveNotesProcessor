@@ -1,4 +1,4 @@
-package com.sandy.jovenotes.processor.core.notes;
+package com.sandy.jovenotes.processor.core.cards;
 
 import java.util.ArrayList ;
 import java.util.LinkedHashMap ;

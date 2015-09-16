@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 
 import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.core.notes.Chapter;
+import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.util.NetworkResourceDownloader;
 import com.sandy.jovenotes.processor.util.StringUtil;
 import com.sandy.jovenotes.processor.util.WordnicAdapter;

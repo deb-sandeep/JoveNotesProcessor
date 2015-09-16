@@ -5,7 +5,8 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Map ;
 
-import com.sandy.jovenotes.processor.core.notes.Cards.QACard ;
+import com.sandy.jovenotes.processor.core.Chapter ;
+import com.sandy.jovenotes.processor.core.cards.Cards.QACard ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.xtext.joveNotes.QuestionAnswer ;

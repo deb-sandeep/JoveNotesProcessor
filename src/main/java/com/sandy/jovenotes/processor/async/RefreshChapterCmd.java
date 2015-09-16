@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.core.notes.Chapter;
+import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.util.StringUtil;
 
 /**

@@ -12,7 +12,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard;
+import com.sandy.jovenotes.processor.core.cards.Cards.AbstractCard ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 
 public class NotesElementDBO extends AbstractDBO {

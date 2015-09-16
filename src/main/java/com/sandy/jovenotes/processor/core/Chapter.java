@@ -1,4 +1,4 @@
-package com.sandy.jovenotes.processor.core.notes;
+package com.sandy.jovenotes.processor.core;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import com.sandy.jovenotes.processor.core.notes.NotesElements ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;

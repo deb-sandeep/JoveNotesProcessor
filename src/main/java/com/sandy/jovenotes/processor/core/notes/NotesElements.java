@@ -12,14 +12,15 @@ import org.json.simple.JSONValue ;
 
 import com.sandy.jovenotes.processor.JoveNotes ;
 import com.sandy.jovenotes.processor.async.SpellbeeCmd ;
-import com.sandy.jovenotes.processor.core.notes.Cards.AbstractCard ;
-import com.sandy.jovenotes.processor.core.notes.Cards.FIBCard ;
-import com.sandy.jovenotes.processor.core.notes.Cards.ImageLabelCard ;
-import com.sandy.jovenotes.processor.core.notes.Cards.MatchCard ;
-import com.sandy.jovenotes.processor.core.notes.Cards.MultiChoiceCard ;
-import com.sandy.jovenotes.processor.core.notes.Cards.QACard ;
-import com.sandy.jovenotes.processor.core.notes.Cards.SpellbeeCard ;
-import com.sandy.jovenotes.processor.core.notes.Cards.TrueFalseCard ;
+import com.sandy.jovenotes.processor.core.Chapter ;
+import com.sandy.jovenotes.processor.core.cards.Cards.AbstractCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.FIBCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.ImageLabelCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.MatchCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.MultiChoiceCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.QACard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.SpellbeeCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.TrueFalseCard ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.jovenotes.processor.util.StringUtil ;
 import com.sandy.xtext.joveNotes.Character ;
@@ -250,7 +251,7 @@ public class NotesElements {
             return this.cards ;
         }
         
-        protected abstract String getObjIdSeed() ;
+        public abstract String getObjIdSeed() ;
         
         protected abstract void collectContentAttributes( Map<String, Object> map ) ; 
     }
