@@ -123,9 +123,11 @@
             <version>4.4.1</version>
         </dependency>
         <dependency>
+            <!-- jovenotes start -->
             <groupId>com.sandy.xtext.jovenotes</groupId>
             <artifactId>jovenotes.xtext</artifactId>
             <version>1.12</version>
+            <!-- jovenotes end -->
         </dependency>
         <dependency>
             <groupId>com.sandy</groupId>

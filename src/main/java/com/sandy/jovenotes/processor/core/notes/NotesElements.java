@@ -569,6 +569,7 @@ public class NotesElements {
         
         private Matching ast = null ;
         
+        private String fmtCaption = "" ;
         private List<List<String>> pairs = new ArrayList<List<String>>() ;
         private List<List<String>> pairsReverse = new ArrayList<List<String>>() ;
         private String objIdSeed = "" ;
@@ -590,6 +591,10 @@ public class NotesElements {
         public void initialize( JNTextProcessor textProcessor ) 
                 throws Exception {
             
+            this.fmtCaption = ( ast.getQuestion() == null ) ? 
+                              "Match the following" : 
+                              textProcessor.processText( ast.getQuestion() ) ;
+            
             for( MatchPair pair : ast.getPairs() ) {
                 List<String> pairList = new ArrayList<String>() ;
                 List<String> pairListReverse = new ArrayList<String>() ;
@@ -604,11 +609,11 @@ public class NotesElements {
                 this.pairsReverse.add( pairListReverse ) ;
             }
             
-            cards.add( new MatchCard( this, objIdSeed, ast.getQuestion(), pairs ) ) ;
+            cards.add( new MatchCard( this, objIdSeed, fmtCaption, pairs ) ) ;
             
             if( this.generateReverseQuestion ) {
                 cards.add( new MatchCard( this, objIdSeedReverse, 
-                                          ast.getQuestion(), 
+                                          fmtCaption, 
                                           pairsReverse ) ) ;
             }
             
@@ -622,6 +627,7 @@ public class NotesElements {
         }
         
         public void collectContentAttributes( Map<String, Object> map ) {
+            map.put( "caption", fmtCaption ) ;
             map.put( "matchData", pairs ) ;
         }
         

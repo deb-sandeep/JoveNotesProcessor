@@ -188,7 +188,7 @@ public class Cards {
             super( ne, MATCHING ) ;
             this.objIdSeed = objIdSeed ;
             this.fmtMatchPairs = fmtMatchPairs ;
-            this.caption = ( caption == null ) ? "Match the following" : caption ;
+            this.caption = caption ;
         }
         
         public String getObjIdSeed() { 
