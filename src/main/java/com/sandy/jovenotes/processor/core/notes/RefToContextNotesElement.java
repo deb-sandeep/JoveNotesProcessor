@@ -9,6 +9,7 @@ import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.core.cards.Cards.QACard ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
+import com.sandy.xtext.joveNotes.NotesElement ;
 import com.sandy.xtext.joveNotes.QuestionAnswer ;
 import com.sandy.xtext.joveNotes.RefToContext ;
 
@@ -28,12 +29,16 @@ public class RefToContextNotesElement extends AbstractNotesElement {
         this.context = ast.getContext() ;
         this.objIdSeed = ast.getContext().substring( 0, context.length()/5 ) ;
         
-        for( QuestionAnswer astQ : ast.getQuestions() ) {
+        for( NotesElement ne : ast.getNotesElements() ) {
             
-            List<String> aRawQA = new ArrayList<String>() ;
-            aRawQA.add( astQ.getQuestion() ) ;
-            aRawQA.add( astQ.getAnswerParts().get( 0 ) ) ;
-            rawQAList.add( aRawQA ) ;
+            if( ne instanceof QuestionAnswer ) {
+                
+                QuestionAnswer astQ = ( QuestionAnswer )ne ;
+                List<String> aRawQA = new ArrayList<String>() ;
+                aRawQA.add( astQ.getQuestion() ) ;
+                aRawQA.add( astQ.getAnswerParts().get( 0 ) ) ;
+                rawQAList.add( aRawQA ) ;
+            }
         }
     }
     
