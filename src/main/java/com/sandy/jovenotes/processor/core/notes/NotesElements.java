@@ -21,6 +21,7 @@ import com.sandy.jovenotes.processor.core.cards.Cards.MultiChoiceCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.QACard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.SpellbeeCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.TrueFalseCard ;
+import com.sandy.jovenotes.processor.util.ASTReflector ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.jovenotes.processor.util.StringUtil ;
 import com.sandy.xtext.joveNotes.Character ;
@@ -41,6 +42,7 @@ import com.sandy.xtext.joveNotes.NotesElement ;
 import com.sandy.xtext.joveNotes.Option ;
 import com.sandy.xtext.joveNotes.QuestionAnswer ;
 import com.sandy.xtext.joveNotes.RefToContext ;
+import com.sandy.xtext.joveNotes.Script ;
 import com.sandy.xtext.joveNotes.Spellbee ;
 import com.sandy.xtext.joveNotes.TeacherNote ;
 import com.sandy.xtext.joveNotes.TrueFalse ;
@@ -69,7 +71,9 @@ public class NotesElements {
     public static final String MULTI_CHOICE  = "multi_choice" ;  
     
     // -------------------------------------------------------------------------
-    public static AbstractNotesElement build( Chapter chapter, NotesElement ast ) {
+    public static AbstractNotesElement build( Chapter chapter, NotesElement ast ) 
+        throws Exception {
+        
         AbstractNotesElement notesElement = null ;
         
         if( ast instanceof QuestionAnswer ){
@@ -139,15 +143,20 @@ public class NotesElements {
         
         private Map<String, String> evalVars = new HashMap<String, String>() ;
         
-        public AbstractNotesElement( String type, Chapter chapter, NotesElement ast ) {
+        public AbstractNotesElement( String type, Chapter chapter, NotesElement ast ) 
+            throws Exception {
+            
             this.type    = type ;
             this.chapter = chapter ;
             this.ast     = ast ;
             
-            if( ast.getScript() != null ) {
+            ASTReflector reflector = new ASTReflector( ast ) ;
+            
+            Script script = reflector.getScript() ;
+            if( script != null ) {
                 
-                if( ast.getScript().getEvalVars() != null ) {
-                    for( EvalVar var : ast.getScript().getEvalVars() ) {
+                if( script.getEvalVars() != null ) {
+                    for( EvalVar var : script.getEvalVars() ) {
                         if( evalVars.containsKey( var.getVarName() ) ) {
                             log.warn( "Script eval var " + var.getVarName() + 
                                       " is declared multiple times." ) ;
@@ -156,12 +165,12 @@ public class NotesElements {
                     }
                 }
                 
-                if( ast.getScript().getScriptBody() != null ) {
-                    this.scriptBody = ast.getScript().getScriptBody().getScript() ;
+                if( script.getScriptBody() != null ) {
+                    this.scriptBody = script.getScriptBody().getScript() ;
                 }
             }
             
-            if( ast.getHideFromView() != null ) {
+            if( reflector.getHideFromView() != null ) {
                 this.hiddenFromView = true ;
             }
         }
@@ -265,7 +274,9 @@ public class NotesElements {
         private String fmtAnswer   = null ;
         private String cmapImg  = null ;
         
-        public QAElement( Chapter chapter, QuestionAnswer ast ) {
+        public QAElement( Chapter chapter, QuestionAnswer ast ) 
+            throws Exception {
+            
             super( QA, chapter, ast ) ;
             this.ast = ast ;
         }
@@ -334,7 +345,9 @@ public class NotesElements {
         private String word = null ;
         private String meaning   = null ;
         
-        public WMElement( Chapter chapter, WordMeaning ast ) {
+        public WMElement( Chapter chapter, WordMeaning ast )  
+                throws Exception {
+            
             super( WM, chapter, ast ) ;
             this.ast = ast ;
         }
@@ -371,7 +384,9 @@ public class NotesElements {
         private String definition = null ;
         private String cmapImg    = null ;
         
-        public DefinitionElement( Chapter chapter, Definition ast ) {
+        public DefinitionElement( Chapter chapter, Definition ast )  
+                throws Exception {
+            
             super( DEFINITION, chapter, ast ) ;
             this.ast = ast ;
         }
@@ -411,7 +426,9 @@ public class NotesElements {
         private String note       = null ;
         private String cmapImg    = null ;
         
-        public TeacherNotesElement( Chapter chapter, TeacherNote ast ) {
+        public TeacherNotesElement( Chapter chapter, TeacherNote ast )  
+                throws Exception {
+            
             super( TEACHER_NOTE, chapter, ast ) ;
             this.ast = ast ;
         }
@@ -451,7 +468,9 @@ public class NotesElements {
         private String estimate   = null ;
         private String cmapImg    = null ;
         
-        public CharacterElement( Chapter chapter, Character ast ) {
+        public CharacterElement( Chapter chapter, Character ast )  
+                throws Exception {
+            
             super( CHARACTER, chapter, ast ) ;
             this.ast = ast ;
         }
@@ -491,7 +510,9 @@ public class NotesElements {
         private String time  = null ;
         private String event = null ;
         
-        public EventElement( Chapter chapter, Event ast ) {
+        public EventElement( Chapter chapter, Event ast )  
+                throws Exception {
+            
             super( EVENT, chapter, ast ) ;
             this.ast = ast ;
         }
@@ -531,7 +552,9 @@ public class NotesElements {
         private String       fmtQuestion = null ;
         private String       objIdSeed   = null ;
         
-        public FIBElement( Chapter chapter, com.sandy.xtext.joveNotes.FIB ast ) {
+        public FIBElement( Chapter chapter, com.sandy.xtext.joveNotes.FIB ast )  
+                throws Exception {
+            
             super( FIB, chapter, ast ) ;
             this.ast = ast ;
             
@@ -577,7 +600,9 @@ public class NotesElements {
         private String objIdSeedReverse = "" ;
         private boolean generateReverseQuestion = true ;
         
-        public MatchElement( Chapter chapter, Matching ast ) {
+        public MatchElement( Chapter chapter, Matching ast )  
+                throws Exception {
+            
             super( MATCHING, chapter, ast ) ;
             this.ast = ast ;
             this.generateReverseQuestion = 
@@ -713,7 +738,9 @@ public class NotesElements {
         
         private String objIdSeed = null ;
         
-        public TrueFalseElement( Chapter chapter, TrueFalse ast ) {
+        public TrueFalseElement( Chapter chapter, TrueFalse ast )  
+                throws Exception {
+            
             super( TRUE_FALSE, chapter, ast ) ;
             this.ast = ast ;
             this.objIdSeed = ast.getStatement() ;
@@ -751,7 +778,9 @@ public class NotesElements {
         private String objIdSeed = null ;
         private Chapter chapter = null ;
         
-        public SpellbeeElement( Chapter chapter, Spellbee ast ) {
+        public SpellbeeElement( Chapter chapter, Spellbee ast )  
+                throws Exception {
+            
             super( SPELLBEE, chapter, ast ) ;
             this.chapter = chapter ;
             this.word = ast.getWord() ;
@@ -787,7 +816,8 @@ public class NotesElements {
         
         private Map<String, Object> jsonAttrs = new HashMap<String, Object>() ;
         
-        public ImageLabelElement( Chapter chapter, ImageLabel ast ) {
+        public ImageLabelElement( Chapter chapter, ImageLabel ast )  
+                throws Exception {
             super( IMAGE_LABEL, chapter, ast ) ;
             this.ast = ast ;
             this.objIdSeed = ast.getImageName() + ast.getHotspots().size() + 
@@ -838,7 +868,9 @@ public class NotesElements {
         private String       objIdSeed = null ;
         private String       symbol    = null ;
         
-        public ChemCompoundElement( Chapter chapter, ChemCompound ast ) {
+        public ChemCompoundElement( Chapter chapter, ChemCompound ast )  
+                throws Exception {
+            
             super( CHEM_COMPOUND, chapter, ast ) ;
             this.ast = ast ;
             this.objIdSeed = ast.getSymbol() ;
@@ -903,7 +935,9 @@ public class NotesElements {
         private String descr    = null ;
         List<List<String>> symbols = new ArrayList<List<String>>() ;
         
-        public EquationElement( Chapter chapter, Equation ast ) {
+        public EquationElement( Chapter chapter, Equation ast )  
+                throws Exception {
+            
             super( EQUATION, chapter, ast ) ;
             this.ast = ast ;
             this.objIdSeed = ast.getEquation() ;
@@ -962,7 +996,8 @@ public class NotesElements {
         private String description = null ;
         private String fmtDescr    = null ;
         
-        public ChemEquationElement( Chapter chapter, ChemEquation ast ) {
+        public ChemEquationElement( Chapter chapter, ChemEquation ast )  
+                throws Exception {
             
             super( CHEM_EQUATION, chapter, ast ) ;
             reactants   = ast.getReactants() ;
@@ -1025,7 +1060,9 @@ public class NotesElements {
         private String fmtQ = null ;
         private String fmtA = null ;
         
-        public MultiChoiceElement( Chapter chapter, MultiChoice ast ) {
+        public MultiChoiceElement( Chapter chapter, MultiChoice ast )  
+                throws Exception {
+            
             super( MULTI_CHOICE, chapter, ast ) ;
             this.objIdSeed = constructObjId( ast ) ;
             this.ast = ast ;

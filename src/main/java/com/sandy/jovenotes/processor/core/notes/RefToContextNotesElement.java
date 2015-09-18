@@ -9,8 +9,8 @@ import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.core.cards.Cards.QACard ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
-import com.sandy.xtext.joveNotes.NotesElement ;
 import com.sandy.xtext.joveNotes.QuestionAnswer ;
+import com.sandy.xtext.joveNotes.RTCElement ;
 import com.sandy.xtext.joveNotes.RefToContext ;
 
 public class RefToContextNotesElement extends AbstractNotesElement {
@@ -22,14 +22,15 @@ public class RefToContextNotesElement extends AbstractNotesElement {
     private List<List<String>> rawQAList = new ArrayList<List<String>>() ;
     private List<List<String>> fmtQAList = new ArrayList<List<String>>() ;
     
-    public RefToContextNotesElement( Chapter chapter, RefToContext ast ) {
+    public RefToContextNotesElement( Chapter chapter, RefToContext ast ) 
+        throws Exception {
         
         super( NotesElements.RTC, chapter, ast ) ;
         
         this.context = ast.getContext() ;
         this.objIdSeed = ast.getContext().substring( 0, context.length()/5 ) ;
         
-        for( NotesElement ne : ast.getNotesElements() ) {
+        for( RTCElement ne : ast.getRtcElement() ) {
             
             if( ne instanceof QuestionAnswer ) {
                 
