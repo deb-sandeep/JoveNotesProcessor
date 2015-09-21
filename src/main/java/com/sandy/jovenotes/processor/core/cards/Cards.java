@@ -24,7 +24,6 @@ public class Cards {
     public static final String SPELLBEE      = "spellbee" ;
     public static final String MULTI_CHOICE  = "multi_choice" ;  
     
-    
     // -------------------------------------------------------------------------
     public static abstract class AbstractCard {
         
@@ -83,7 +82,6 @@ public class Cards {
         private String rawQuestion = null ;
         private String rawAnswer = null ;
         private String fmtAnswer = null ;
-        private String objIdSeed = null ;
         
         private JNTextProcessor textProcessor = null ;
         
@@ -96,7 +94,6 @@ public class Cards {
             this.textProcessor = textProcessor ;
             this.rawQuestion   = rawQ ;
             this.rawAnswer     = rawA ;
-            this.objIdSeed     = rawQ ;
             
             if( caption != null ) {
                 this.rawQuestion = "<blockquote>" + caption + "</blockquote>\n\n" + 
@@ -111,7 +108,7 @@ public class Cards {
         }
         
         public String getObjIdSeed() { 
-            return this.objIdSeed ;
+            return this.rawQuestion ;
         }
         
         public int getDifficultyLevel() {
