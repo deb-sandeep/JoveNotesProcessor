@@ -28,15 +28,17 @@ public class Cards {
     // -------------------------------------------------------------------------
     public static abstract class AbstractCard {
         
-        private AbstractNotesElement ne = null ;
-        private String type = null ;
-        private String objId = null ;
+        private AbstractNotesElement ne    = null ;
+        private String               type  = null ;
+        private String               objId = null ;
         
-        protected boolean ready = true ;
+        protected String  caption = null ;
+        protected boolean ready   = true ;
         
-        public AbstractCard( AbstractNotesElement ne, String type ) {
-            this.ne = ne ;
-            this.type = type ;
+        public AbstractCard( AbstractNotesElement ne, String caption, String type ) {
+            this.ne      = ne ;
+            this.type    = type ;
+            this.caption = caption ;
         }
         
         public String getType() {
@@ -81,22 +83,25 @@ public class Cards {
         private String rawQuestion = null ;
         private String rawAnswer = null ;
         private String fmtAnswer = null ;
+        private String objIdSeed = null ;
         
         private JNTextProcessor textProcessor = null ;
         
-        public QACard( AbstractNotesElement ne, String rawQ, String rawA, 
-                       JNTextProcessor textProcessor ) 
-                throws Exception {
-            this( ne, rawQ, rawA, null, textProcessor ) ;
-        }
-    
-        public QACard( AbstractNotesElement ne, String rawQ, String rawA, 
-                       String cmapImg, JNTextProcessor textProcessor ) throws Exception {
+        public QACard( AbstractNotesElement ne, JNTextProcessor textProcessor,
+                       String caption, String rawQ, String rawA, 
+                       String cmapImg  ) 
+            throws Exception {
             
-            super( ne, QA ) ;
+            super( ne, caption, QA ) ;
             this.textProcessor = textProcessor ;
             this.rawQuestion   = rawQ ;
             this.rawAnswer     = rawA ;
+            this.objIdSeed     = rawQ ;
+            
+            if( caption != null ) {
+                this.rawQuestion = "<blockquote>" + caption + "</blockquote>\n\n" + 
+                                   this.rawQuestion ;
+            }
             
             if( cmapImg != null ) {
                 this.rawAnswer += "<p>{{@img " + cmapImg + "}}" ;
@@ -106,7 +111,7 @@ public class Cards {
         }
         
         public String getObjIdSeed() { 
-            return this.rawQuestion ;
+            return this.objIdSeed ;
         }
         
         public int getDifficultyLevel() {
@@ -137,14 +142,20 @@ public class Cards {
         
         private JNTextProcessor textProcessor = null ;
         
-        public FIBCard( AbstractNotesElement ne, String rawQ, 
-                        List<String> fmtAnsList, JNTextProcessor textProcessor ) 
+        public FIBCard( AbstractNotesElement ne, 
+                        String caption, String rawQ, List<String> fmtAnsList, 
+                        JNTextProcessor textProcessor )
             throws Exception {
             
-            super( ne, FIB ) ;
+            super( ne, caption, FIB ) ;
             this.textProcessor = textProcessor ;
             this.rawQuestion   = rawQ ;
             this.fmtAnswers    = fmtAnsList ;
+            
+            if( caption != null ) {
+                this.rawQuestion = "<blockquote>" + caption + "</blockquote>\n\n" + 
+                                   this.rawQuestion ;
+            }
         }
         
         public String getObjIdSeed() { 
@@ -177,18 +188,25 @@ public class Cards {
         private static final double MAX_LIMIT = 0.7 ;
         
         private List<List<String>> fmtMatchPairs = null ;
-        private String caption = null ;
+        private String matchCaption = null ;
         
         private String objIdSeed = null ;
         
         public MatchCard( AbstractNotesElement ne, String objIdSeed, 
-                          String caption, List<List<String>> fmtMatchPairs ) 
-                                  throws Exception {
+                          String rtcCaption, String matchCaption, 
+                          List<List<String>> fmtMatchPairs ) 
+            throws Exception {
             
-            super( ne, MATCHING ) ;
-            this.objIdSeed = objIdSeed ;
+            super( ne, rtcCaption, MATCHING ) ;
+            
+            this.objIdSeed     = objIdSeed ;
             this.fmtMatchPairs = fmtMatchPairs ;
-            this.caption = caption ;
+            this.matchCaption  = matchCaption ;
+            
+            if( rtcCaption != null ) {
+                this.matchCaption = "<blockquote>" + rtcCaption + "</blockquote>\n\n" + 
+                                    this.matchCaption ;
+            }
         }
         
         public String getObjIdSeed() { 
@@ -203,7 +221,7 @@ public class Cards {
         
         public void collectContentAttributes( Map<String, Object> map ) 
             throws Exception {
-            map.put( "caption", caption ) ;
+            map.put( "caption", matchCaption ) ;
             map.put( "matchData", fmtMatchPairs ) ;
         }
     }
@@ -218,14 +236,19 @@ public class Cards {
         private String objIdSeed = null ;
         
         public TrueFalseCard( AbstractNotesElement ne, String objIdSeed, 
-                              String statement, boolean truthValue, 
+                              String caption, String statement, boolean truthValue, 
                               String justification ) 
                                       throws Exception {
-            super( ne, TF ) ;
+            super( ne, caption, TF ) ;
             this.objIdSeed     = objIdSeed ;
             this.statement     = statement ;
             this.truthValue    = truthValue ;
             this.justification = justification ;
+            
+            if( caption != null ) {
+                this.statement = "<blockquote>" + caption + "</blockquote>\n\n" + 
+                                 this.statement ;
+            }
         }
         
         public String getObjIdSeed() { return objIdSeed ; }
@@ -247,9 +270,10 @@ public class Cards {
         
         private String objIdSeed = null ;
         
-        public SpellbeeCard( AbstractNotesElement ne, String objIdSeed ) 
-                throws Exception {
-            super( ne, SPELLBEE ) ;
+        public SpellbeeCard( AbstractNotesElement ne, String caption, String objIdSeed ) 
+            throws Exception {
+            
+            super( ne, caption, SPELLBEE ) ;
             this.objIdSeed = objIdSeed ;
             super.ready = false ;
         }
@@ -270,10 +294,10 @@ public class Cards {
         private Map<String, Object> contentAttributes = null ;
         
         public ImageLabelCard( AbstractNotesElement ne, String objIdSeed,
-                               Map<String, Object> contentAttributes ) 
+                               String caption, Map<String, Object> contentAttributes ) 
             throws Exception {
             
-            super( ne, IMGLABEL ) ;
+            super( ne, caption, IMGLABEL ) ;
             this.objIdSeed = objIdSeed ;
             this.contentAttributes = contentAttributes ;
         }
@@ -312,10 +336,11 @@ public class Cards {
                                            new LinkedHashMap<String, Object>() ;
         
         public MultiChoiceCard( AbstractNotesElement ne, String objIdSeed,
-                                MultiChoice ast, JNTextProcessor textProcessor ) 
+                                String caption, MultiChoice ast, 
+                                JNTextProcessor textProcessor ) 
             throws Exception {
             
-            super( ne, MULTI_CHOICE ) ;
+            super( ne, caption, MULTI_CHOICE ) ;
             this.objIdSeed = objIdSeed ;
             initialize( ast, textProcessor ) ;
         }
@@ -377,6 +402,10 @@ public class Cards {
             if( numOptionsPerRow <= 0 ) {
                 throw new Exception( "Number of options to show per row " + 
                                      "can't be less than or equal to zero." ) ;
+            }
+            
+            if( super.caption != null ) {
+                fmtQ = "<blockquote>" + caption + "</blockquote>\n\n" + fmtQ ;
             }
             
             contentAttributes.put( "question",          fmtQ ) ;

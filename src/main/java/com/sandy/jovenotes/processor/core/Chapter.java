@@ -45,7 +45,7 @@ public class Chapter {
         
         for( NotesElement element : this.notesAST.getNotesElements() ) {
             
-            AbstractNotesElement ne = NotesElements.build( this, element ) ; 
+            AbstractNotesElement ne = NotesElements.build( this, null, element ) ; 
             String distinctKey = ne.getType() + "-" + ne.getObjIdSeed() ;
             
             if( distinctNEMap.containsKey( distinctKey ) ) {

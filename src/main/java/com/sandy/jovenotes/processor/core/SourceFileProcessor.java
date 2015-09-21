@@ -26,6 +26,9 @@ public class SourceFileProcessor {
         // Create the source side object model. This includes source translation
         // and any required content transformation recursively for notes elements
         // and associated cards.
+        if( file.getAbsolutePath().contains( "Mirza" ) ) {
+            log.info( "Mirza found." ) ;
+        }
         Chapter chapter = new Chapter( baseDir, file, ast ) ;
 
         // Retrieve the database object model if one exists

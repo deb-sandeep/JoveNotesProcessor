@@ -1,15 +1,14 @@
 package com.sandy.jovenotes.processor.core.notes ;
 
 import java.util.ArrayList ;
-import java.util.HashMap ;
+import java.util.LinkedHashMap ;
 import java.util.List ;
 import java.util.Map ;
 
 import com.sandy.jovenotes.processor.core.Chapter ;
-import com.sandy.jovenotes.processor.core.cards.Cards.QACard ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
-import com.sandy.xtext.joveNotes.QuestionAnswer ;
+import com.sandy.xtext.joveNotes.NotesElement ;
 import com.sandy.xtext.joveNotes.RTCElement ;
 import com.sandy.xtext.joveNotes.RefToContext ;
 
@@ -19,27 +18,18 @@ public class RefToContextNotesElement extends AbstractNotesElement {
     private String context    = null ;
     private String fmtContext = null ;
     
-    private List<List<String>> rawQAList = new ArrayList<List<String>>() ;
-    private List<List<String>> fmtQAList = new ArrayList<List<String>>() ;
+    private List<AbstractNotesElement> noteElements = new ArrayList<AbstractNotesElement>() ;
     
     public RefToContextNotesElement( Chapter chapter, RefToContext ast ) 
         throws Exception {
         
-        super( NotesElements.RTC, chapter, ast ) ;
+        super( NotesElements.RTC, chapter, null, ast ) ;
         
         this.context = ast.getContext() ;
         this.objIdSeed = ast.getContext().substring( 0, context.length()/5 ) ;
         
         for( RTCElement ne : ast.getRtcElement() ) {
-            
-            if( ne instanceof QuestionAnswer ) {
-                
-                QuestionAnswer astQ = ( QuestionAnswer )ne ;
-                List<String> aRawQA = new ArrayList<String>() ;
-                aRawQA.add( astQ.getQuestion() ) ;
-                aRawQA.add( astQ.getAnswerParts().get( 0 ) ) ;
-                rawQAList.add( aRawQA ) ;
-            }
+            noteElements.add( NotesElements.build( chapter, context, (NotesElement)ne ) ) ;
         }
     }
     
@@ -48,15 +38,9 @@ public class RefToContextNotesElement extends AbstractNotesElement {
         
         this.fmtContext = textProcessor.processText( this.context ) ;
         
-        for( List<String> aRawQA : rawQAList ) {
-            List<String> aFmtQA = new ArrayList<String>() ;
-            aFmtQA.add( textProcessor.processText( aRawQA.get(0) ) ) ;
-            aFmtQA.add( textProcessor.processText( aRawQA.get(1) ) ) ;
-            fmtQAList.add( aFmtQA ) ;
-            
-            cards.add( new QACard( this,
-                    "<blockquote>" + context + "</blockquote>\n\n" + 
-                    aRawQA.get(0), aRawQA.get(1), textProcessor ) ) ;
+        for( AbstractNotesElement ane : noteElements ) {
+            ane.initialize( textProcessor ) ;
+            cards.addAll( ane.getCards() ) ;
         }
     }
     
@@ -64,19 +48,18 @@ public class RefToContextNotesElement extends AbstractNotesElement {
     
     public void collectContentAttributes( Map<String, Object> map ){
 
-        List<Map<String, String>> questionsObjArray = null ;
+        List<Map<String, Object>> noteElementsObjArray = null ;
         
-        questionsObjArray = new ArrayList<Map<String,String>>() ;
+        noteElementsObjArray = new ArrayList<Map<String,Object>>() ;
         
-        for( List<String> aFmtQA : fmtQAList ) {
-            Map<String, String> questionObj = new HashMap<String, String>() ;
-            questionObj.put( "question", aFmtQA.get(0) ) ;
-            questionObj.put( "answer",   aFmtQA.get(1) ) ;
-            
-            questionsObjArray.add( questionObj ) ;
+        for( AbstractNotesElement ane : noteElements ) {
+            Map<String, Object> aneAttributes = new LinkedHashMap<String, Object>() ;
+            ane.collectContentAttributes( aneAttributes ) ;
+            aneAttributes.put( "elementType", ane.getType() ) ;
+            noteElementsObjArray.add( aneAttributes ) ;
         }
         
-        map.put( "context",   this.fmtContext ) ;
-        map.put( "questions", questionsObjArray ) ;
+        map.put( "context",       this.fmtContext ) ;
+        map.put( "notesElements", noteElementsObjArray ) ;
     }
 }
