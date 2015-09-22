@@ -59,6 +59,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
     }
 
     public void execute() throws Exception {
+        
         log.info( "\tExecuting SpellbeeCmd for word - " + word ) ;
         
         File mediaDir = new File( JoveNotes.config.getDestMediaRootDir(), "_spellbee" ) ;

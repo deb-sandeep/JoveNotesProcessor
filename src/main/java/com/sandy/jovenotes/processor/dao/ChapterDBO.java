@@ -340,7 +340,7 @@ public class ChapterDBO extends AbstractDBO {
      */
     public boolean trace( Chapter chapter ) throws Exception {
         
-        log.info( "\tTracing source model to database model." ) ;
+        log.debug( "\tTracing source model to database model." ) ;
         
         boolean updateRequired = false ;
         

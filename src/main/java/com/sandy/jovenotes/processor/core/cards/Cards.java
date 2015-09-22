@@ -8,6 +8,7 @@ import java.util.Map ;
 import org.json.simple.JSONValue ;
 
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement ;
+import com.sandy.jovenotes.processor.core.notes.RefToContextNotesElement ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.jovenotes.processor.util.StringUtil ;
 import com.sandy.xtext.joveNotes.MultiChoice ;
@@ -27,17 +28,18 @@ public class Cards {
     // -------------------------------------------------------------------------
     public static abstract class AbstractCard {
         
-        private AbstractNotesElement ne    = null ;
-        private String               type  = null ;
-        private String               objId = null ;
+        private AbstractNotesElement     ne    = null ;
+        private RefToContextNotesElement rtcNE = null ;
+        private String                   type  = null ;
+        private String                   objId = null ;
         
-        protected String  caption = null ;
         protected boolean ready   = true ;
         
-        public AbstractCard( AbstractNotesElement ne, String caption, String type ) {
-            this.ne      = ne ;
-            this.type    = type ;
-            this.caption = caption ;
+        public AbstractCard( AbstractNotesElement ne, 
+                             RefToContextNotesElement rtcNE, String type ) {
+            this.ne    = ne ;
+            this.type  = type ;
+            this.rtcNE = rtcNE ;
         }
         
         public String getType() {
@@ -48,10 +50,19 @@ public class Cards {
             return this.ready ;
         }
         
+        public String getRawRTCCaption() {
+            if( this.rtcNE != null ) {
+                return this.rtcNE.getRawRTCCaption() ;
+            }
+            return null ;
+        }
+        
         public final String getObjId() {
             
+            String parentObjIdSeed = ( rtcNE == null ) ? ne.getObjIdSeed() : 
+                                                         rtcNE.getObjIdSeed() ;
             if( this.objId == null ){
-                this.objId = StringUtil.getHash( ne.getObjIdSeed() + "Card" + 
+                this.objId = StringUtil.getHash( parentObjIdSeed + "Card" + 
                                                  getType() + getObjIdSeed() ) ; 
             }
             return this.objId ;
@@ -83,20 +94,33 @@ public class Cards {
         private String rawAnswer = null ;
         private String fmtAnswer = null ;
         
+        // REMOVE: This is a hack to preserve backward compatibility of RTC nested 
+        // question introduction. This should be removed in April 2016. 
+        // objIdSeed should be equal to the raqwQuestion.
+        private String objIdSeed = null ;
+        
         private JNTextProcessor textProcessor = null ;
         
-        public QACard( AbstractNotesElement ne, JNTextProcessor textProcessor,
-                       String caption, String rawQ, String rawA, 
-                       String cmapImg  ) 
+        public QACard( AbstractNotesElement ne, RefToContextNotesElement rtcNE, 
+                       JNTextProcessor textProcessor,
+                       String rawQ, String rawA, String cmapImg  ) 
             throws Exception {
             
-            super( ne, caption, QA ) ;
+            super( ne, rtcNE, QA ) ;
             this.textProcessor = textProcessor ;
             this.rawQuestion   = rawQ ;
+            this.objIdSeed     = rawQ ;
             this.rawAnswer     = rawA ;
             
-            if( caption != null ) {
-                this.rawQuestion = "<blockquote>" + caption + "</blockquote>\n\n" + 
+            if( getRawRTCCaption() != null ) {
+                this.objIdSeed = "<blockquote>" + 
+                                 getRawRTCCaption() + 
+                                 "</blockquote>\n\n" + 
+                                 this.rawQuestion ;
+                
+                this.rawQuestion = "<blockquote>" + 
+                                   textProcessor.processText( getRawRTCCaption() ) + 
+                                   "</blockquote>\n\n" + 
                                    this.rawQuestion ;
             }
             
@@ -108,7 +132,7 @@ public class Cards {
         }
         
         public String getObjIdSeed() { 
-            return this.rawQuestion ;
+            return this.objIdSeed ;
         }
         
         public int getDifficultyLevel() {
@@ -139,18 +163,20 @@ public class Cards {
         
         private JNTextProcessor textProcessor = null ;
         
-        public FIBCard( AbstractNotesElement ne, 
-                        String caption, String rawQ, List<String> fmtAnsList, 
+        public FIBCard( AbstractNotesElement ne, RefToContextNotesElement rtcNE,
+                        String rawQ, List<String> fmtAnsList, 
                         JNTextProcessor textProcessor )
             throws Exception {
             
-            super( ne, caption, FIB ) ;
+            super( ne, rtcNE, FIB ) ;
             this.textProcessor = textProcessor ;
             this.rawQuestion   = rawQ ;
             this.fmtAnswers    = fmtAnsList ;
             
-            if( caption != null ) {
-                this.rawQuestion = "<blockquote>" + caption + "</blockquote>\n\n" + 
+            if( getRawRTCCaption() != null ) {
+                this.rawQuestion = "<blockquote>" + 
+                                   textProcessor.processText( getRawRTCCaption() ) + 
+                                   "</blockquote>\n\n" + 
                                    this.rawQuestion ;
             }
         }
@@ -189,19 +215,22 @@ public class Cards {
         
         private String objIdSeed = null ;
         
-        public MatchCard( AbstractNotesElement ne, String objIdSeed, 
-                          String rtcCaption, String matchCaption, 
-                          List<List<String>> fmtMatchPairs ) 
+        public MatchCard( AbstractNotesElement ne, RefToContextNotesElement rtcNE, 
+                          String objIdSeed, String matchCaption,
+                          List<List<String>> fmtMatchPairs, 
+                          JNTextProcessor textProcessor ) 
             throws Exception {
             
-            super( ne, rtcCaption, MATCHING ) ;
+            super( ne, rtcNE, MATCHING ) ;
             
             this.objIdSeed     = objIdSeed ;
             this.fmtMatchPairs = fmtMatchPairs ;
             this.matchCaption  = matchCaption ;
             
-            if( rtcCaption != null ) {
-                this.matchCaption = "<blockquote>" + rtcCaption + "</blockquote>\n\n" + 
+            if( getRawRTCCaption() != null ) {
+                this.matchCaption = "<blockquote>" + 
+                                    textProcessor.processText( getRawRTCCaption() ) + 
+                                    "</blockquote>\n\n" + 
                                     this.matchCaption ;
             }
         }
@@ -232,18 +261,23 @@ public class Cards {
         
         private String objIdSeed = null ;
         
-        public TrueFalseCard( AbstractNotesElement ne, String objIdSeed, 
-                              String caption, String statement, boolean truthValue, 
-                              String justification ) 
+        public TrueFalseCard( AbstractNotesElement ne, RefToContextNotesElement rtcNE, 
+                              String objIdSeed, 
+                              String statement, boolean truthValue, 
+                              String justification,
+                              JNTextProcessor textProcessor ) 
                                       throws Exception {
-            super( ne, caption, TF ) ;
+            
+            super( ne, rtcNE, TF ) ;
             this.objIdSeed     = objIdSeed ;
             this.statement     = statement ;
             this.truthValue    = truthValue ;
             this.justification = justification ;
             
-            if( caption != null ) {
-                this.statement = "<blockquote>" + caption + "</blockquote>\n\n" + 
+            if( getRawRTCCaption() != null ) {
+                this.statement = "<blockquote>" + 
+                                 textProcessor.processText( getRawRTCCaption() ) + 
+                                 "</blockquote>\n\n" + 
                                  this.statement ;
             }
         }
@@ -267,10 +301,11 @@ public class Cards {
         
         private String objIdSeed = null ;
         
-        public SpellbeeCard( AbstractNotesElement ne, String caption, String objIdSeed ) 
+        public SpellbeeCard( AbstractNotesElement ne, RefToContextNotesElement rtcNE,
+                             String objIdSeed ) 
             throws Exception {
             
-            super( ne, caption, SPELLBEE ) ;
+            super( ne, rtcNE, SPELLBEE ) ;
             this.objIdSeed = objIdSeed ;
             super.ready = false ;
         }
@@ -290,11 +325,11 @@ public class Cards {
         private String objIdSeed = null ;
         private Map<String, Object> contentAttributes = null ;
         
-        public ImageLabelCard( AbstractNotesElement ne, String objIdSeed,
-                               String caption, Map<String, Object> contentAttributes ) 
+        public ImageLabelCard( AbstractNotesElement ne, RefToContextNotesElement rtcNE,
+                               String objIdSeed, Map<String, Object> contentAttributes )
             throws Exception {
             
-            super( ne, caption, IMGLABEL ) ;
+            super( ne, rtcNE, IMGLABEL ) ;
             this.objIdSeed = objIdSeed ;
             this.contentAttributes = contentAttributes ;
         }
@@ -332,12 +367,12 @@ public class Cards {
         private Map<String, Object> contentAttributes = 
                                            new LinkedHashMap<String, Object>() ;
         
-        public MultiChoiceCard( AbstractNotesElement ne, String objIdSeed,
-                                String caption, MultiChoice ast, 
+        public MultiChoiceCard( AbstractNotesElement ne, RefToContextNotesElement rtcNE, 
+                                String objIdSeed, MultiChoice ast, 
                                 JNTextProcessor textProcessor ) 
             throws Exception {
             
-            super( ne, caption, MULTI_CHOICE ) ;
+            super( ne, rtcNE, MULTI_CHOICE ) ;
             this.objIdSeed = objIdSeed ;
             initialize( ast, textProcessor ) ;
         }
@@ -401,8 +436,10 @@ public class Cards {
                                      "can't be less than or equal to zero." ) ;
             }
             
-            if( super.caption != null ) {
-                fmtQ = "<blockquote>" + caption + "</blockquote>\n\n" + fmtQ ;
+            if( getRawRTCCaption() != null ) {
+                fmtQ = "<blockquote>" + 
+                       textProcessor.processText( getRawRTCCaption() ) + 
+                       "</blockquote>\n\n" + fmtQ ;
             }
             
             contentAttributes.put( "question",          fmtQ ) ;

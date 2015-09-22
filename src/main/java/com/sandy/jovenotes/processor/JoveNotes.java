@@ -2,6 +2,7 @@ package com.sandy.jovenotes.processor;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.PathMatcher ;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +35,9 @@ public class JoveNotes {
     
     private SourceProcessingJournal journal = null ;
     private XTextModelParser modelParser = null ;
+    
+    private List<PathMatcher> includePathMatchers = null ;
+    private List<PathMatcher> excludePathMatchers = null ;
     
     private JoveNotes( String[] args ) throws Exception {
         initialize( args ) ;
@@ -69,15 +73,18 @@ public class JoveNotes {
         journal = new SourceProcessingJournal( journalFile ) ;
         log.debug( "\tSource processing journal initialized." ) ;
         
+        includePathMatchers = config.getIncludePathMatchers() ;
+        excludePathMatchers = config.getExcludePathMatchers() ;
+        log.debug( "\tInclude and exclude path matchers obtained." ) ;
+        
         log.info( "JoveNotes processor - initialized." ) ;
         log.info( "" ) ;
     }
     
     private void start() throws Exception {
         
-        if( config.isForceProcessAllFiles() ) {
-            journal.clean() ;
-        }
+        journal.clean() ;
+        
         List<File> srcDirs = config.getSrcDirs() ;
         for( File srcDir : srcDirs ) {
             
@@ -115,6 +122,9 @@ public class JoveNotes {
         Collection<File> allFiles = FileUtils.listFiles( srcDir, 
                                                 new String[]{"jn"}, true ) ;
         for( File file : allFiles ) {
+            
+            if( !shouldConsiderFile( file ) ) continue ;
+            
             if( config.isForceProcessAllFiles() ) {
                 filesForProcessing.add( file ) ;
                 log.info( "  Selecting file - " + file.getAbsolutePath() ) ;
@@ -127,6 +137,8 @@ public class JoveNotes {
                 log.debug( "  Ignoring file - " + file.getAbsolutePath() ) ;
             }
         }
+        
+        log.info("\n") ;
         
         return filesForProcessing ;
     }
@@ -156,6 +168,47 @@ public class JoveNotes {
                 }
             }
         }
+    }
+    
+    private boolean shouldConsiderFile( File file ) {
+        
+        // By default a file is included.
+        boolean shouldConsider = true ;
+        
+        // We check the exclude patterns first. If there are exclude patterns
+        // and if one of them matches the file, the file is excluded.
+        if( !excludePathMatchers.isEmpty() ) {
+            for( PathMatcher matcher : excludePathMatchers ) {
+                if( matcher.matches( file.toPath() ) ) {
+                    //log.debug( "Rejecting file as it matches exclusion filter. " + 
+                    //           matcher.toString() );
+                    shouldConsider = false ;
+                    break ;
+                }
+            }
+        }
+        
+        // If the file has not been already excluded and we have include include
+        // matchers, we see if the file matches any of the matchers.
+        if( !includePathMatchers.isEmpty() && shouldConsider ) {
+            boolean includePatternMatch = false ;
+            for( PathMatcher matcher : includePathMatchers ) {
+                if( matcher.matches( file.toPath() ) ) {
+                    shouldConsider = true ;
+                    includePatternMatch = true ;
+                    break ;
+                }
+            }
+            
+            // If we have include matchers, but none of them match the file,
+            // it should be excluded.
+            if( !includePatternMatch ) {
+                //log.debug( "Rejecting file as it does not match any inclusion filter." ) ;
+                shouldConsider = false ;
+            }
+        }
+        
+        return shouldConsider ;
     }
     
     public static void main( String[] args ) throws Exception {

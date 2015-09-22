@@ -308,7 +308,6 @@ public class CardDBO extends AbstractDBO {
     public void processTrace() throws Exception {
 
         if( getCardId() == -1 ) {
-            log.info( "\t    Card will be created." ) ;
             create() ;
         }
         else if( isModified ) {

@@ -41,11 +41,11 @@ public class Chapter {
         this.notesAST      = notesAST ;
         this.scriptBody    = getScriptBody() ;
         
-        log.info( "\tObject transforming chapter - " + getChapterFQN() );
+        log.debug( "\tObject transforming chapter - " + getChapterFQN() );
         
         for( NotesElement element : this.notesAST.getNotesElements() ) {
             
-            AbstractNotesElement ne = NotesElements.build( this, null, element ) ; 
+            AbstractNotesElement ne = NotesElements.build( this, element, null ) ; 
             String distinctKey = ne.getType() + "-" + ne.getObjIdSeed() ;
             
             if( distinctNEMap.containsKey( distinctKey ) ) {
@@ -63,7 +63,7 @@ public class Chapter {
     private void initializeNotesElements() 
             throws Exception {
             
-        log.info( "\tProcessing notes elements" ) ;
+        log.debug( "\tProcessing notes elements" ) ;
         ArrayList<File> existingMediaFiles = new ArrayList<File>() ;
         existingMediaFiles.addAll( FileUtils.listFiles( getMediaDirectory(), null, true ) ) ;
         log.debug( "\tRetrieved existing media files" ) ;

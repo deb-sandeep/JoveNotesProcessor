@@ -1,16 +1,18 @@
 package com.sandy.jovenotes.processor.util;
 
-import java.io.File;
-import java.net.URL;
+import java.io.File ;
+import java.net.URL ;
+import java.nio.file.FileSystems ;
+import java.nio.file.PathMatcher ;
 import java.util.ArrayList ;
 import java.util.List ;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.commons.cli.CommandLine ;
+import org.apache.commons.cli.DefaultParser ;
+import org.apache.commons.cli.HelpFormatter ;
+import org.apache.commons.cli.Options ;
+import org.apache.commons.configuration.PropertiesConfiguration ;
+import org.apache.log4j.Logger ;
 
 /**
  * The configuration manager for JoveNotes processor. All the configuration 
@@ -36,6 +38,8 @@ public class ConfigManager{
     private static String CK_DB_PWD        = "db.password" ;
     private static String CK_GRAPHVIZ_PATH = "graphviz.dot.path" ;
     private static String CK_WORDNIC_API   = "wordnic.api.key" ;
+    private static String CK_INCL_GLOBS    = "include.file.globs" ;
+    private static String CK_EXCL_GLOBS    = "exclude.file.globs" ;
     
     private boolean     showUsage            = false ;
     private boolean     showUI               = false ;
@@ -44,6 +48,9 @@ public class ConfigManager{
     private File        destMediaRootDir     = null ;
     private File        graphvizDotPath      = null ;
     private List<File>  srcDirs              = new ArrayList<File>() ;
+    
+    private List<PathMatcher> includePathMatchers = new ArrayList<PathMatcher>() ;
+    private List<PathMatcher> excludePathMatchers = new ArrayList<PathMatcher>() ;
     
     private String  databaseURL        = null ;
     private String  databaseDriverName = null ;
@@ -59,6 +66,9 @@ public class ConfigManager{
     public File       getWorkspaceDir()        { return this.wkspDir ; }
     public File       getDestMediaRootDir()    { return this.destMediaRootDir ; }
     public File       getGraphvizDotPath()     { return this.graphvizDotPath; }
+    
+    public List<PathMatcher> getIncludePathMatchers() { return this.includePathMatchers; }
+    public List<PathMatcher> getExcludePathMatchers() { return this.excludePathMatchers; }
     
     public String getDatabaseURL()        { return this.databaseURL; }
     public String getDatabaseDriverName() { return this.databaseDriverName; }
@@ -91,6 +101,7 @@ public class ConfigManager{
         
         parseSrcDir( config ) ;
         parseDatabaseConfig( config ) ;
+        parseGlobsFromConfig( config ) ;
     }
     
     private void parseSrcDir( PropertiesConfiguration config ) 
@@ -167,7 +178,9 @@ public class ConfigManager{
                           "[--dbPassword <database password>] " +
                           "[--wordnicKey <key>] " + 
                           "[--runMode development | production] " + 
-                          "[--srcDirs <list of directories>]";
+                          "[--srcDirs <list of directories>] " + 
+                          "[--inclGlobs <include files glob patterns>] " + 
+                          "[--exclGlobs <exclude files glob patterns>]" ;
         
         HelpFormatter helpFormatter = new HelpFormatter() ;
         helpFormatter.printHelp( 80, usageStr, null, this.clOptions, null ) ;
@@ -184,6 +197,8 @@ public class ConfigManager{
         options.addOption( null, "wordnicKey", true, "Wordnic API key" ) ;
         options.addOption( null, "runMode",    true, "Run mode, either 'development' or 'production'" ) ;
         options.addOption( null, "srcDirs",    true, "List of directories separated by path separator" ) ;
+        options.addOption( null, "inclGlobs",  true, "List of path separator separated glob patterns to include" ) ;
+        options.addOption( null, "exclGlobs",  true, "List of path separator separated glob patterns to exclude" ) ;
 
         return options ;
     }
@@ -228,6 +243,8 @@ public class ConfigManager{
                     ) ;
                 }
             }
+            
+            parseGlobsFromCommandLine( cmdLine ) ;
         }
         catch ( Exception e ) {
             log.error( "Error parsing command line arguments.", e ) ;
@@ -251,5 +268,45 @@ public class ConfigManager{
                 }
             }
         }
+    }
+    
+    private void parseGlobsFromCommandLine( CommandLine cmdLine ) 
+            throws Exception {
+        
+        String inclGlobs = cmdLine.getOptionValue( "inclGlobs" ) ;
+        String exclGlobs = cmdLine.getOptionValue( "exclGlobs" ) ;
+        parseGlobs( inclGlobs, exclGlobs ) ;
+    }
+
+    private void parseGlobsFromConfig( PropertiesConfiguration config )
+            throws Exception {
+            
+        String inclGlobs = config.getString( CK_INCL_GLOBS ) ;
+        String exclGlobs = config.getString( CK_EXCL_GLOBS ) ;
+        parseGlobs( inclGlobs, exclGlobs ) ;
+    }
+    
+    private void parseGlobs( String inclGlobs, String exclGlobs ) 
+        throws Exception {
+        
+        if( StringUtil.isNotEmptyOrNull( inclGlobs ) ) {
+            this.includePathMatchers.addAll( convertToPathMatchers( inclGlobs ) ) ;
+        }
+        if( StringUtil.isNotEmptyOrNull( exclGlobs ) ) {
+            this.excludePathMatchers.addAll( convertToPathMatchers( exclGlobs ) ) ;
+        }
+    }
+    
+    private List<PathMatcher> convertToPathMatchers( String globList )
+        throws Exception {
+        
+        String[] globs = globList.split( File.pathSeparator ) ;
+        List<PathMatcher> matchers = new ArrayList<PathMatcher>() ;
+        
+        for( String glob : globs ) {
+            PathMatcher matcher = FileSystems.getDefault().getPathMatcher( "glob:" + glob ) ;
+            matchers.add( matcher ) ;
+        }
+        return matchers ;
     }
 }

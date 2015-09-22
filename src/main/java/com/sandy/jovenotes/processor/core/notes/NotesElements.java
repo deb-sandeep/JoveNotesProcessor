@@ -67,62 +67,63 @@ public class NotesElements {
     public static final String MULTI_CHOICE  = "multi_choice" ;  
     
     // -------------------------------------------------------------------------
-    public static AbstractNotesElement build( Chapter chapter, String caption, 
-                                              NotesElement ast ) 
+    public static AbstractNotesElement build( Chapter c,  
+                                              NotesElement ast, 
+                                              RefToContextNotesElement rtcNE ) 
         throws Exception {
         
-        AbstractNotesElement notesElement = null ;
+        AbstractNotesElement ne = null ;
         
         if( ast instanceof QuestionAnswer ){
-            notesElement = new QAElement( chapter, caption, ( QuestionAnswer )ast ) ;
+            ne = new QAElement(c, (QuestionAnswer)ast, rtcNE );
         }
         else if( ast instanceof WordMeaning ){
-            notesElement = new WMElement( chapter, caption, ( WordMeaning )ast ) ;
+            ne = new WMElement(c, (WordMeaning)ast, rtcNE );
         }
         else if( ast instanceof Definition ){
-            notesElement = new DefinitionElement( chapter, caption, ( Definition )ast ) ;
+            ne = new DefinitionElement(c, (Definition)ast, rtcNE );
         }
         else if( ast instanceof TeacherNote ){
-            notesElement = new TeacherNotesElement( chapter, caption, ( TeacherNote )ast ) ;
+            ne = new TeacherNotesElement(c, (TeacherNote)ast, rtcNE );
         }
         else if( ast instanceof Character ){
-            notesElement = new CharacterElement( chapter, caption, ( Character )ast ) ;
+            ne = new CharacterElement(c, (Character)ast, rtcNE );
         }
         else if( ast instanceof Event ){
-            notesElement = new EventElement( chapter, caption, ( Event )ast ) ;
+            ne = new EventElement(c, (Event)ast, rtcNE );
         }
         else if( ast instanceof com.sandy.xtext.joveNotes.FIB ){
-            notesElement = new FIBElement( chapter, caption, ( com.sandy.xtext.joveNotes.FIB )ast ) ;
+            ne = new FIBElement(c, (com.sandy.xtext.joveNotes.FIB)ast, rtcNE);
         }
         else if( ast instanceof Matching ){
-            notesElement = new MatchElement( chapter, caption, ( Matching )ast ) ;
+            ne = new MatchElement(c, (Matching)ast, rtcNE );
         }
         else if( ast instanceof TrueFalse ){
-            notesElement = new TrueFalseElement( chapter, caption, ( TrueFalse )ast ) ;
+            ne = new TrueFalseElement(c, (TrueFalse)ast, rtcNE );
         }
         else if( ast instanceof Spellbee ){
-            notesElement = new SpellbeeElement( chapter, caption, ( Spellbee )ast ) ;
+            ne = new SpellbeeElement(c, (Spellbee)ast, rtcNE );
         }
         else if( ast instanceof ImageLabel ){
-            notesElement = new ImageLabelElement( chapter, caption, ( ImageLabel )ast ) ;
+            ne = new ImageLabelElement(c, (ImageLabel)ast, rtcNE );
         }
         else if( ast instanceof ChemCompound ){
-            notesElement = new ChemCompoundElement( chapter, caption, ( ChemCompound )ast ) ;
+            ne = new ChemCompoundElement(c, (ChemCompound)ast, rtcNE );
         }
         else if( ast instanceof Equation ){
-            notesElement = new EquationElement( chapter, caption, ( Equation )ast ) ;
+            ne = new EquationElement(c, (Equation)ast, rtcNE );
         }
         else if( ast instanceof ChemEquation ){
-            notesElement = new ChemEquationElement( chapter, caption, ( ChemEquation )ast ) ;
+            ne = new ChemEquationElement(c, (ChemEquation)ast, rtcNE );
         }
         else if( ast instanceof RefToContext ){
-            notesElement = new RefToContextNotesElement( chapter, ( RefToContext )ast ) ;
+            ne = new RefToContextNotesElement(c, (RefToContext)ast );
         }
         else if( ast instanceof MultiChoice ){
-            notesElement = new MultiChoiceElement( chapter, caption, ( MultiChoice )ast ) ;
+            ne = new MultiChoiceElement(c, (MultiChoice)ast, rtcNE );
         }
         
-        return notesElement ;
+        return ne ;
     }
 
     // -------------------------------------------------------------------------
@@ -134,21 +135,22 @@ public class NotesElements {
         private   String       scriptBody        = null ;
         protected boolean      ready             = true ;
         protected boolean      hiddenFromView    = false ;
-        protected String       caption           = null ;
         
+        protected RefToContextNotesElement rtcNE = null ;
         protected Chapter chapter = null ;
         protected List<AbstractCard> cards = new ArrayList<AbstractCard>() ;
         
         private Map<String, String> evalVars = new HashMap<String, String>() ;
         
         public AbstractNotesElement( String type, Chapter chapter, 
-                                     String caption, NotesElement ast ) 
+                                     NotesElement ast, 
+                                     RefToContextNotesElement rtcNE ) 
             throws Exception {
             
             this.type    = type ;
             this.chapter = chapter ;
             this.ast     = ast ;
-            this.caption = caption ;
+            this.rtcNE   = rtcNE ;
             
             ASTReflector reflector = new ASTReflector( ast ) ;
             
@@ -173,6 +175,13 @@ public class NotesElements {
             if( reflector.getHideFromView() != null ) {
                 this.hiddenFromView = true ;
             }
+        }
+        
+        public String getRawRTCCaption() {
+            if( this.rtcNE != null ) {
+                return this.rtcNE.getRawRTCCaption() ;
+            }
+            return null ;
         }
         
         public String getType() {
@@ -274,10 +283,11 @@ public class NotesElements {
         private String fmtAnswer   = null ;
         private String cmapImg  = null ;
         
-        public QAElement( Chapter chapter, String caption, QuestionAnswer ast ) 
+        public QAElement( Chapter chapter, QuestionAnswer ast, 
+                          RefToContextNotesElement rtcNE ) 
             throws Exception {
             
-            super( QA, chapter, caption, ast ) ;
+            super( QA, chapter, ast, rtcNE ) ;
             this.ast = ast ;
         }
         
@@ -294,7 +304,7 @@ public class NotesElements {
             if( cmapImg != null ) {
                 this.fmtAnswer += "<p>{{@img " + this.cmapImg + "}}" ;
             }
-            cards.add( new QACard( this, textProcessor, caption, 
+            cards.add( new QACard( this, rtcNE, textProcessor, 
                                    ast.getQuestion(), consRawA, cmapImg ) ) ;
         }
         
@@ -345,10 +355,11 @@ public class NotesElements {
         private String word = null ;
         private String meaning   = null ;
         
-        public WMElement( Chapter chapter, String caption, WordMeaning ast )  
+        public WMElement( Chapter chapter, WordMeaning ast, 
+                          RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( WM, chapter, caption, ast ) ;
+            super( WM, chapter, ast, rtcNE ) ;
             this.ast = ast ;
         }
         
@@ -361,8 +372,8 @@ public class NotesElements {
             String wmQ = "_What is the meaning of_\n\n**" + this.word + "**" ;
             String mqQ = "_Which word means_\n\n**" + this.meaning + "**" ;
             
-            cards.add( new QACard( this, textProcessor, caption, wmQ, ast.getMeaning(), null ) ) ;
-            cards.add( new QACard( this, textProcessor, caption, mqQ, ast.getWord(), null  ) ) ;
+            cards.add( new QACard( this, rtcNE, textProcessor, wmQ, ast.getMeaning(), null ) ) ;
+            cards.add( new QACard( this, rtcNE, textProcessor, mqQ, ast.getWord(), null  ) ) ;
         }
         
         public String getObjIdSeed() { 
@@ -384,10 +395,11 @@ public class NotesElements {
         private String definition = null ;
         private String cmapImg    = null ;
         
-        public DefinitionElement( Chapter chapter, String caption, Definition ast )  
+        public DefinitionElement( Chapter chapter, Definition ast, 
+                                  RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( DEFINITION, chapter, caption, ast ) ;
+            super( DEFINITION, chapter, ast, rtcNE ) ;
             this.ast = ast ;
         }
         
@@ -403,7 +415,7 @@ public class NotesElements {
             }
 
             String fmtQ = "_Define_\n\n'**" + ast.getTerm().trim() + "**'" ;
-            cards.add( new QACard( this, textProcessor, caption, 
+            cards.add( new QACard( this, rtcNE, textProcessor,
                                    fmtQ, ast.getDefinition(), cmapImg  ) ) ;
         }
         
@@ -426,10 +438,11 @@ public class NotesElements {
         private String note       = null ;
         private String cmapImg    = null ;
         
-        public TeacherNotesElement( Chapter chapter, String caption, TeacherNote ast )  
+        public TeacherNotesElement( Chapter chapter, TeacherNote ast, 
+                                    RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( TEACHER_NOTE, chapter, caption, ast ) ;
+            super( TEACHER_NOTE, chapter, ast, rtcNE ) ;
             this.ast = ast ;
         }
         
@@ -468,10 +481,11 @@ public class NotesElements {
         private String estimate   = null ;
         private String cmapImg    = null ;
         
-        public CharacterElement( Chapter chapter, String caption, Character ast )  
+        public CharacterElement( Chapter chapter, Character ast, 
+                                 RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( CHARACTER, chapter, caption, ast ) ;
+            super( CHARACTER, chapter, ast, rtcNE ) ;
             this.ast = ast ;
         }
         
@@ -488,7 +502,7 @@ public class NotesElements {
 
             String fmtQ = "_Give an estimate of_\n\n" + 
                           "'**" + ast.getCharacter() + "**'" ;
-            cards.add( new QACard( this, textProcessor, caption, 
+            cards.add( new QACard( this, rtcNE, textProcessor,
                                    fmtQ, ast.getEstimate(), cmapImg  ) ) ;
         }
         
@@ -510,10 +524,11 @@ public class NotesElements {
         private String time  = null ;
         private String event = null ;
         
-        public EventElement( Chapter chapter, String caption, Event ast )  
+        public EventElement( Chapter chapter, Event ast, 
+                             RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( EVENT, chapter, caption, ast ) ;
+            super( EVENT, chapter, ast, rtcNE ) ;
             this.ast = ast ;
         }
         
@@ -527,8 +542,8 @@ public class NotesElements {
             String fmtET = "_When did the following happen_\n\n" + 
                            "**" + ast.getEvent() + "** ?" ;
             
-            cards.add( new QACard( this, textProcessor, caption, fmtTE, ast.getEvent(), null ) ) ;
-            cards.add( new QACard( this, textProcessor, caption, fmtET, ast.getTime(), null ) ) ;
+            cards.add( new QACard( this, rtcNE, textProcessor, fmtTE, ast.getEvent(), null ) ) ;
+            cards.add( new QACard( this, rtcNE, textProcessor, fmtET, ast.getTime(), null ) ) ;
         }
         
         public String getObjIdSeed() { 
@@ -552,10 +567,11 @@ public class NotesElements {
         private String       fmtQuestion = null ;
         private String       objIdSeed   = null ;
         
-        public FIBElement( Chapter chapter, String caption, com.sandy.xtext.joveNotes.FIB ast )  
+        public FIBElement( Chapter chapter, com.sandy.xtext.joveNotes.FIB ast, 
+                           RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( FIB, chapter, caption, ast ) ;
+            super( FIB, chapter, ast, rtcNE ) ;
             this.ast = ast ;
             
             StringBuilder seed = new StringBuilder( this.ast.getQuestion() ) ;
@@ -573,7 +589,7 @@ public class NotesElements {
             for( String rawAns : this.rawAnswers ) {
                 this.fmtAnswers.add( textProcessor.processText( rawAns ) ) ;
             }
-            cards.add( new FIBCard( this, caption, 
+            cards.add( new FIBCard( this, rtcNE, 
                                     ast.getQuestion(), fmtAnswers, 
                                     textProcessor ) ) ;
         }
@@ -599,10 +615,11 @@ public class NotesElements {
         
         private String objIdSeed = null ;
         
-        public TrueFalseElement( Chapter chapter, String caption, TrueFalse ast )  
+        public TrueFalseElement( Chapter chapter, TrueFalse ast, 
+                                 RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( TRUE_FALSE, chapter, caption, ast ) ;
+            super( TRUE_FALSE, chapter, ast, rtcNE ) ;
             this.ast = ast ;
             this.objIdSeed = ast.getStatement() ;
         }
@@ -616,8 +633,9 @@ public class NotesElements {
                 justification = textProcessor.processText( ast.getJustification() ) ;
             }
             
-            cards.add( new TrueFalseCard( this, objIdSeed, caption, 
-                                          statement, truthValue, justification ) ) ;
+            cards.add( new TrueFalseCard( this, rtcNE, objIdSeed,  
+                                          statement, truthValue, 
+                                          justification, textProcessor ) ) ;
         }
         
         public String getObjIdSeed() { return objIdSeed ; }
@@ -639,10 +657,11 @@ public class NotesElements {
         private String objIdSeed = null ;
         private Chapter chapter = null ;
         
-        public SpellbeeElement( Chapter chapter, String caption, Spellbee ast )  
+        public SpellbeeElement( Chapter chapter, Spellbee ast, 
+                                RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( SPELLBEE, chapter, caption, ast ) ;
+            super( SPELLBEE, chapter, ast, rtcNE ) ;
             this.chapter = chapter ;
             this.word = ast.getWord() ;
             this.objIdSeed = this.word ;
@@ -652,7 +671,7 @@ public class NotesElements {
         public void initialize( JNTextProcessor textProcessor ) 
                 throws Exception {
             
-            SpellbeeCard card = new SpellbeeCard( this, caption, objIdSeed ) ;
+            SpellbeeCard card = new SpellbeeCard( this, rtcNE, objIdSeed ) ;
             
             SpellbeeCmd  cmd = new SpellbeeCmd( chapter, word, 
                                                 card.getDifficultyLevel(), 
@@ -678,9 +697,11 @@ public class NotesElements {
         private Map<String, Object> cardJSONAttrs = new HashMap<String, Object>() ;
         private Map<String, Object> neJSONAttrs   = new HashMap<String, Object>() ;
         
-        public ImageLabelElement( Chapter chapter, String caption, ImageLabel ast )  
+        public ImageLabelElement( Chapter chapter, ImageLabel ast, 
+                                  RefToContextNotesElement rtcNE )  
                 throws Exception {
-            super( IMAGE_LABEL, chapter, caption, ast ) ;
+            
+            super( IMAGE_LABEL, chapter, ast, rtcNE ) ;
             this.ast = ast ;
             this.objIdSeed = ast.getImageName() + ast.getHotspots().size() + 
                              ast.getHotspots().get(0).getLabel() ;
@@ -709,8 +730,10 @@ public class NotesElements {
             }
             
             String cardImgLabelCaption = imgLabelCaption ;
-            if( super.caption != null ) {
-                cardImgLabelCaption = "<blockquote>" + caption + "</blockquote>\n\n" +
+            if( getRawRTCCaption() != null ) {
+                cardImgLabelCaption = "<blockquote>" + 
+                                      textProcessor.processText( getRawRTCCaption() ) + 
+                                      "</blockquote>\n\n" +
                                       imgLabelCaption ;
             }
             
@@ -722,7 +745,7 @@ public class NotesElements {
             neJSONAttrs.put( "imageName", ast.getImageName() ) ;
             neJSONAttrs.put( "hotSpots",  hsArray ) ;
             
-            cards.add( new ImageLabelCard( this, objIdSeed, imgLabelCaption, cardJSONAttrs ) ) ;
+            cards.add( new ImageLabelCard( this, rtcNE, objIdSeed, cardJSONAttrs ) ) ;
         }
         
         public String getObjIdSeed() { return objIdSeed ; }
@@ -740,10 +763,11 @@ public class NotesElements {
         private String       objIdSeed = null ;
         private String       symbol    = null ;
         
-        public ChemCompoundElement( Chapter chapter, String caption, ChemCompound ast )  
+        public ChemCompoundElement( Chapter chapter, ChemCompound ast, 
+                                    RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( CHEM_COMPOUND, chapter, caption, ast ) ;
+            super( CHEM_COMPOUND, chapter, ast, rtcNE ) ;
             this.ast = ast ;
             this.objIdSeed = ast.getSymbol() ;
         }
@@ -753,34 +777,32 @@ public class NotesElements {
             
             symbol = "$$\\ce{" + ast.getSymbol() + "}$$" ;
             
-            log.debug( ast.getSymbol() ) ;
-            
             if( StringUtil.isNotEmptyOrNull( ast.getChemicalName() ) ) {
-                cards.add( new QACard( this, textProcessor, caption,
+                cards.add( new QACard( this, rtcNE, textProcessor, 
                         "_What is the **formulae** for_\n\n" + ast.getChemicalName(),
                         symbol, null ) ) ;
                 
-                cards.add( new QACard( this, textProcessor, caption,
+                cards.add( new QACard( this, rtcNE, textProcessor, 
                         "_What is the **chemical name** of_\n\n" + symbol, 
                         ast.getChemicalName(), null ) ) ;
             }
             
             if( StringUtil.isNotEmptyOrNull( ast.getCommonName() ) ) {
-                cards.add( new QACard( this, textProcessor, caption,
+                cards.add( new QACard( this, rtcNE, textProcessor, 
                         "_What is the **formulae** for_\n\n" + ast.getCommonName(),
                         symbol, null ) ) ;
                 
-                cards.add( new QACard( this, textProcessor, caption, 
+                cards.add( new QACard( this, rtcNE, textProcessor, 
                         "_What is the **common name** for_\n\n" + symbol,
                         ast.getCommonName(), null ) ) ;
                 
                 if( StringUtil.isNotEmptyOrNull( ast.getChemicalName() ) ) {
                     
-                    cards.add( new QACard( this, textProcessor, caption, 
+                    cards.add( new QACard( this, rtcNE, textProcessor, 
                     "_What is the **chemical name** of_\n\n" + ast.getCommonName(), 
                     ast.getChemicalName(), null ) ) ;
                     
-                    cards.add( new QACard( this, textProcessor, caption, 
+                    cards.add( new QACard( this, rtcNE, textProcessor, 
                     "_What is the **common name** of_\n\n" + ast.getChemicalName(), 
                     ast.getCommonName(), null ) ) ;
                 }
@@ -807,10 +829,11 @@ public class NotesElements {
         private String descr    = null ;
         List<List<String>> symbols = new ArrayList<List<String>>() ;
         
-        public EquationElement( Chapter chapter, String caption, Equation ast )  
+        public EquationElement( Chapter chapter, Equation ast, 
+                                RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( EQUATION, chapter, caption, ast ) ;
+            super( EQUATION, chapter, ast, rtcNE ) ;
             this.ast = ast ;
             this.objIdSeed = ast.getEquation() ;
         }
@@ -836,14 +859,15 @@ public class NotesElements {
                 symbols.add( pair ) ; 
             }
             
-            cards.add( new QACard( this, textProcessor, caption,
+            cards.add( new QACard( this, rtcNE, textProcessor, 
                                    "_What is the equation for_\n\n" + descr, 
                                    equation, null ) ) ;
             
             if( symbols.size() > 2 ) {
                 String matchCaption = "For the following equation, match the " + 
                                       "symbols. " + equation ;
-                cards.add( new MatchCard( this, objIdSeed, caption, matchCaption, symbols ) ) ;
+                cards.add( new MatchCard( this, rtcNE, objIdSeed, 
+                                          matchCaption, symbols, textProcessor ) ) ;
             }
         }
         
@@ -869,10 +893,11 @@ public class NotesElements {
         private String description = null ;
         private String fmtDescr    = null ;
         
-        public ChemEquationElement( Chapter chapter, String caption, ChemEquation ast )  
+        public ChemEquationElement( Chapter chapter, ChemEquation ast, 
+                                    RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( CHEM_EQUATION, chapter, caption, ast ) ;
+            super( CHEM_EQUATION, chapter, ast, rtcNE ) ;
             reactants   = ast.getReactants() ;
             produces    = (ast.getProduces() == null)? "->" : ast.getProduces();
             products    = ast.getProducts() ;
@@ -888,16 +913,16 @@ public class NotesElements {
             
             if( description != null ) {
                 fmtDescr = textProcessor.processText( description ) ;
-                cards.add( new QACard( this, textProcessor, caption, 
+                cards.add( new QACard( this, rtcNE, textProcessor, 
                     "_Write the chemical equation described by:_\n\n" + description,
                     "$$\\ce{" + equation + "}$$", null ) ) ;
             }
             
-            cards.add( new QACard( this, textProcessor, caption,
+            cards.add( new QACard( this, rtcNE, textProcessor, 
                     "$$\\ce{" + reactants + " " + produces + "} " + getBlanks( products ) + "$$",
                     "$$\\ce{" + equation + "}$$", null ) ) ;
             
-            cards.add( new QACard( this, textProcessor, caption,
+            cards.add( new QACard( this, rtcNE, textProcessor, 
                     "$$" + getBlanks( reactants ) + " \\ce{" + produces + " " + products + "}$$",
                     "$$\\ce{" + equation + "}$$", null ) ) ;
         }
@@ -933,10 +958,11 @@ public class NotesElements {
         private String fmtQ = null ;
         private String fmtA = null ;
         
-        public MultiChoiceElement( Chapter chapter, String caption, MultiChoice ast )  
+        public MultiChoiceElement( Chapter chapter, MultiChoice ast, 
+                                   RefToContextNotesElement rtcNE )  
                 throws Exception {
             
-            super( MULTI_CHOICE, chapter, caption, ast ) ;
+            super( MULTI_CHOICE, chapter, ast, rtcNE ) ;
             this.objIdSeed = constructObjId( ast ) ;
             this.ast = ast ;
         }
@@ -947,7 +973,7 @@ public class NotesElements {
                 throws Exception {
             
             constructQuestionAndAnswerText( textProcessor ) ;
-            cards.add( new MultiChoiceCard( this, objIdSeed, super.caption, 
+            cards.add( new MultiChoiceCard( this, rtcNE, objIdSeed, 
                                             this.ast, textProcessor ) ) ;
         }
         

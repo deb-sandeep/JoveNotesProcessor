@@ -45,3 +45,25 @@ graphviz.dot.path=/usr/bin/dot
 #            option If the command line option is specified, it will override 
 #            the value provided in this configuration file.
 #wordnic.api.key=
+
+
+# Include files globs
+# Optional - This value can also be specified via the --inclGlobs command line
+#            option. If the command line option is specified, the values are
+#            appended to the values specified in the configuration file.
+#
+# The value of this parameter is a <path separator> separated list of glob 
+# patterns. Any file path which matches the specified glob (and not matched by
+# any exclude globs) will be included for processing.
+#include.file.globs=
+
+# Exclude files globs
+# Optional - This value can also be specified via the --exclGlobs command line
+#            option. If the command line option is specified, the values are
+#            appended to the values specified in the configuration file.
+#
+# The value of this parameter is a <path separator> separated list of glob 
+# patterns. Any file path which matches the specified glob (and not matched by
+# will be excluded from processing even if it has matched one or more 
+# include patterns.
+#exclude.file.globs=

@@ -14,29 +14,36 @@ import com.sandy.xtext.joveNotes.RefToContext ;
 
 public class RefToContextNotesElement extends AbstractNotesElement {
     
-    private String objIdSeed  = null ;
-    private String context    = null ;
-    private String fmtContext = null ;
+    private String objIdSeed     = null ;
+    private String rtcCaption    = null ;
+    private String fmtRTCCaption = null ;
     
     private List<AbstractNotesElement> noteElements = new ArrayList<AbstractNotesElement>() ;
     
     public RefToContextNotesElement( Chapter chapter, RefToContext ast ) 
         throws Exception {
         
-        super( NotesElements.RTC, chapter, null, ast ) ;
+        super( NotesElements.RTC, chapter, ast, null ) ;
         
-        this.context = ast.getContext() ;
-        this.objIdSeed = ast.getContext().substring( 0, context.length()/5 ) ;
+        this.rtcCaption = ast.getContext() ;
+        this.objIdSeed = ast.getContext().substring( 0, rtcCaption.length()/5 ) ;
         
-        for( RTCElement ne : ast.getRtcElement() ) {
-            noteElements.add( NotesElements.build( chapter, context, (NotesElement)ne ) ) ;
+        for( RTCElement rtcNE : ast.getRtcElement() ) {
+            AbstractNotesElement ane = null ;
+            ane = NotesElements.build( chapter, (NotesElement)rtcNE, this ) ;
+            
+            noteElements.add( ane ) ;
         }
+    }
+    
+    public String getRawRTCCaption() {
+        return this.rtcCaption ;
     }
     
     public void initialize( JNTextProcessor textProcessor ) 
             throws Exception {
         
-        this.fmtContext = textProcessor.processText( this.context ) ;
+        this.fmtRTCCaption = textProcessor.processText( this.rtcCaption ) ;
         
         for( AbstractNotesElement ane : noteElements ) {
             ane.initialize( textProcessor ) ;
@@ -59,7 +66,7 @@ public class RefToContextNotesElement extends AbstractNotesElement {
             noteElementsObjArray.add( aneAttributes ) ;
         }
         
-        map.put( "context",       this.fmtContext ) ;
+        map.put( "context",       this.fmtRTCCaption ) ;
         map.put( "notesElements", noteElementsObjArray ) ;
     }
 }

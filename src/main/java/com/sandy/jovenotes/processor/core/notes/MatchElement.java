@@ -29,10 +29,11 @@ public class MatchElement extends AbstractNotesElement {
     private String objIdSeedReverse = "" ;
     private boolean generateReverseQuestion = true ;
     
-    public MatchElement( Chapter chapter, String caption, Matching ast )  
+    public MatchElement( Chapter chapter, Matching ast, 
+                         RefToContextNotesElement rtcNE )  
             throws Exception {
         
-        super( NotesElements.MATCHING, chapter, caption, ast ) ;
+        super( NotesElements.MATCHING, chapter, ast, rtcNE ) ;
         this.ast = ast ;
         this.generateReverseQuestion = 
                    ( ast.getSkipReverseQuestion() == null ) ? true : false ; 
@@ -64,13 +65,13 @@ public class MatchElement extends AbstractNotesElement {
             this.pairsReverse.add( pairListReverse ) ;
         }
         
-        cards.add( new MatchCard( this, objIdSeed, caption, 
-                                  matchFmtCaption, pairs ) ) ;
+        cards.add( new MatchCard( this, rtcNE, objIdSeed, 
+                                  matchFmtCaption, pairs, textProcessor ) ) ;
         
         if( this.generateReverseQuestion ) {
-            cards.add( new MatchCard( this, objIdSeedReverse, 
-                                      caption, matchFmtCaption, 
-                                      pairsReverse ) ) ;
+            cards.add( new MatchCard( this, rtcNE, objIdSeedReverse, 
+                                      matchFmtCaption, 
+                                      pairsReverse, textProcessor ) ) ;
         }
         
         if( this.ast.getMcqConfig() != null ) {
@@ -149,7 +150,7 @@ public class MatchElement extends AbstractNotesElement {
             }
             
             MultiChoiceElement mcqElement = null ;
-            mcqElement = new MultiChoiceElement( chapter, super.caption, mcqAST ) ;
+            mcqElement = new MultiChoiceElement( chapter, mcqAST, rtcNE ) ;
             mcqElement.initialize( textProcessor ) ;
             
             cards.addAll( mcqElement.getCards() ) ;

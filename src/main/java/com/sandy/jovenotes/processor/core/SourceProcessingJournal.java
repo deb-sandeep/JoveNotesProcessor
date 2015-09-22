@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
+import java.util.Iterator ;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -119,7 +120,15 @@ public class SourceProcessingJournal {
     public void clean() throws IOException {
 
         Writer writer = new FileWriter( this.journalFile ) ;
-        journal.clear() ;
+        
+        for( Iterator<Object> iter = journal.keySet().iterator(); iter.hasNext(); ) {
+            File file = new File( ( String )iter.next() ) ;
+            if( !file.exists() ) {
+                log.debug( "Removing file " + file.getAbsolutePath() + 
+                           " from journa as it no longer exists." ) ;
+                iter.remove() ;
+            }
+        }
         journal.store( writer, null ) ; 
         writer.close() ;
     }

@@ -1,131 +1,20 @@
-mvn install:install-file -Dfile=com.sandy.xtext.jovenotes_1.0.0.201505142013.jar -DgroupId=com.sandy.xtext.jovenotes -DartifactId=jovenotes.xtext -Dversion=1.0 -Dpackaging=jar -DlocalRepositoryPath=/home/sandeep/projects/source/JoveNotesProcessor/repo
+The * character matches zero or more characters of a name component without crossing directory boundaries.
 
-mvn install:install-file -Dfile=jcmap.jar -DgroupId=com.sandy.jcmap -DartifactId=jcmap -Dversion=1.0 -Dpackaging=jar -DlocalRepositoryPath=/home/sandeep/projects/source/JoveNotesProcessor/repo
+The ** characters matches zero or more characters crossing directory boundaries.
 
-QA            ( question_answer ) -> QA
-WM            ( word_meaning    ) -> QA, QA
-FIB           ( fib             ) -> FIB
-DEFINITION    ( definition      ) -> QA
-CHARACTER     ( character       ) -> QA
-TEACHER_NOTE  ( teacher_note    ) -> -
-MATCHING      ( matching        ) -> MATCHING
-EVENT         ( event           ) -> QA
-TRUE_FALSE    ( true_false      ) -> TF
-SPELLBEE      ( spellbee        ) -> SPELLBEE
-IMAGE_LABEL   ( image_label     ) -> IMGLABEL
-CHEM_COMPOUND ( chem_compound   ) -> QA, QA, QA
-CHEM_EQUATION ( chem_equation   ) -> ?
-EQUATION      ( equation        ) -> ? 
+The ? character matches exactly one character of a name component.
 
-TF       = VE (20)
-SPELLBEE = E  (40)
-MATCHING = ~slots (Cap at M 50)
-IMGLABEL = ~slots (Cap at M 60)
-FIB      = ~slots (Cap at M 70)
-QA       = 100
+The backslash character (\) is used to escape characters that would otherwise be interpreted as special characters. The expression \\ matches a single backslash and "\{" matches a left brace for example.
 
-difficulty = 2/(1+exp(-A*x))-1.0)*100 ;
-A = 0.037505
-x = Number of words.
+The [ ] characters are a bracket expression that match a single character of a name component out of a set of characters. For example, [abc] matches "a", "b", or "c". The hyphen (-) may be used to specify a range so [a-z] specifies a range that matches from "a" to "z" (inclusive). These forms can be mixed so [abce-g] matches "a", "b", "c", "e", "f" or "g". If the character after the [ is a ! then it is used for negation so [!a-c] matches any character except "a", "b", or "c".
 
-QA difficulty as a function of number of words of subjective questions.
- 1, 1.87
- 2, 3.75
- 3, 5.62
- 4, 7.49
- 5, 9.35
- 6, 11.20
- 7, 13.05
- 8, 14.89
- 9, 16.72
-10, 18.54
-11, 20.34
-12, 22.13
-13, 23.91
-14, 25.67
-15, 27.41
-16, 29.13
-17, 30.84
-18, 32.53
-19, 34.19
-20, 35.84
-21, 37.46
-22, 39.06
-23, 40.64
-24, 42.19
-25, 43.72
-26, 45.23
-27, 46.71
-28, 48.16
-29, 49.59
-30, 50.99
-31, 52.36
-32, 53.71
-33, 55.03
-34, 56.32
-35, 57.59
-36, 58.83
-37, 60.04
-38, 61.23
-39, 62.39
-40, 63.52
-41, 64.63
-42, 65.70
-43, 66.76
-44, 67.78
-45, 68.78
-46, 69.76
-47, 70.71
-48, 71.64
-49, 72.54
-50, 73.41
-51, 74.27
-52, 75.09
-53, 75.90
-54, 76.68
-55, 77.45
-56, 78.19
-57, 78.90
-58, 79.60
-59, 80.28
-60, 80.93
-61, 81.57
-62, 82.19
-63, 82.79
-64, 83.37
-65, 83.93
-66, 84.48
-67, 85.01
-68, 85.52
-69, 86.01
-70, 86.49
-71, 86.96
-72, 87.41
-73, 87.84
-74, 88.27
-75, 88.67
-76, 89.07
-77, 89.45
-78, 89.82
-79, 90.17
-80, 90.52
-81, 90.85
-82, 91.17
-83, 91.48
-84, 91.78
-85, 92.07
-86, 92.36
-87, 92.63
-88, 92.89
-89, 93.14
-90, 93.39
-91, 93.62
-92, 93.85
-93, 94.07
-94, 94.28
-95, 94.48
-96, 94.68
-97, 94.87
-98, 95.06
-99, 95.23
-100, 95.41
+Within a bracket expression the *, ? and \ characters match themselves. The (-) character matches itself if it is the first character within the brackets, or the first character after the ! if negating.
+
+The { } characters are a group of subpatterns, where the group matches if any subpattern in the group matches. The "," character is used to separate the subpatterns. Groups cannot be nested.
+
+Leading period/dot characters in file name are treated as regular characters in match operations. For example, the "*" glob pattern matches file name ".login". The Files.isHidden(java.nio.file.Path) method may be used to test whether a file is considered hidden.
+
+All other characters match themselves in an implementation dependent manner. This includes characters representing any name-separators.
+
+The matching of root components is highly implementation-dependent and is not specified.
+
