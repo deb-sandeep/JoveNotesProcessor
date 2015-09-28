@@ -230,6 +230,10 @@ public class JNTextProcessor {
         else if( type.equals( "eval" ) ) {
             return processEval( data ) ;
         }
+        else if( type.equals( "table" ) ) {
+            TableTagProcessor processor = new TableTagProcessor( data, this ) ;
+            return processor.getProcessedText() ;
+        }
         
         return null ;
     }
