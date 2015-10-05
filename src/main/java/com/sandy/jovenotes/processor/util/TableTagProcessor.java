@@ -82,7 +82,13 @@ public class TableTagProcessor {
         
         endPreviousProcessingState() ;
         currentCellNumber++ ;
-        if( currentCellNumber % tableHeaders.size() == 1 ) {
+        
+        if( tableHeaders.size() == 1 ) {
+            List<String> newRow = new ArrayList<String>() ;
+            tableRows.add( newRow ) ;
+            currRow = newRow ;
+        }
+        else if( currentCellNumber % tableHeaders.size() == 1 ) {
             List<String> newRow = new ArrayList<String>() ;
             tableRows.add( newRow ) ;
             currRow = newRow ;
