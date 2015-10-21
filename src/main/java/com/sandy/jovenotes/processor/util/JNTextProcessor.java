@@ -234,6 +234,18 @@ public class JNTextProcessor {
             TableTagProcessor processor = new TableTagProcessor( data, this ) ;
             return processor.getProcessedText() ;
         }
+        else if( type.equals( "ichem" ) ) {
+            return "\\( \\ce{" + data + "} \\)" ;
+        }
+        else if( type.equals( "imath" ) ) {
+            return "\\( " + data + " \\)" ;
+        }
+        else if( type.equals( "chem" ) ) {
+            return "$$ \\ce{" + data + "} $$" ;
+        }
+        else if( type.equals( "math" ) ) {
+            return "$$ " + data + " $$" ;
+        }
         
         return null ;
     }
