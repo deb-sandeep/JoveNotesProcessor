@@ -44,6 +44,7 @@ public class ChapterDBO extends AbstractDBO {
         chapterNum   = chapter.getChapterNumber() ;
         subChapterNum= chapter.getSubChapterNumber() ;
         chapterName  = chapter.getChapterName() ;
+        isTestPaper  = chapter.isTestPaper() ;
         scriptBody   = chapter.getScriptBody() ;
         
         notesElements = new ArrayList<NotesElementDBO>() ;
@@ -278,8 +279,9 @@ public class ChapterDBO extends AbstractDBO {
         final String sql = 
             "UPDATE `jove_notes`.`chapter` " +
             "SET " +
-            "`chapter_name` = ?, " +
-            "`script_body`  = ? " +
+            "`chapter_name`  = ?, " +
+            "`script_body`   = ?, " +
+            "`is_test_paper` = ? " +
             "WHERE `chapter_id` = ? " ;
 
         Connection conn = JoveNotes.db.getConnection() ;
@@ -288,7 +290,8 @@ public class ChapterDBO extends AbstractDBO {
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
             psmt.setString ( 1, getChapterName() ) ;
             psmt.setString ( 2, getScriptBody() ) ;
-            psmt.setInt    ( 3, getChapterId() ) ;
+            psmt.setBoolean( 3, isTestPaper() ) ;
+            psmt.setInt    ( 4, getChapterId() ) ;
             
             psmt.executeUpdate() ;
         }
@@ -393,6 +396,12 @@ public class ChapterDBO extends AbstractDBO {
             isModified = true ;
             this.scriptBody = chapter.getScriptBody() ;
         }
+        
+        if( hasTestPaperFlagChanged( chapter ) ) {
+            log.info( "\t    Chapter test paper flag changed. " ) ;
+            isModified = true ;
+            this.isTestPaper = chapter.isTestPaper() ;
+        }
     }
     
     private boolean hasScriptBodyChanged( Chapter chapter ) {
@@ -403,6 +412,10 @@ public class ChapterDBO extends AbstractDBO {
     
     private boolean hasChapterNameChanged( Chapter chapter ) {
         return !chapter.getChapterName().equals( getChapterName() ) ;
+    }
+    
+    private boolean hasTestPaperFlagChanged( Chapter chapter ) {
+        return chapter.isTestPaper() != isTestPaper() ;
     }
     
     private boolean hasNumNotesElementsChanged( Chapter chapter ) {
