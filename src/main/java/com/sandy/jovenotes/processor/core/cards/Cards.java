@@ -90,9 +90,8 @@ public class Cards {
         
         private static final double DIFFICULTY_FACTOR = 0.037505 ;
         
-        private String rawQuestion = null ;
-        private String rawAnswer = null ;
-        private String fmtAnswer = null ;
+        private String fmtAnswer   = null ;
+        private String fmtQuestion = null ;
         
         // REMOVE: This is a hack to preserve backward compatibility of RTC nested 
         // question introduction. This should be removed in April 2016. 
@@ -108,27 +107,31 @@ public class Cards {
             
             super( ne, rtcNE, QA ) ;
             this.textProcessor = textProcessor ;
-            this.rawQuestion   = rawQ ;
+            this.fmtQuestion   = null ;
             this.objIdSeed     = rawQ ;
-            this.rawAnswer     = rawA ;
+            
+            String rawAnswer = rawA ;
             
             if( getRawRTCCaption() != null ) {
                 this.objIdSeed = "<blockquote>" + 
                                  getRawRTCCaption() + 
                                  "</blockquote>\n\n" + 
-                                 this.rawQuestion ;
+                                 rawQ ;
                 
-                this.rawQuestion = "<blockquote>" + 
+                this.fmtQuestion = "<blockquote>" + 
                                    textProcessor.processText( getRawRTCCaption() ) + 
                                    "</blockquote>\n\n" + 
-                                   this.rawQuestion ;
+                                   textProcessor.processText( rawQ ) ;
+            }
+            else {
+                this.fmtQuestion = textProcessor.processText( rawQ ) ;
             }
             
             if( cmapImg != null ) {
-                this.rawAnswer += "<p>{{@img " + cmapImg + "}}" ;
+                rawAnswer += "<p>{{@img " + cmapImg + "}}" ;
             }
             
-            this.fmtAnswer = textProcessor.processText( this.rawAnswer ) ;
+            this.fmtAnswer = textProcessor.processText( rawAnswer ) ;
         }
         
         public String getObjIdSeed() { 
@@ -146,8 +149,8 @@ public class Cards {
         public void collectContentAttributes( Map<String, Object> map ) 
             throws Exception {
             
-            map.put( "question", textProcessor.processText( rawQuestion ) ) ;
-            map.put( "answer",   textProcessor.processText( rawAnswer ) ) ;
+            map.put( "question", fmtQuestion ) ;
+            map.put( "answer",   fmtAnswer ) ;
         }
     }
 
@@ -158,10 +161,8 @@ public class Cards {
         private static final double X_SHIFT = -0.1 ;
         private static final double MAX_LIMIT = 0.6 ;
         
-        private String       rawQuestion = null ;
+        private String       fmtQuestion = null ;
         private List<String> fmtAnswers  = null ;
-        
-        private JNTextProcessor textProcessor = null ;
         
         public FIBCard( AbstractNotesElement ne, RefToContextNotesElement rtcNE,
                         String rawQ, List<String> fmtAnsList, 
@@ -169,15 +170,16 @@ public class Cards {
             throws Exception {
             
             super( ne, rtcNE, FIB ) ;
-            this.textProcessor = textProcessor ;
-            this.rawQuestion   = rawQ ;
             this.fmtAnswers    = fmtAnsList ;
             
             if( getRawRTCCaption() != null ) {
-                this.rawQuestion = "<blockquote>" + 
+                this.fmtQuestion = "<blockquote>" + 
                                    textProcessor.processText( getRawRTCCaption() ) + 
                                    "</blockquote>\n\n" + 
-                                   this.rawQuestion ;
+                                   textProcessor.processText( rawQ ) ;
+            }
+            else {
+                this.fmtQuestion = textProcessor.processText( rawQ ) ;
             }
         }
         
@@ -198,7 +200,7 @@ public class Cards {
         public void collectContentAttributes( Map<String, Object> map ) 
             throws Exception {
             
-            map.put( "question", textProcessor.processText( rawQuestion ) ) ;
+            map.put( "question", fmtQuestion ) ;
             map.put( "answers",  fmtAnswers ) ;
         }
     }
