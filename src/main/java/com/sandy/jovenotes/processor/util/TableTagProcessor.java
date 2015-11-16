@@ -7,6 +7,8 @@ import java.util.List ;
 
 public class TableTagProcessor {
 
+//    private static final Logger log = Logger.getLogger(JNTextProcessor.class) ;
+    
     private enum ProcessingState { IDLE, PROC_TH, PROC_TD } ;
     
     private String          markupData    = null ;

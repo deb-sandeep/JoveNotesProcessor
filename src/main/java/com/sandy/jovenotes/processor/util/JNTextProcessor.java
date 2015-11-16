@@ -120,6 +120,8 @@ public class JNTextProcessor {
         // Let's piggy back on bootstrap formatting of tables.
         String customTableTag = "<table class=\"pure-table pure-table-horizontal\">" ;
         output = output.replaceAll( "<table>", customTableTag ) ;
+        output = output.replaceAll( "\\\\\\\\", "\\\\" ) ;
+        
         return output ;
     }
     
@@ -244,7 +246,7 @@ public class JNTextProcessor {
             return "$$ \\ce{" + data + "} $$" ;
         }
         else if( type.equals( "math" ) ) {
-            return "$$ " + data + " $$" ;
+            return processMathTagContents( data ) ;
         }
         
         return null ;
@@ -403,5 +405,19 @@ public class JNTextProcessor {
     private String processEval( String expression ) {
         String b64Encoded = Base64.encodeBase64String( expression.getBytes() ) ;
         return "{{@eval " + b64Encoded + "}}" ;
+    }
+    
+    private String processMathTagContents( String content ) {
+        String[] lines = content.split( "\n" ) ;
+        StringBuffer buffer = new StringBuffer() ;
+        if( lines.length > 1 ) {
+            for( String line : lines ) {
+                buffer.append( "\\( " + line + " \\)\n\n" ) ;
+            }
+        }
+        else {
+            buffer.append( "$$ " + content + " $$" ) ;
+        }
+        return buffer.toString() ;
     }
 }
