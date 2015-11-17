@@ -1,31 +1,33 @@
 package com.sandy.jovenotes.processor.util;
 
 import java.io.BufferedReader ;
-import java.io.File;
+import java.io.File ;
 import java.io.InputStream ;
 import java.io.InputStreamReader ;
-import java.util.ArrayList;
+import java.util.ArrayList ;
 import java.util.HashMap ;
 import java.util.Map ;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.Matcher ;
+import java.util.regex.Pattern ;
 
 import net.sourceforge.plantuml.SourceStringReader ;
 
 import org.apache.commons.codec.binary.Base64 ;
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.io.FileUtils ;
+import org.apache.log4j.Logger ;
 import org.jsoup.Jsoup ;
-import org.pegdown.Extensions;
-import org.pegdown.PegDownProcessor;
+import org.pegdown.Extensions ;
+import org.pegdown.PegDownProcessor ;
 
-import com.sandy.jcmap.util.CMapBuilder;
-import com.sandy.jcmap.util.CMapDotSerializer;
-import com.sandy.jcmap.util.CMapElement;
-import com.sandy.jcmap.util.GraphvizAdapter;
-import com.sandy.jovenotes.processor.JoveNotes;
+import com.sandy.jcmap.util.CMapBuilder ;
+import com.sandy.jcmap.util.CMapDotSerializer ;
+import com.sandy.jcmap.util.CMapElement ;
+import com.sandy.jcmap.util.GraphvizAdapter ;
+import com.sandy.jovenotes.processor.JoveNotes ;
 import com.sandy.jovenotes.processor.core.Chapter ;
-import com.sandy.xtext.joveNotes.CMap;
+import com.sandy.jovenotes.processor.util.tagprocessor.CarouselTagProcessor ;
+import com.sandy.jovenotes.processor.util.tagprocessor.TableTagProcessor ;
+import com.sandy.xtext.joveNotes.CMap ;
 
 public class JNTextProcessor {
 
@@ -248,6 +250,10 @@ public class JNTextProcessor {
         else if( type.equals( "math" ) ) {
             return processMathTagContents( data ) ;
         }
+        else if( type.equals( "carousel" ) ) {
+            CarouselTagProcessor processor = new CarouselTagProcessor( data, this ) ;
+            return processor.getProcessedText() ;
+        }
         
         return null ;
     }
@@ -418,6 +424,23 @@ public class JNTextProcessor {
         else {
             buffer.append( "$$ " + content + " $$" ) ;
         }
+        return buffer.toString() ;
+    }
+    
+    public String createAttributeString( String[][] attributes ) {
+        StringBuilder buffer = new StringBuilder() ;
+        
+        if( attributes != null && attributes.length > 0 ) {
+            for( String[] attr : attributes ) {
+                buffer.append( " " ) ;
+                buffer.append( attr[0] ) ;
+                if( attr[1] != null ) {
+                    buffer.append( "=\"" ).append( attr[1] ).append( "\"" ) ; 
+                }
+            }
+            buffer.append( " " ) ;
+        }
+        
         return buffer.toString() ;
     }
 }

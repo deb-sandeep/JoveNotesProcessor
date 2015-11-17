@@ -1,9 +1,11 @@
-package com.sandy.jovenotes.processor.util;
+package com.sandy.jovenotes.processor.util.tagprocessor;
 
 import java.io.BufferedReader ;
 import java.io.StringReader ;
 import java.util.ArrayList ;
 import java.util.List ;
+
+import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 
 public class TableTagProcessor {
 
