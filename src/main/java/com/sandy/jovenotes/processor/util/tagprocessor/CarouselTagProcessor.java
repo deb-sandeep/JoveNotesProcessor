@@ -114,7 +114,7 @@ public class CarouselTagProcessor {
         
         String[][] attributes = {
              { "id",              carouselId },
-             { "class",          "carousel slide" },
+             { "class",          "carousel" },
              { "data-ride",      "carousel" },
              { "align",          "center" },
              { "data-interval",  "false" },
