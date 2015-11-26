@@ -58,6 +58,7 @@ public class ConfigManager{
     private String  databasePassword   = null ;
     private String  wordnicAPIKey      = null ;
     private String  runMode            = null ;
+    private String	configFile		   = null ;
 
     public boolean    isShowUsage()            { return this.showUsage; }
     public boolean    isShowUI()               { return this.showUI; }
@@ -76,6 +77,7 @@ public class ConfigManager{
     public String getDatabasePassword()   { return this.databasePassword; }
     public String getWordnicAPIKey()      { return this.wordnicAPIKey; }
     public String getRunMode()            { return this.runMode; }
+    public String getConfigFile()		  { return this.configFile; }
     
     // ------------------------------------------------------------------------
     private Options clOptions = null ;
@@ -88,9 +90,10 @@ public class ConfigManager{
         if( this.showUsage )return ;
         
         PropertiesConfiguration propCfg = new PropertiesConfiguration() ;
-        URL cfgURL = ConfigManager.class.getResource( "/config.properties" ) ;
+        String cfg = ( this.configFile != null ) ? this.configFile : "/config.properties";
+        URL cfgURL = ConfigManager.class.getResource( cfg ) ;
         if( cfgURL == null ) {
-            throw new Exception( "config.properties not found in classpath." ) ;
+            throw new Exception( cfg + " not found in classpath." ) ;
         }
         propCfg.load( cfgURL );
         parseConfig( propCfg ) ;
@@ -171,10 +174,13 @@ public class ConfigManager{
      * 1. --runMode defaults to development
      * 2. If the same configuration exists in configuration file, then 
      *    command line parameters override the configuration values.
+     * 3. The configuration file passed in the  command line parameters
+     *    overrides the default configuration file in the package.
      */
     public void printUsage() {
         
-        String usageStr = "JoveNotes [hif] [--dbUser <database user>] " + 
+        String usageStr = "JoveNotes [hif] [--dbUser <database user>] " +
+        				  "[--configFile <classpath URL>]" +
                           "[--dbPassword <database password>] " +
                           "[--wordnicKey <key>] " + 
                           "[--runMode development | production] " + 
@@ -192,6 +198,7 @@ public class ConfigManager{
         options.addOption( "h", "Print this usage and exit." ) ;
         options.addOption( "i", "Show graphical user interface." ) ;
         options.addOption( "f", "Force process all files." ) ;
+        options.addOption( null, "configFile", true, "The classpath URL for config file" ) ;
         options.addOption( null, "dbUser",     true, "The database user name" ) ;
         options.addOption( null, "dbPassword", true, "The database password" ) ;
         options.addOption( null, "wordnicKey", true, "Wordnic API key" ) ;
@@ -224,6 +231,8 @@ public class ConfigManager{
             this.databasePassword = cmdLine.getOptionValue( "dbPassword" ) ;
             this.wordnicAPIKey    = cmdLine.getOptionValue( "wordnicKey" ) ;
             this.runMode          = cmdLine.getOptionValue( "runMode" ) ;
+
+            this.configFile       = cmdLine.getOptionValue( "configFile" ) ;
 
             String sourceDirs = cmdLine.getOptionValue( "srcDirs" ) ;
             if( sourceDirs != null ) {
