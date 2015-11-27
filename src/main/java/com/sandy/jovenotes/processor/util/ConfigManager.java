@@ -58,7 +58,7 @@ public class ConfigManager{
     private String  databasePassword   = null ;
     private String  wordnicAPIKey      = null ;
     private String  runMode            = null ;
-    private String	configFile		   = null ;
+    private String	configPath		   = null ;
 
     public boolean    isShowUsage()            { return this.showUsage; }
     public boolean    isShowUI()               { return this.showUI; }
@@ -77,7 +77,7 @@ public class ConfigManager{
     public String getDatabasePassword()   { return this.databasePassword; }
     public String getWordnicAPIKey()      { return this.wordnicAPIKey; }
     public String getRunMode()            { return this.runMode; }
-    public String getConfigFile()		  { return this.configFile; }
+    public String getConfigFile()         { return this.configPath; }
     
     // ------------------------------------------------------------------------
     private Options clOptions = null ;
@@ -87,16 +87,30 @@ public class ConfigManager{
         
         this.clOptions = prepareOptions() ;
         parseCLP( args ) ;
-        if( this.showUsage )return ;
+        if( this.showUsage ) return ;
         
         PropertiesConfiguration propCfg = new PropertiesConfiguration() ;
-        String cfg = ( this.configFile != null ) ? this.configFile : "/config.properties";
-        URL cfgURL = ConfigManager.class.getResource( cfg ) ;
-        if( cfgURL == null ) {
-            throw new Exception( cfg + " not found in classpath." ) ;
-        }
-        propCfg.load( cfgURL );
+        loadConfig( propCfg ) ;
         parseConfig( propCfg ) ;
+    }
+    
+    private void loadConfig( PropertiesConfiguration propCfg ) throws Exception {
+        
+        if ( this.configPath != null ) {
+            propCfg.load( this.configPath ) ;
+        }
+        
+        File usrCfgFile = new File( System.getProperty( "user.home" ), "/.jnp/config.properties" ) ;
+        if ( usrCfgFile.exists() ) {
+            propCfg.load( usrCfgFile ) ;
+        }
+
+        URL cpCfgURL = ConfigManager.class.getResource( "/config.properties" ) ;
+        if ( cpCfgURL == null ) {
+            throw new Exception( "/config.properties not found in classpath." ) ;
+        }
+        propCfg.load( cpCfgURL );
+            	
     }
     
     private void parseConfig( PropertiesConfiguration config ) 
@@ -180,7 +194,7 @@ public class ConfigManager{
     public void printUsage() {
         
         String usageStr = "JoveNotes [hif] [--dbUser <database user>] " +
-        				  "[--configFile <classpath URL>]" +
+        				  "[--configPath <path to the config file>]" +
                           "[--dbPassword <database password>] " +
                           "[--wordnicKey <key>] " + 
                           "[--runMode development | production] " + 
@@ -198,7 +212,7 @@ public class ConfigManager{
         options.addOption( "h", "Print this usage and exit." ) ;
         options.addOption( "i", "Show graphical user interface." ) ;
         options.addOption( "f", "Force process all files." ) ;
-        options.addOption( null, "configFile", true, "The classpath URL for config file" ) ;
+        options.addOption( null, "configPath", true, "The absolute path of the config file" ) ;
         options.addOption( null, "dbUser",     true, "The database user name" ) ;
         options.addOption( null, "dbPassword", true, "The database password" ) ;
         options.addOption( null, "wordnicKey", true, "Wordnic API key" ) ;
@@ -232,7 +246,7 @@ public class ConfigManager{
             this.wordnicAPIKey    = cmdLine.getOptionValue( "wordnicKey" ) ;
             this.runMode          = cmdLine.getOptionValue( "runMode" ) ;
 
-            this.configFile       = cmdLine.getOptionValue( "configFile" ) ;
+            this.configPath       = cmdLine.getOptionValue( "configPath" ) ;
 
             String sourceDirs = cmdLine.getOptionValue( "srcDirs" ) ;
             if( sourceDirs != null ) {
