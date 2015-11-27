@@ -44,10 +44,10 @@ public class ConfigManager{
     private boolean     showUsage            = false ;
     private boolean     showUI               = false ;
     private boolean     forceProcessAllFiles = false ;
-    private File        wkspDir              = null ;
-    private File        destMediaRootDir     = null ;
-    private File        graphvizDotPath      = null ;
-    private List<File>  srcDirs              = new ArrayList<File>() ;
+    private File         wkspDir              = null ;
+    private File         destMediaRootDir     = null ;
+    private File         graphvizDotPath      = null ;
+    private List<File>   srcDirs              = new ArrayList<File>() ;
     
     private List<PathMatcher> includePathMatchers = new ArrayList<PathMatcher>() ;
     private List<PathMatcher> excludePathMatchers = new ArrayList<PathMatcher>() ;
@@ -58,15 +58,15 @@ public class ConfigManager{
     private String  databasePassword   = null ;
     private String  wordnicAPIKey      = null ;
     private String  runMode            = null ;
-    private String	configPath		   = null ;
+    private String  configPath         = null ;
 
     public boolean    isShowUsage()            { return this.showUsage; }
     public boolean    isShowUI()               { return this.showUI; }
     public boolean    isForceProcessAllFiles() { return this.forceProcessAllFiles; }
-    public List<File> getSrcDirs()             { return this.srcDirs; }
-    public File       getWorkspaceDir()        { return this.wkspDir ; }
-    public File       getDestMediaRootDir()    { return this.destMediaRootDir ; }
-    public File       getGraphvizDotPath()     { return this.graphvizDotPath; }
+    public List<File>  getSrcDirs()             { return this.srcDirs; }
+    public File        getWorkspaceDir()        { return this.wkspDir ; }
+    public File        getDestMediaRootDir()    { return this.destMediaRootDir ; }
+    public File        getGraphvizDotPath()     { return this.graphvizDotPath; }
     
     public List<PathMatcher> getIncludePathMatchers() { return this.includePathMatchers; }
     public List<PathMatcher> getExcludePathMatchers() { return this.excludePathMatchers; }
@@ -94,23 +94,34 @@ public class ConfigManager{
         parseConfig( propCfg ) ;
     }
     
-    private void loadConfig( PropertiesConfiguration propCfg ) throws Exception {
+    private void loadConfig( PropertiesConfiguration propCfg ) 
+            throws Exception {
         
-        if ( this.configPath != null ) {
+        boolean configFileFound = false ;
+        
+        if( this.configPath != null ) {
             propCfg.load( this.configPath ) ;
+            configFileFound = true ;
         }
         
-        File usrCfgFile = new File( System.getProperty( "user.home" ), "/.jnp/config.properties" ) ;
-        if ( usrCfgFile.exists() ) {
+        File usrCfgFile = new File( System.getProperty( "user.home" ), 
+                                    File.separator + ".jnp" + 
+                                    File.separator + "config.properties" ) ;
+        if( usrCfgFile.exists() ) {
             propCfg.load( usrCfgFile ) ;
+            configFileFound = true ;
         }
 
         URL cpCfgURL = ConfigManager.class.getResource( "/config.properties" ) ;
-        if ( cpCfgURL == null ) {
-            throw new Exception( "/config.properties not found in classpath." ) ;
+        if( cpCfgURL != null ) {
+            propCfg.load( cpCfgURL );
+            configFileFound = true ;
         }
-        propCfg.load( cpCfgURL );
-            	
+        
+        if( !configFileFound ) {
+            log.warn( "No configuration file found." ) ;
+            log.warn( "  Executing assuming cmd line args will suffice." );
+        }
     }
     
     private void parseConfig( PropertiesConfiguration config ) 
@@ -194,7 +205,7 @@ public class ConfigManager{
     public void printUsage() {
         
         String usageStr = "JoveNotes [hif] [--dbUser <database user>] " +
-        				  "[--configPath <path to the config file>]" +
+                          "[--configPath <path to the config file>]" +
                           "[--dbPassword <database password>] " +
                           "[--wordnicKey <key>] " + 
                           "[--runMode development | production] " + 
@@ -246,7 +257,14 @@ public class ConfigManager{
             this.wordnicAPIKey    = cmdLine.getOptionValue( "wordnicKey" ) ;
             this.runMode          = cmdLine.getOptionValue( "runMode" ) ;
 
-            this.configPath       = cmdLine.getOptionValue( "configPath" ) ;
+            this.configPath = cmdLine.getOptionValue( "configPath" ) ;
+            if( this.configPath != null ) {
+                File cfgFile = new File( this.configPath ) ;
+                if( !cfgFile.exists() ) {
+                    throw new Exception( "Configuration file " + this.configPath + 
+                                          " does not exist. Please verify" ) ;
+                }
+            }
 
             String sourceDirs = cmdLine.getOptionValue( "srcDirs" ) ;
             if( sourceDirs != null ) {
