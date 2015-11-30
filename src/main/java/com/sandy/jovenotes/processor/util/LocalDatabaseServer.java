@@ -150,7 +150,7 @@ public class LocalDatabaseServer {
                                     "obj_correl_id VARCHAR(45) NOT NULL," +
                                     "ready VARCHAR(4000) NOT NULL," +
                                     "hidden_from_view VARCHAR(4000) NOT NULL," +
-                                    "marked_for_review VARCHAR(4000) NOT NULL" +
+                                    "marked_for_review VARCHAR(4000) " +
                                   ")" ;
         
        checkAndCreate( checkSql, createSql ) ;
