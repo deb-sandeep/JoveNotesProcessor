@@ -152,20 +152,20 @@ public class CardDBO extends AbstractDBO {
         
         final String sql = 
                 " SELECT  " +
-                "   `card`.`card_id`, " +
-                "   `card`.`notes_element_id`, " +
-                "   `card`.`chapter_id`, " +
-                "   `card`.`card_type`, " +
-                "   `card`.`difficulty_level`, " +
-                "   `card`.`content`, " +
-                "   `card`.`obj_correl_id`, " +
-                "   `card`.`ready` " +
+                "   card.card_id, " +
+                "   card.notes_element_id, " +
+                "   card.chapter_id, " +
+                "   card.card_type, " +
+                "   card.difficulty_level, " +
+                "   card.content, " +
+                "   card.obj_correl_id, " +
+                "   card.ready " +
                 " FROM " +
-                "   `jove_notes`.`card` " +
+                "   jove_notes.card " +
                 " WHERE " +
-                "   `card`.`chapter_id` = ? " + 
+                "   card.chapter_id = ? " + 
                 " ORDER BY " + 
-                "   `card`.`card_id` ASC";
+                "   card.card_id ASC";
 
         Connection conn = JoveNotes.db.getConnection() ;
         try {
@@ -190,9 +190,9 @@ public class CardDBO extends AbstractDBO {
                    getCardType() + "::" + getObjCorrelId() ) ;
         
         final String sql = 
-        "INSERT INTO `jove_notes`.`card` " +
-        "(`notes_element_id`, `chapter_id`, `card_type`, `difficulty_level`, " +
-        " `content`, `obj_correl_id`, `ready`) " +
+        "INSERT INTO jove_notes.card " +
+        "(notes_element_id, chapter_id, card_type, difficulty_level, " +
+        " content, obj_correl_id, ready) " +
         "VALUES " +
         "(?, ?, ?, ?, ?, ?, ? )" ;
 
@@ -230,11 +230,11 @@ public class CardDBO extends AbstractDBO {
     public void update() throws Exception {
         
         final String sql = 
-            "UPDATE `jove_notes`.`card` " +
+            "UPDATE jove_notes.card " +
             "SET " +
-            "`difficulty_level` = ?, " +
-            "`content` = ? " +
-            "WHERE `card_id` = ? " ;
+            "difficulty_level = ?, " +
+            "content = ? " +
+            "WHERE card_id = ? " ;
 
         Connection conn = JoveNotes.db.getConnection() ;
         try {
@@ -254,7 +254,7 @@ public class CardDBO extends AbstractDBO {
     public void delete() throws Exception {
         
         final String sql = 
-            "DELETE FROM `jove_notes`.`card` WHERE `card_id` = ?" ;
+            "DELETE FROM jove_notes.card WHERE card_id = ?" ;
 
         Connection conn = JoveNotes.db.getConnection() ;
         try {

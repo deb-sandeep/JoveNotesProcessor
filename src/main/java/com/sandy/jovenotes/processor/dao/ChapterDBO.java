@@ -127,15 +127,15 @@ public class ChapterDBO extends AbstractDBO {
         ArrayList<ChapterDBO> chapters = new ArrayList<ChapterDBO>() ;
         
         final String sql = "SELECT " + 
-                           " `chapter`.`chapter_id`," + 
-                           " `chapter`.`is_test_paper`," + 
-                           " `chapter`.`syllabus_name`," +
-                           " `chapter`.`subject_name`," +
-                           " `chapter`.`chapter_num`," +
-                           " `chapter`.`sub_chapter_num`," +
-                           " `chapter`.`chapter_name`," + 
-                           " `chapter`.`script_body`" + 
-                           " FROM `jove_notes`.`chapter`" ;
+                           " chapter.chapter_id," + 
+                           " chapter.is_test_paper," + 
+                           " chapter.syllabus_name," +
+                           " chapter.subject_name," +
+                           " chapter.chapter_num," +
+                           " chapter.sub_chapter_num," +
+                           " chapter.chapter_name," + 
+                           " chapter.script_body" + 
+                           " FROM jove_notes.chapter" ;
         
         Connection conn = JoveNotes.db.getConnection() ;
         try {
@@ -199,16 +199,16 @@ public class ChapterDBO extends AbstractDBO {
     public static ChapterDBO get( int chapterId ) throws Exception {
         
         final String sql = "SELECT " + 
-                            " `chapter`.`chapter_id`," + 
-                            " `chapter`.`is_test_paper`," + 
-                            " `chapter`.`syllabus_name`," +
-                            " `chapter`.`subject_name`," +
-                            " `chapter`.`chapter_num`," +
-                            " `chapter`.`sub_chapter_num`," +
-                            " `chapter`.`chapter_name`," + 
-                            " `chapter`.`script_body`" + 
-                            " FROM `jove_notes`.`chapter` " +
-                            " WHERE `chapter`.`chapter_id`=?" ;
+                            " chapter.chapter_id," + 
+                            " chapter.is_test_paper," + 
+                            " chapter.syllabus_name," +
+                            " chapter.subject_name," +
+                            " chapter.chapter_num," +
+                            " chapter.sub_chapter_num," +
+                            " chapter.chapter_name," + 
+                            " chapter.script_body" + 
+                            " FROM jove_notes.chapter " +
+                            " WHERE chapter.chapter_id=?" ;
         
         ChapterDBO chapter = null ;
         Connection conn = JoveNotes.db.getConnection() ;
@@ -234,9 +234,9 @@ public class ChapterDBO extends AbstractDBO {
         log.info( "\tCreating chapter - " + chapterFQN ) ;
         
         final String sql = 
-        "INSERT INTO `jove_notes`.`chapter` " +
-        "(`is_test_paper`,`syllabus_name`, `subject_name`, " + 
-        " `chapter_num`, `sub_chapter_num`, `chapter_name`, `script_body` ) " +
+        "INSERT INTO jove_notes.chapter " +
+        "(is_test_paper,syllabus_name, subject_name, " + 
+        " chapter_num, sub_chapter_num, chapter_name, script_body ) " +
         "VALUES " +
         "( ?, ?, ?, ?, ?, ?, ? )" ;
 
@@ -277,12 +277,12 @@ public class ChapterDBO extends AbstractDBO {
     public void update() throws Exception {
         
         final String sql = 
-            "UPDATE `jove_notes`.`chapter` " +
+            "UPDATE jove_notes.chapter " +
             "SET " +
-            "`chapter_name`  = ?, " +
-            "`script_body`   = ?, " +
-            "`is_test_paper` = ? " +
-            "WHERE `chapter_id` = ? " ;
+            "chapter_name  = ?, " +
+            "script_body   = ?, " +
+            "is_test_paper = ? " +
+            "WHERE chapter_id = ? " ;
 
         Connection conn = JoveNotes.db.getConnection() ;
         try {
@@ -303,7 +303,7 @@ public class ChapterDBO extends AbstractDBO {
     public void delete() throws Exception {
         
         final String sql = 
-            "DELETE FROM `jove_notes`.`chapter` WHERE `chapter_id` = ?" ;
+            "DELETE FROM jove_notes.chapter WHERE chapter_id = ?" ;
 
         Connection conn = JoveNotes.db.getConnection() ;
         try {

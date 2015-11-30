@@ -183,7 +183,7 @@ public class PersistentQueue extends AbstractDBO {
 	
 	public int size() throws Exception {
 		
-		final String sql = "SELECT count(*) from `jove_notes`.`persistent_queue`" ;
+		final String sql = "SELECT count(*) from jove_notes.persistent_queue" ;
 		
 		int size = 0 ;
 		Connection conn = JoveNotes.db.getConnection() ;
