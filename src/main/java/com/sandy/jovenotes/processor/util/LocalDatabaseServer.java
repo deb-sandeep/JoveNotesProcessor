@@ -94,7 +94,7 @@ public class LocalDatabaseServer {
         
         final String createSql =  "CREATE TABLE jove_notes.chapter ( " +
                                     "chapter_id INTEGER IDENTITY NOT NULL, " +
-                                    "is_test_paper VARCHAR(4000) NOT NULL," +
+                                    "is_test_paper BIT(1) DEFAULT B'0' NOT NULL," +
                                     "syllabus_name VARCHAR(256) NOT NULL," +
                                     "subject_name VARCHAR(45) NOT NULL," +
                                     "chapter_num INTEGER NOT NULL," +
@@ -127,7 +127,7 @@ public class LocalDatabaseServer {
                                     "difficulty_level INTEGER NOT NULL," +
                                     "content VARCHAR(65535) NOT NULL," +
                                     "obj_correl_id VARCHAR(45) NOT NULL," +
-                                    "ready VARCHAR(4000) NOT NULL" +
+                                    "ready BIT(1) DEFAULT B'1' NOT NULL" +
                                   ")" ;
         
        checkAndCreate( checkSql, createSql ) ;
@@ -148,9 +148,9 @@ public class LocalDatabaseServer {
                                     "eval_vars VARCHAR(65535)," +
                                     "script_body VARCHAR(65535)," +
                                     "obj_correl_id VARCHAR(45) NOT NULL," +
-                                    "ready VARCHAR(4000) NOT NULL," +
-                                    "hidden_from_view VARCHAR(4000) NOT NULL," +
-                                    "marked_for_review VARCHAR(4000) " +
+                                    "ready BIT(1) DEFAULT B'1' NOT NULL," +
+                                    "hidden_from_view BIT(1) DEFAULT B'0' NOT NULL," +
+                                    "marked_for_review BIT(1) DEFAULT B'0' NOT NULL" +
                                   ")" ;
         
        checkAndCreate( checkSql, createSql ) ;
