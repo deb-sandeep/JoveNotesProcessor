@@ -63,6 +63,7 @@ public class JoveNotes {
                            config.getDatabaseURL(), 
                            config.getDatabaseUser(), 
                            config.getDatabasePassword() ) ;
+        db.initialize() ;
         db.returnConnection( db.getConnection() ) ;
         log.debug( "\tDatabase initialized." ) ;
         

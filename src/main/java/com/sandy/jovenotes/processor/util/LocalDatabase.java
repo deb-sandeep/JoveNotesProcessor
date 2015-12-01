@@ -5,7 +5,6 @@ import java.io.File;
 import org.apache.log4j.Logger;
 import org.hsqldb.server.Server;
 
-import com.sandy.jovenotes.processor.JoveNotes;
 import com.sandy.jovenotes.processor.dao.LocalDBSchemaCreator;
 
 /**
@@ -16,9 +15,9 @@ import com.sandy.jovenotes.processor.dao.LocalDBSchemaCreator;
  * @author Vivek Kant
  *
  */
-public class LocalDatabaseServer {
+public class LocalDatabase extends Database {
     
-    private static final Logger log = Logger.getLogger( LocalDatabaseServer.class ) ;
+    private static final Logger log = Logger.getLogger( LocalDatabase.class ) ;
     
     private Server  db          = new Server() ;
     private File    dbDir       = null ;
@@ -31,17 +30,17 @@ public class LocalDatabaseServer {
     public String   getDbName()     { return dbName ; }
     public Database getDbClient()   { return dbClient ; }
     
-    public LocalDatabaseServer( String dbPath, String dbName, int port )
+    public LocalDatabase( String dbPath, String dbName, int port )
             throws Exception {
         
+        super( "org.hsqldb.jdbcDriver", getURL( port, dbName ), "SA", "" ) ;
+
         this.dbName = dbName ;
         this.port   = port ;        
         this.dbDir = new File( dbPath ) ;
-        
-        initialize() ;
     }
 
-    private void initialize() throws Exception {
+    public void initialize() throws Exception {
         
         if ( !dbDir.exists() ) {
             log.info( "Creating new local database at " + dbDir.getAbsolutePath() );
@@ -54,15 +53,9 @@ public class LocalDatabaseServer {
                                         + File.separator + dbName );
         db.setPort( port ) ;
         
-    }
-    
-    public void startup() throws Exception {
-        
         db.start() ;
         
-        String url = "jdbc:hsqldb:hsql://localhost:" + port + "/" + dbName ;
-        dbClient = new Database( "org.hsqldb.jdbcDriver", url, "SA", "" ) ;
-        JoveNotes.db = dbClient ;
+        super.initialize() ;
         
         LocalDBSchemaCreator schemaCreator = new LocalDBSchemaCreator() ;
         schemaCreator.checkAndCreate() ;
@@ -70,6 +63,11 @@ public class LocalDatabaseServer {
     
     public void shutdown() throws Exception  {
         db.shutdown() ;
+    }
+    
+    private static String getURL( int port, String dbName ) {
+        String url = "jdbc:hsqldb:hsql://localhost:" + port + "/" + dbName ;
+        return url ;
     }
    
 }

@@ -32,25 +32,32 @@ public class Database {
 		this.url      = url ;
 		this.user     = user ;
 		this.password = password ;
-		
-		connectionPool = new GenericObjectPool<Connection>( new BasePoolableObjectFactory<Connection>() {
-			
-			public Connection makeObject() throws Exception {
-				log.debug( "\tCreating a new database connection." ) ;
-				return DriverManager.getConnection( 
-										Database.this.url, Database.this.user, 
-										Database.this.password ) ;
-			}
 
-			public void destroyObject( Connection conn ) throws Exception {
-				log.debug( "Closing a database connection." ) ;
-				conn.close() ;
-			}
-		}) ;
-		connectionPool.setMaxActive( 5 );
+	}
+	
+	public void initialize() throws Exception {
+	    
+	       connectionPool = new GenericObjectPool<Connection>( new BasePoolableObjectFactory<Connection>() {
+	            
+	            public Connection makeObject() throws Exception {
+	                log.debug( "\tCreating a new database connection." ) ;
+	                return DriverManager.getConnection( 
+	                                        Database.this.url, Database.this.user, 
+	                                        Database.this.password ) ;
+	            }
+
+	            public void destroyObject( Connection conn ) throws Exception {
+	                log.debug( "Closing a database connection." ) ;
+	                conn.close() ;
+	            }
+	        }) ;
+	        connectionPool.setMaxActive( 5 );
 	}
 	
 	public Connection getConnection() throws Exception {
+	    if ( connectionPool == null ) {
+	        throw new Exception( "Database not initialized" ) ;
+	    }
 		return connectionPool.borrowObject() ;
 	}
 	
