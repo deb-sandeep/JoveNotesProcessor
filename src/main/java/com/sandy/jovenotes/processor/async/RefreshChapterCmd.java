@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
 import com.sandy.jovenotes.processor.core.Chapter ;
+import com.sandy.jovenotes.processor.util.RunMode;
 import com.sandy.jovenotes.processor.util.StringUtil;
 
 /**
@@ -29,7 +30,14 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 	}
 
 	public void execute() throws Exception {
-		log.info( "\tExecuting RefreshChapterCmd for id - " + chapterId ) ;
+		
+	    RunMode runMode = com.sandy.jovenotes.processor.JoveNotes.config.getRunMode() ;
+	    if ( runMode.isPreview() ) {
+	        log.info( "\tSkipping RefreshChapterCmd in the preview mode") ;
+	        return ;
+	    }
+	    
+	    log.info( "\tExecuting RefreshChapterCmd for id - " + chapterId ) ;
 		
 		try {
 			refreshMetaData() ;

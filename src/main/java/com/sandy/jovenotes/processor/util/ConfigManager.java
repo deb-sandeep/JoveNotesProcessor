@@ -57,7 +57,7 @@ public class ConfigManager{
     private String  databaseUser       = null ;
     private String  databasePassword   = null ;
     private String  wordnicAPIKey      = null ;
-    private String  runMode            = null ;
+    private RunMode runMode            = null ;
     private String  configPath         = null ;
 
     public boolean    isShowUsage()            { return this.showUsage; }
@@ -71,13 +71,13 @@ public class ConfigManager{
     public List<PathMatcher> getIncludePathMatchers() { return this.includePathMatchers; }
     public List<PathMatcher> getExcludePathMatchers() { return this.excludePathMatchers; }
     
-    public String getDatabaseURL()        { return this.databaseURL; }
-    public String getDatabaseDriverName() { return this.databaseDriverName; }
-    public String getDatabaseUser()       { return this.databaseUser; }
-    public String getDatabasePassword()   { return this.databasePassword; }
-    public String getWordnicAPIKey()      { return this.wordnicAPIKey; }
-    public String getRunMode()            { return this.runMode; }
-    public String getConfigFile()         { return this.configPath; }
+    public String   getDatabaseURL()        { return this.databaseURL; }
+    public String   getDatabaseDriverName() { return this.databaseDriverName; }
+    public String   getDatabaseUser()       { return this.databaseUser; }
+    public String   getDatabasePassword()   { return this.databasePassword; }
+    public String   getWordnicAPIKey()      { return this.wordnicAPIKey; }
+    public RunMode  getRunMode()            { return this.runMode; }
+    public String   getConfigFile()         { return this.configPath; }
     
     // ------------------------------------------------------------------------
     private Options clOptions = null ;
@@ -208,7 +208,7 @@ public class ConfigManager{
                           "[--configPath <path to the config file>]" +
                           "[--dbPassword <database password>] " +
                           "[--wordnicKey <key>] " + 
-                          "[--runMode development | production] " + 
+                          "[--runMode CSV preview, development | production] " + 
                           "[--srcDirs <list of directories>] " + 
                           "[--inclGlobs <include files glob patterns>] " + 
                           "[--exclGlobs <exclude files glob patterns>]" ;
@@ -227,7 +227,7 @@ public class ConfigManager{
         options.addOption( null, "dbUser",     true, "The database user name" ) ;
         options.addOption( null, "dbPassword", true, "The database password" ) ;
         options.addOption( null, "wordnicKey", true, "Wordnic API key" ) ;
-        options.addOption( null, "runMode",    true, "Run mode, either 'development' or 'production'" ) ;
+        options.addOption( null, "runMode",    true, "Run mode a csv with possible value: 'preview', 'development' or 'production'" ) ;
         options.addOption( null, "srcDirs",    true, "List of directories separated by path separator" ) ;
         options.addOption( null, "inclGlobs",  true, "List of path separator separated glob patterns to include" ) ;
         options.addOption( null, "exclGlobs",  true, "List of path separator separated glob patterns to exclude" ) ;
@@ -255,7 +255,8 @@ public class ConfigManager{
             this.databaseUser     = cmdLine.getOptionValue( "dbUser" ) ;
             this.databasePassword = cmdLine.getOptionValue( "dbPassword" ) ;
             this.wordnicAPIKey    = cmdLine.getOptionValue( "wordnicKey" ) ;
-            this.runMode          = cmdLine.getOptionValue( "runMode" ) ;
+
+            this.runMode          = new RunMode ( cmdLine.getOptionValue( "runMode" ) ) ;
 
             this.configPath = cmdLine.getOptionValue( "configPath" ) ;
             if( this.configPath != null ) {
@@ -269,20 +270,6 @@ public class ConfigManager{
             String sourceDirs = cmdLine.getOptionValue( "srcDirs" ) ;
             if( sourceDirs != null ) {
                 parseSourceDirs( sourceDirs ) ;
-            }
-            
-            if( this.runMode == null ) {
-                log.warn( "runMode is not specified, defaulting to development" ) ;
-                this.runMode = "development" ;
-            }
-            else {
-                if( !( this.runMode.equals( "development" ) || 
-                       this.runMode.equals( "production" ) ) ) {
-                    throw new Exception ( 
-                            "Invalid runMode value specified. " + 
-                            "Possible values are either 'development' or 'production'" 
-                    ) ;
-                }
             }
             
             parseGlobsFromCommandLine( cmdLine ) ;

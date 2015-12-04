@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
 import com.sandy.jovenotes.processor.dao.ChapterDBO;
+import com.sandy.jovenotes.processor.util.RunMode;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.ProcessingHints;
@@ -67,7 +68,7 @@ public class SourceFileProcessor {
     
     private boolean shouldSkipProcessing( JoveNotes notesAST ) {
         ProcessingHints hints = notesAST.getProcessingHints() ;
-        String runMode = com.sandy.jovenotes.processor.JoveNotes.config.getRunMode() ;
+        RunMode runMode = com.sandy.jovenotes.processor.JoveNotes.config.getRunMode() ;
         
         boolean shouldSkipProcess = false ;
         if( hints != null ) {
@@ -82,7 +83,7 @@ public class SourceFileProcessor {
                 // If @skip_generation_in_production is specified, we skip
                 // processing only if we are operating in production run mode
                 if( hints.getSkipGenerationInProduction() != null && 
-                    runMode.equalsIgnoreCase( "production" ) ) {
+                    runMode.isProduction() ) {
                     
                     shouldSkipProcess = true ;
                     log.info( "\tProcessing skipped as @skip_processing_in_production is on." ) ;
