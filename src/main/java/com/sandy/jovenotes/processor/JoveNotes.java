@@ -18,6 +18,7 @@ import com.sandy.jovenotes.processor.core.SourceFileProcessor;
 import com.sandy.jovenotes.processor.core.SourceProcessingJournal;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.Database;
+import com.sandy.jovenotes.processor.util.LocalDatabase;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 
 /**
@@ -59,10 +60,19 @@ public class JoveNotes {
         log.debug( "\tConfigManager initialized." ) ;
         log.info( "\tExecuting JoveNotes processor in " + config.getRunMode() + " mode." );
         
-        db = new Database( config.getDatabaseDriverName(), 
-                           config.getDatabaseURL(), 
-                           config.getDatabaseUser(), 
-                           config.getDatabasePassword() ) ;
+        if ( config.getRunMode().isPreview() ) {
+            log.info( "\tstarting and connecting to local database" ) ;
+            db = new LocalDatabase( config.getLocalDatabasePath().getAbsolutePath(), 
+                                    config.getLocalDbName(), 
+                                    config.getLocalDbPort() ) ;
+        }
+        else {
+            log.info( "\tconnecting to remote database" ) ;
+            db = new Database( config.getDatabaseDriverName(), 
+                               config.getDatabaseURL(), 
+                               config.getDatabaseUser(), 
+                               config.getDatabasePassword() ) ;
+        }
         db.initialize() ;
         db.returnConnection( db.getConnection() ) ;
         log.debug( "\tDatabase initialized." ) ;

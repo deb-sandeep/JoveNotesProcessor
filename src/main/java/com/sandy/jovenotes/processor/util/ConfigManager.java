@@ -37,6 +37,8 @@ public class ConfigManager{
     private static String CK_DB_USER       = "db.user" ;
     private static String CK_DB_PWD        = "db.password" ;
     private static String CK_GRAPHVIZ_PATH = "graphviz.dot.path" ;
+    private static String CK_LOCAL_DB_NAME = "local.db.name" ;
+    private static String CK_LOCAL_DB_PORT = "local.db.port" ;
     private static String CK_WORDNIC_API   = "wordnic.api.key" ;
     private static String CK_INCL_GLOBS    = "include.file.globs" ;
     private static String CK_EXCL_GLOBS    = "exclude.file.globs" ;
@@ -47,6 +49,7 @@ public class ConfigManager{
     private File         wkspDir              = null ;
     private File         destMediaRootDir     = null ;
     private File         graphvizDotPath      = null ;
+    private File         localDatabasePath    = null ;
     private List<File>   srcDirs              = new ArrayList<File>() ;
     
     private List<PathMatcher> includePathMatchers = new ArrayList<PathMatcher>() ;
@@ -57,8 +60,12 @@ public class ConfigManager{
     private String  databaseUser       = null ;
     private String  databasePassword   = null ;
     private String  wordnicAPIKey      = null ;
-    private RunMode runMode            = null ;
     private String  configPath         = null ;
+    private String  localDbName        = null ;
+    
+    private int     localDbPort        = 544 ;
+
+    private RunMode runMode            = null ;
 
     public boolean    isShowUsage()            { return this.showUsage; }
     public boolean    isShowUI()               { return this.showUI; }
@@ -67,6 +74,7 @@ public class ConfigManager{
     public File        getWorkspaceDir()        { return this.wkspDir ; }
     public File        getDestMediaRootDir()    { return this.destMediaRootDir ; }
     public File        getGraphvizDotPath()     { return this.graphvizDotPath; }
+    public File        getLocalDatabasePath()   { return this.localDatabasePath; }
     
     public List<PathMatcher> getIncludePathMatchers() { return this.includePathMatchers; }
     public List<PathMatcher> getExcludePathMatchers() { return this.excludePathMatchers; }
@@ -76,8 +84,12 @@ public class ConfigManager{
     public String   getDatabaseUser()       { return this.databaseUser; }
     public String   getDatabasePassword()   { return this.databasePassword; }
     public String   getWordnicAPIKey()      { return this.wordnicAPIKey; }
-    public RunMode  getRunMode()            { return this.runMode; }
     public String   getConfigFile()         { return this.configPath; }
+    public String   getLocalDbName()        { return this.localDbName; }
+
+    public RunMode  getRunMode()            { return this.runMode; }
+    
+    public int      getLocalDbPort()        { return this.localDbPort; }
     
     // ------------------------------------------------------------------------
     private Options clOptions = null ;
@@ -168,6 +180,10 @@ public class ConfigManager{
                 throw new Exception( "Wordnic API key not configured." ) ;
             }
         }
+        
+        this.localDbName = config.getString( CK_LOCAL_DB_NAME, "jove_local_db" ) ;
+        this.localDatabasePath = new File( this.wkspDir, this.localDbName ) ;
+        this.localDbPort = config.getInt( CK_LOCAL_DB_PORT, 544 ) ;
     }
     
     private File getMandatoryDirFromConfig( String key, 

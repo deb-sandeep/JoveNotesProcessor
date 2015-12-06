@@ -61,5 +61,18 @@ public class RunMode {
             throw new Exception( "Run modes of Development & Production cannot execute together" ) ;
         }
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder() ;
+        buf.append("RunModes: ");
+        
+        for( String mode : this.modes.keySet() )
+            if( modes.get( mode ) ) 
+                buf.append( mode ).append( ',' ) ;
+        
+        return buf.toString() ;
+    }
+    
 
 }
