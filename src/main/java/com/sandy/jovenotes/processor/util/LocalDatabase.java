@@ -13,7 +13,6 @@ import com.sandy.jovenotes.processor.dao.LocalDBSchemaCreator;
  * manage the start, stop and other operations of the local database.
  * 
  * @author Vivek Kant
- *
  */
 public class LocalDatabase extends Database {
     
@@ -69,6 +68,5 @@ public class LocalDatabase extends Database {
         String url = "jdbc:hsqldb:hsql://localhost:" + port + "/" + dbName ;
         return url ;
     }
-   
 }
 

@@ -127,14 +127,14 @@ public class ChapterDBO extends AbstractDBO {
         ArrayList<ChapterDBO> chapters = new ArrayList<ChapterDBO>() ;
         
         final String sql = "SELECT " + 
-                           " chapter.chapter_id," + 
-                           " chapter.is_test_paper," + 
-                           " chapter.syllabus_name," +
-                           " chapter.subject_name," +
-                           " chapter.chapter_num," +
-                           " chapter.sub_chapter_num," +
-                           " chapter.chapter_name," + 
-                           " chapter.script_body" + 
+                           " chapter_id," + 
+                           " is_test_paper," + 
+                           " syllabus_name," +
+                           " subject_name," +
+                           " chapter_num," +
+                           " sub_chapter_num," +
+                           " chapter_name," + 
+                           " script_body" + 
                            " FROM jove_notes.chapter" ;
         
         Connection conn = JoveNotes.db.getConnection() ;
@@ -199,16 +199,16 @@ public class ChapterDBO extends AbstractDBO {
     public static ChapterDBO get( int chapterId ) throws Exception {
         
         final String sql = "SELECT " + 
-                            " chapter.chapter_id," + 
-                            " chapter.is_test_paper," + 
-                            " chapter.syllabus_name," +
-                            " chapter.subject_name," +
-                            " chapter.chapter_num," +
-                            " chapter.sub_chapter_num," +
-                            " chapter.chapter_name," + 
-                            " chapter.script_body" + 
+                            " chapter_id," + 
+                            " is_test_paper," + 
+                            " syllabus_name," +
+                            " subject_name," +
+                            " chapter_num," +
+                            " sub_chapter_num," +
+                            " chapter_name," + 
+                            " script_body" + 
                             " FROM jove_notes.chapter " +
-                            " WHERE chapter.chapter_id=?" ;
+                            " WHERE chapter_id=?" ;
         
         ChapterDBO chapter = null ;
         Connection conn = JoveNotes.db.getConnection() ;

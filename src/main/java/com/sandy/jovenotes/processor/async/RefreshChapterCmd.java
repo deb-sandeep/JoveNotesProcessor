@@ -31,14 +31,13 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 
 	public void execute() throws Exception {
 		
-	    RunMode runMode = com.sandy.jovenotes.processor.JoveNotes.config.getRunMode() ;
+	    RunMode runMode = JoveNotes.config.getRunMode() ;
 	    if ( runMode.isPreview() ) {
 	        log.info( "\tSkipping RefreshChapterCmd in the preview mode") ;
 	        return ;
 	    }
 	    
 	    log.info( "\tExecuting RefreshChapterCmd for id - " + chapterId ) ;
-		
 		try {
 			refreshMetaData() ;
 		} 

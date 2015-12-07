@@ -63,6 +63,20 @@ public class JoveNotes {
         log.debug( "\tConfigManager initialized." ) ;
         log.info( "\tExecuting JoveNotes processor in " + config.getRunMode() + " mode." );
         
+        initializeDatabase() ;
+        intializePersistentQueue() ;
+        initializeJournalFile() ;
+        initializePathMathers() ;
+        if( config.getRunMode().isPreview() ) { 
+            initializeWebServer() ; 
+        }
+        
+        log.info( "JoveNotes processor - initialized." ) ;
+        log.info( "" ) ;
+    }
+    
+    private void initializeDatabase() throws Exception {
+        
         if( config.getRunMode().isPreview() ) {
             log.info( "\tstarting and connecting to local database" ) ;
             db = new LocalDatabase( config.getLocalDatabasePath(), 
@@ -78,30 +92,40 @@ public class JoveNotes {
         }
         db.initialize() ;
         db.returnConnection( db.getConnection() ) ;
-        log.debug( "\tDatabase initialized." ) ;
         
-        if( config.getRunMode().isPreview() ) {
-            
-            log.info( "\tstarting local web server at port: " + config.getLocalWsPort() ) ;
-            
-            ws = new LocalWebServer( config.getLocalWebserverPath() ) ;
-            ws.setPort( config.getLocalWsPort() );
-            ws.initialize() ;
-        }
+        log.debug( "\tDatabase initialized." ) ;
+    }
+    
+    private void initializeWebServer() throws Exception {
+        
+        int localPort = config.getLocalWsPort() ;
+        
+        ws = new LocalWebServer( config.getLocalWebserverPath() ) ;
+        ws.setPort( localPort );
+        ws.initialize() ;
+        log.info( "\tStarted local web server at port: " + localPort ) ;
+    }
+    
+    private void intializePersistentQueue() throws Exception {
         
         persistentQueue = new PersistentQueue() ;
         log.debug( "\tPersistent Queue initialized." ) ;
+    }
+    
+    private void initializeJournalFile() throws Exception {
         
-        File journalFile = new File( config.getWorkspaceDir(), "jove_notes.journal" ) ;
+        File journalFile = new File( config.getWorkspaceDir(), 
+                                     "jove_notes.journal" ) ;
+        
         journal = new SourceProcessingJournal( journalFile ) ;
         log.debug( "\tSource processing journal initialized." ) ;
+    }
+    
+    private void initializePathMathers() throws Exception {
         
         includePathMatchers = config.getIncludePathMatchers() ;
         excludePathMatchers = config.getExcludePathMatchers() ;
         log.debug( "\tInclude and exclude path matchers obtained." ) ;
-        
-        log.info( "JoveNotes processor - initialized." ) ;
-        log.info( "" ) ;
     }
     
     private void start() throws Exception {

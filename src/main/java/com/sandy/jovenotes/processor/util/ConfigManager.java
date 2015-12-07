@@ -20,11 +20,6 @@ import org.apache.log4j.Logger ;
  * 
  * @author Sandeep
  */
-/**
- * 
- * @author Sandeep
- *
- */
 public class ConfigManager{
 
     private static Logger log = Logger.getLogger(ConfigManager.class);
@@ -37,13 +32,16 @@ public class ConfigManager{
     private static String CK_DB_USER       = "db.user" ;
     private static String CK_DB_PWD        = "db.password" ;
     private static String CK_GRAPHVIZ_PATH = "graphviz.dot.path" ;
-    private static String CK_LOCAL_DB_NAME = "local.db.name" ;
-    private static String CK_LOCAL_DB_PORT = "local.db.port" ;
-    private static String CK_LOCAL_WS_NAME = "local.webserver.name" ;
-    private static String CK_LOCAL_WS_PORT = "local.webserver.port" ;
     private static String CK_WORDNIC_API   = "wordnic.api.key" ;
     private static String CK_INCL_GLOBS    = "include.file.globs" ;
     private static String CK_EXCL_GLOBS    = "exclude.file.globs" ;
+    private static String CK_LOCAL_DB_PORT = "local.db.port" ;
+    private static String CK_LOCAL_WS_PORT = "local.webserver.port" ;
+    
+    private static final String LOCAL_DB_NAME = "jove_local_db" ;
+    private static final int    LOCAL_DB_PORT = 544 ;
+    private static final String LOCAL_WS_NAME = "jove_wwwroot" ;
+    private static final int    LOCAL_WS_PORT = 8080 ;
     
     private boolean     showUsage            = false ;
     private boolean     showUI               = false ;
@@ -65,11 +63,9 @@ public class ConfigManager{
     private String  wordnicAPIKey      = null ;
     private String  configPath         = null ;
     private String  localDbName        = null ;
+    private int     localDbPort        = -1 ;
     private String  localWsName        = null ;
-    
-    private int     localDbPort        = 544 ;
-    private int     localWsPort        = 8080 ;
-
+    private int     localWsPort        = -1 ;
     private RunMode runMode            = null ;
 
     public boolean     isShowUsage()            { return this.showUsage; }
@@ -189,13 +185,16 @@ public class ConfigManager{
             }
         }
         
-        this.localDbName = config.getString( CK_LOCAL_DB_NAME, "jove_local_db" ) ;
+        // Note that we don't let the user specify the local database name and
+        // web server path. These are internal to JoveNotes and will be placed
+        // inside the workspace directory, with a constant name.
+        this.localDbName = LOCAL_DB_NAME ;
         this.localDatabasePath = new File( this.wkspDir, this.localDbName ) ;
-        this.localDbPort = config.getInt( CK_LOCAL_DB_PORT, this.localDbPort ) ;
+        this.localDbPort = config.getInt( CK_LOCAL_DB_PORT, LOCAL_DB_PORT ) ;
         
-        this.localWsName = config.getString( CK_LOCAL_WS_NAME, "jove_wwwroot" ) ;
+        this.localWsName = LOCAL_WS_NAME ;
         this.localWebserverPath = new File( this.wkspDir, this.localWsName ) ;
-        this.localWsPort = config.getInt( CK_LOCAL_WS_PORT, this.localWsPort ) ;
+        this.localWsPort = config.getInt( CK_LOCAL_WS_PORT, LOCAL_WS_PORT ) ;
     }
     
     private File getMandatoryDirFromConfig( String key, 

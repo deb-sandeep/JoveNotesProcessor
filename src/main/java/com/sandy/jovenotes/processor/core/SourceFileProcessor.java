@@ -1,15 +1,15 @@
 package com.sandy.jovenotes.processor.core;
 
-import java.io.File;
+import java.io.File ;
 
-import org.apache.log4j.Logger;
+import org.apache.log4j.Logger ;
 
-import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
-import com.sandy.jovenotes.processor.dao.ChapterDBO;
-import com.sandy.jovenotes.processor.util.RunMode;
-import com.sandy.jovenotes.processor.util.XTextModelParser;
-import com.sandy.xtext.joveNotes.JoveNotes;
-import com.sandy.xtext.joveNotes.ProcessingHints;
+import com.sandy.jovenotes.processor.async.RefreshChapterCmd ;
+import com.sandy.jovenotes.processor.dao.ChapterDBO ;
+import com.sandy.jovenotes.processor.util.RunMode ;
+import com.sandy.jovenotes.processor.util.XTextModelParser ;
+import com.sandy.xtext.joveNotes.JoveNotes ;
+import com.sandy.xtext.joveNotes.ProcessingHints ;
 
 public class SourceFileProcessor {
     

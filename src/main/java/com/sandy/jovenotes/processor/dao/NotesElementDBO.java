@@ -160,22 +160,22 @@ public class NotesElementDBO extends AbstractDBO {
         
         final String sql = 
             "SELECT " +
-            "notes_element.notes_element_id, " +
-            "notes_element.chapter_id, " +
-            "notes_element.element_type, " +
-            "notes_element.difficulty_level, " +
-            "notes_element.content, " +
-            "notes_element.eval_vars, " +
-            "notes_element.script_body, " +
-            "notes_element.obj_correl_id, " +
-            "notes_element.ready, " +
-            "notes_element.hidden_from_view " +
+            " notes_element_id, " +
+            " chapter_id, " +
+            " element_type, " +
+            " difficulty_level, " +
+            " content, " +
+            " eval_vars, " +
+            " script_body, " +
+            " obj_correl_id, " +
+            " ready, " +
+            " hidden_from_view " +
             "FROM " +
-            "jove_notes.notes_element " +
+            " notes_element " +
             "WHERE " + 
-            "notes_element.chapter_id = ? " +
+            " chapter_id = ? " +
             "ORDER BY " + 
-            "notes_element.notes_element_id ASC ";
+            " notes_element_id ASC ";
 
         Connection conn = JoveNotes.db.getConnection() ;
         try {

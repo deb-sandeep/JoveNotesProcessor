@@ -152,14 +152,14 @@ public class CardDBO extends AbstractDBO {
         
         final String sql = 
                 " SELECT  " +
-                "   card.card_id, " +
-                "   card.notes_element_id, " +
-                "   card.chapter_id, " +
-                "   card.card_type, " +
-                "   card.difficulty_level, " +
-                "   card.content, " +
-                "   card.obj_correl_id, " +
-                "   card.ready " +
+                "   card_id, " +
+                "   notes_element_id, " +
+                "   chapter_id, " +
+                "   card_type, " +
+                "   difficulty_level, " +
+                "   content, " +
+                "   obj_correl_id, " +
+                "   ready " +
                 " FROM " +
                 "   jove_notes.card " +
                 " WHERE " +
