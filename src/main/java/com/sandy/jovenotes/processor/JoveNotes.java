@@ -19,6 +19,7 @@ import com.sandy.jovenotes.processor.core.SourceProcessingJournal;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.Database;
 import com.sandy.jovenotes.processor.util.LocalDatabase;
+import com.sandy.jovenotes.processor.util.LocalWebServer;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 
 /**
@@ -33,6 +34,8 @@ public class JoveNotes {
     public static ConfigManager config = null ;
     public static Database db = null ;
     public static PersistentQueue persistentQueue = null ;
+    
+    public static LocalWebServer ws = null ;
     
     private SourceProcessingJournal journal = null ;
     private XTextModelParser modelParser = null ;
@@ -60,9 +63,9 @@ public class JoveNotes {
         log.debug( "\tConfigManager initialized." ) ;
         log.info( "\tExecuting JoveNotes processor in " + config.getRunMode() + " mode." );
         
-        if ( config.getRunMode().isPreview() ) {
+        if( config.getRunMode().isPreview() ) {
             log.info( "\tstarting and connecting to local database" ) ;
-            db = new LocalDatabase( config.getLocalDatabasePath().getAbsolutePath(), 
+            db = new LocalDatabase( config.getLocalDatabasePath(), 
                                     config.getLocalDbName(), 
                                     config.getLocalDbPort() ) ;
         }
@@ -76,6 +79,15 @@ public class JoveNotes {
         db.initialize() ;
         db.returnConnection( db.getConnection() ) ;
         log.debug( "\tDatabase initialized." ) ;
+        
+        if( config.getRunMode().isPreview() ) {
+            
+            log.info( "\tstarting local web server at port: " + config.getLocalWsPort() ) ;
+            
+            ws = new LocalWebServer( config.getLocalWebserverPath() ) ;
+            ws.setPort( config.getLocalWsPort() );
+            ws.initialize() ;
+        }
         
         persistentQueue = new PersistentQueue() ;
         log.debug( "\tPersistent Queue initialized." ) ;

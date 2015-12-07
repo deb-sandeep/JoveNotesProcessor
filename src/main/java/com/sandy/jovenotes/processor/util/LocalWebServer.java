@@ -30,9 +30,9 @@ public class LocalWebServer  {
         
     }
     
-    public LocalWebServer( String rootPath ) throws Exception {
+    public LocalWebServer( File root ) {
         
-        this.root = new File( rootPath ) ;
+        this.root = root ;
         if( !this.root.exists() ) {
             this.root.mkdirs() ;
         }

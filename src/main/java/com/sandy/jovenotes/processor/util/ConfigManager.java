@@ -39,6 +39,8 @@ public class ConfigManager{
     private static String CK_GRAPHVIZ_PATH = "graphviz.dot.path" ;
     private static String CK_LOCAL_DB_NAME = "local.db.name" ;
     private static String CK_LOCAL_DB_PORT = "local.db.port" ;
+    private static String CK_LOCAL_WS_NAME = "local.webserver.name" ;
+    private static String CK_LOCAL_WS_PORT = "local.webserver.port" ;
     private static String CK_WORDNIC_API   = "wordnic.api.key" ;
     private static String CK_INCL_GLOBS    = "include.file.globs" ;
     private static String CK_EXCL_GLOBS    = "exclude.file.globs" ;
@@ -46,11 +48,12 @@ public class ConfigManager{
     private boolean     showUsage            = false ;
     private boolean     showUI               = false ;
     private boolean     forceProcessAllFiles = false ;
-    private File         wkspDir              = null ;
-    private File         destMediaRootDir     = null ;
-    private File         graphvizDotPath      = null ;
-    private File         localDatabasePath    = null ;
-    private List<File>   srcDirs              = new ArrayList<File>() ;
+    private File        wkspDir              = null ;
+    private File        destMediaRootDir     = null ;
+    private File        graphvizDotPath      = null ;
+    private File        localDatabasePath    = null ;
+    private File        localWebserverPath   = null ;
+    private List<File>  srcDirs              = new ArrayList<File>() ;
     
     private List<PathMatcher> includePathMatchers = new ArrayList<PathMatcher>() ;
     private List<PathMatcher> excludePathMatchers = new ArrayList<PathMatcher>() ;
@@ -62,19 +65,22 @@ public class ConfigManager{
     private String  wordnicAPIKey      = null ;
     private String  configPath         = null ;
     private String  localDbName        = null ;
+    private String  localWsName        = null ;
     
     private int     localDbPort        = 544 ;
+    private int     localWsPort        = 8080 ;
 
     private RunMode runMode            = null ;
 
-    public boolean    isShowUsage()            { return this.showUsage; }
-    public boolean    isShowUI()               { return this.showUI; }
-    public boolean    isForceProcessAllFiles() { return this.forceProcessAllFiles; }
+    public boolean     isShowUsage()            { return this.showUsage; }
+    public boolean     isShowUI()               { return this.showUI; }
+    public boolean     isForceProcessAllFiles() { return this.forceProcessAllFiles; }
     public List<File>  getSrcDirs()             { return this.srcDirs; }
     public File        getWorkspaceDir()        { return this.wkspDir ; }
     public File        getDestMediaRootDir()    { return this.destMediaRootDir ; }
     public File        getGraphvizDotPath()     { return this.graphvizDotPath; }
     public File        getLocalDatabasePath()   { return this.localDatabasePath; }
+    public File        getLocalWebserverPath()  { return this.localWebserverPath; }
     
     public List<PathMatcher> getIncludePathMatchers() { return this.includePathMatchers; }
     public List<PathMatcher> getExcludePathMatchers() { return this.excludePathMatchers; }
@@ -86,10 +92,12 @@ public class ConfigManager{
     public String   getWordnicAPIKey()      { return this.wordnicAPIKey; }
     public String   getConfigFile()         { return this.configPath; }
     public String   getLocalDbName()        { return this.localDbName; }
+    public String   getLocalWsName()        { return this.localDbName; }
 
     public RunMode  getRunMode()            { return this.runMode; }
     
     public int      getLocalDbPort()        { return this.localDbPort; }
+    public int      getLocalWsPort()        { return this.localWsPort; }
     
     // ------------------------------------------------------------------------
     private Options clOptions = null ;
@@ -183,7 +191,11 @@ public class ConfigManager{
         
         this.localDbName = config.getString( CK_LOCAL_DB_NAME, "jove_local_db" ) ;
         this.localDatabasePath = new File( this.wkspDir, this.localDbName ) ;
-        this.localDbPort = config.getInt( CK_LOCAL_DB_PORT, 544 ) ;
+        this.localDbPort = config.getInt( CK_LOCAL_DB_PORT, this.localDbPort ) ;
+        
+        this.localWsName = config.getString( CK_LOCAL_WS_NAME, "jove_wwwroot" ) ;
+        this.localWebserverPath = new File( this.wkspDir, this.localWsName ) ;
+        this.localWsPort = config.getInt( CK_LOCAL_WS_PORT, this.localWsPort ) ;
     }
     
     private File getMandatoryDirFromConfig( String key, 

@@ -30,14 +30,14 @@ public class LocalDatabase extends Database {
     public String   getDbName()     { return dbName ; }
     public Database getDbClient()   { return dbClient ; }
     
-    public LocalDatabase( String dbPath, String dbName, int port )
+    public LocalDatabase( File dbDir, String dbName, int port )
             throws Exception {
         
         super( "org.hsqldb.jdbcDriver", getURL( port, dbName ), "SA", "" ) ;
 
         this.dbName = dbName ;
         this.port   = port ;        
-        this.dbDir = new File( dbPath ) ;
+        this.dbDir = dbDir ;
     }
 
     public void initialize() throws Exception {
