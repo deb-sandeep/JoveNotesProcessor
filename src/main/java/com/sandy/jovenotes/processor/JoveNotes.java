@@ -114,9 +114,10 @@ public class JoveNotes {
     
     private void initializeJournalFile() throws Exception {
         
-        File journalFile = new File( config.getWorkspaceDir(), 
-                                     "jove_notes.journal" ) ;
-        
+        File journalFile = ( config.getRunMode().isPreview() ) ?
+            new File( config.getWorkspaceDir(), "jove_notes_preview.journal" ) :
+            new File( config.getWorkspaceDir(), "jove_notes.journal" ) ; 
+                                     
         journal = new SourceProcessingJournal( journalFile ) ;
         log.debug( "\tSource processing journal initialized." ) ;
     }
