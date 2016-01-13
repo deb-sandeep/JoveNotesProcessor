@@ -157,9 +157,9 @@ public class Cards {
     // -------------------------------------------------------------------------
     public static class FIBCard extends AbstractCard {
         
-        private static final double DIFFICULTY_FACTOR = 0.67535 ;
+        private static final double DIFFICULTY_FACTOR = 0.5 ;
         private static final double X_SHIFT = -0.1 ;
-        private static final double MAX_LIMIT = 0.6 ;
+        private static final double MAX_LIMIT = 0.3 ;
         
         private String       fmtQuestion = null ;
         private List<String> fmtAnswers  = null ;
@@ -286,7 +286,7 @@ public class Cards {
         
         public String getObjIdSeed() { return objIdSeed ; }
         
-        public int getDifficultyLevel() { return 10 ; }
+        public int getDifficultyLevel() { return 5 ; }
         
         public void collectContentAttributes( Map<String, Object> map ) 
             throws Exception {
