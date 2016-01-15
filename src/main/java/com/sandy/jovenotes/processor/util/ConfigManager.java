@@ -26,7 +26,6 @@ public class ConfigManager{
     
     private static String CK_SRC_DIR       = "source.dir" ;
     private static String CK_WKSP_DIR      = "workspace.dir" ;
-    private static String CK_DEST_ROOT_DIR = "destination.media.root.dir" ;
     private static String CK_DB_DRIVER     = "db.driver" ;
     private static String CK_DB_URL        = "db.url" ;
     private static String CK_DB_USER       = "db.user" ;
@@ -160,8 +159,10 @@ public class ConfigManager{
         }
         
         wkspDir = getMandatoryDirFromConfig( CK_WKSP_DIR, config ) ;
-        destMediaRootDir = getMandatoryDirFromConfig( CK_DEST_ROOT_DIR, config) ;
         graphvizDotPath  = getMandatoryDirFromConfig( CK_GRAPHVIZ_PATH, config ) ;
+        
+        destMediaRootDir = new File( wkspDir, "src_media" ) ;
+        if ( !destMediaRootDir.exists() ) destMediaRootDir.mkdirs() ;
     }
     
     private void parseDatabaseConfig( PropertiesConfiguration config ) 
