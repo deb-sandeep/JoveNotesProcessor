@@ -171,7 +171,7 @@ public class NotesElementDBO extends AbstractDBO {
             " ready, " +
             " hidden_from_view " +
             "FROM " +
-            " notes_element " +
+            " jove_notes.notes_element " +
             "WHERE " + 
             " chapter_id = ? " +
             "ORDER BY " + 
