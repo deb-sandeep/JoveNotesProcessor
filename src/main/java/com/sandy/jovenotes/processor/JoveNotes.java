@@ -174,7 +174,7 @@ public class JoveNotes {
     private void previewFileGeneration( List<Integer> updatedChapters ) throws Exception {
         try {
             
-            JoveNotesJSONGenerator jsonGen = new JoveNotesJSONGenerator( config ) ;
+            JoveNotesJSONGenerator jsonGen = new JoveNotesJSONGenerator() ;
             jsonGen.generateJSON( updatedChapters ) ;
         }
         catch (Exception e) {

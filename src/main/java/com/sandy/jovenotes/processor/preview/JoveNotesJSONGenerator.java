@@ -21,7 +21,7 @@ public class JoveNotesJSONGenerator {
     public static final String JSON_ROOT_DIR = "json" ;
     public static final String JSON_CHAPTER_DIR = "chapter" ;
     
-    public JoveNotesJSONGenerator( ConfigManager config ) {
+    public JoveNotesJSONGenerator() {
     }
     
     public void generateJSON( List<Integer> updatedChapters ) throws Exception {
