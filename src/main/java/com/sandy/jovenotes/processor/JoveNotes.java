@@ -2,7 +2,7 @@ package com.sandy.jovenotes.processor;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.PathMatcher ;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +16,7 @@ import com.sandy.jovenotes.processor.async.PersistentQueue;
 import com.sandy.jovenotes.processor.async.PersistentQueue.QueueElement;
 import com.sandy.jovenotes.processor.core.SourceFileProcessor;
 import com.sandy.jovenotes.processor.core.SourceProcessingJournal;
+import com.sandy.jovenotes.processor.preview.JoveNotesJSONGenerator;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.Database;
 import com.sandy.jovenotes.processor.util.LocalDatabase;
@@ -133,6 +134,7 @@ public class JoveNotes {
         
         journal.clean() ;
         
+        List<Integer> updatedChapters = new ArrayList<Integer>() ;
         List<File> srcDirs = config.getSrcDirs() ;
         for( File srcDir : srcDirs ) {
             
@@ -145,7 +147,8 @@ public class JoveNotes {
                 log.info( "  Processing " + file.getAbsolutePath() ) ;
                 try{
                     SourceFileProcessor processor = new SourceFileProcessor() ;
-                    processor.process( srcDir, file, modelParser ) ;
+                    int chapterId = processor.process( srcDir, file, modelParser ) ;
+                    updatedChapters.add( chapterId ) ;
                     journal.updateSuccessfulProcessingStatus( file ) ;
                 }
                 catch( Exception e ) {
@@ -160,6 +163,22 @@ public class JoveNotes {
         } 
         catch (Exception e) {
             log.error( "Error processing perissted cmd", e ) ;
+        }
+        
+        if( config.getRunMode().isPreview() ) { 
+            previewFileGeneration( updatedChapters ) ;
+        }
+
+    }
+    
+    private void previewFileGeneration( List<Integer> updatedChapters ) throws Exception {
+        try {
+            
+            JoveNotesJSONGenerator jsonGen = new JoveNotesJSONGenerator( config ) ;
+            jsonGen.generateJSON( updatedChapters ) ;
+        }
+        catch (Exception e) {
+            log.error( "Error generating JSON for preview", e ) ;
         }
     }
     

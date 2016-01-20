@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -33,7 +34,7 @@ public class ChapterJSONGenerator {
     
     public void generate( File baseDir ) throws Exception {
         
-        log.info( "Generating chapter JSON with id " + chapter.getChapterId() );
+        log.info( "Generating chapter JSON with chapter id " + chapter.getChapterId() );
         File dest = new File( baseDir, chapter.getChapterId() + JSON_FILE_SUFFIX ) ;
         
         TemplateUtil.renderClasspathTemplateToFile( CHAPTER_TEMPLATE, 
@@ -50,6 +51,7 @@ public class ChapterJSONGenerator {
     }
 
     private Map<String, Object> getChapterDetailAttrs() {
+        
         Map<String, Object> chapterDetails = new HashMap<String, Object>();
         
         chapterDetails.put( "chapterId", chapter.getChapterId() ) ;
@@ -58,7 +60,8 @@ public class ChapterJSONGenerator {
         chapterDetails.put( "chapterNum", chapter.getChapterNum() ) ;
         chapterDetails.put( "subChapterNum", chapter.getSubChapterNum() ) ;
         String scriptBody = ( chapter.getScriptBody() != null ) ?
-                                chapter.getScriptBody().replace( "\n", "\\n" ) :
+                                Base64.encodeBase64String( 
+                                        chapter.getScriptBody().getBytes() ) :
                                 null ;
         chapterDetails.put( "scriptBody", scriptBody ) ;
         
@@ -75,7 +78,12 @@ public class ChapterJSONGenerator {
             neMap.put( "elementType", ne.getElementType() ) ;
             neMap.put( "difficultyLevel", ne.getDifficultyLevel() ) ;
             neMap.put( "evalVars", ne.getEvalVars() ) ;
-            neMap.put( "scriptBody", ne.getScriptBody() ) ;
+            
+            String scriptBody = ( ne.getScriptBody() != null ) ?
+                                    Base64.encodeBase64String(
+                                            chapter.getScriptBody().getBytes() ) :
+                                    null ;
+            neMap.put( "scriptBody", scriptBody ) ;
             
             String content = ( ne.getContent() != null ) ? 
                                     ne.getContent().trim() :

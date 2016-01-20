@@ -15,13 +15,13 @@ public class SourceFileProcessor {
     
     private static final Logger log = Logger.getLogger( SourceFileProcessor.class ) ;
     
-    public void process( File baseDir, File file, XTextModelParser modelParser ) 
+    public int process( File baseDir, File file, XTextModelParser modelParser ) 
             throws Exception {
         
         JoveNotes ast = ( JoveNotes )modelParser.parseFile( file ) ;
         log.debug( "\tAST created." ) ;
         if( shouldSkipProcessing( ast ) ) {
-            return ;
+            return -1;
         }
         
         // Create the source side object model. This includes source translation
@@ -54,6 +54,8 @@ public class SourceFileProcessor {
             com.sandy.jovenotes.processor.JoveNotes.persistentQueue.add( 
                  new RefreshChapterCmd( chapter, chapterDBO.getChapterId() ) ) ;
         }
+        
+        return chapterDBO.getChapterId() ;
     }
     
     private ChapterDBO insertNewChapter( Chapter chapter ) 
