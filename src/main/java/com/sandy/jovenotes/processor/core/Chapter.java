@@ -13,6 +13,8 @@ import com.sandy.jovenotes.processor.core.notes.NotesElements ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
+import com.sandy.xtext.joveNotes.ChapterDetails ;
+import com.sandy.xtext.joveNotes.Exercise ;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.NotesElement;
 
@@ -22,10 +24,14 @@ public class Chapter {
 
     private ConfigManager config = null ;
     
-    private File      srcFile      = null ;
-    private String    syllabusName = null ;
-    private JoveNotes notesAST     = null ;
-    private String    scriptBody   = null ;
+    private File      srcFile        = null ;
+    private String    syllabusName   = null ;
+    private JoveNotes notesAST       = null ;
+    private String    scriptBody     = null ;
+    private boolean   isExerciseBank = false ;
+    
+    private ChapterDetails chapterDetails = null ;
+    
     private ArrayList<AbstractNotesElement> notesElements = null ;
     
     private Map<String, Boolean> distinctNEMap = new HashMap<String, Boolean>() ;
@@ -34,16 +40,25 @@ public class Chapter {
         throws Exception {
         
         this.config = com.sandy.jovenotes.processor.JoveNotes.config ;
+        this.chapterDetails = notesAST.getChapterDetails() ;
         
         this.notesElements = new ArrayList<AbstractNotesElement>() ;
         this.srcFile       = srcFile ;
         this.syllabusName  = getSyllabusName( baseDir, srcFile ) ;
         this.notesAST      = notesAST ;
         this.scriptBody    = getScriptBody() ;
+    
+        this.isExerciseBank = ( chapterDetails.getExerciseBank() != null ) ; 
         
         log.debug( "\tObject transforming chapter - " + getChapterFQN() );
         
         for( NotesElement element : this.notesAST.getNotesElements() ) {
+            
+            if( !this.isExerciseBank && ( element instanceof Exercise ) ) {
+                throw new Exception( 
+                        "Found an @exercise element in a source " + 
+                        "file, which is not marked as @exercise_bank." ) ;
+            }
             
             AbstractNotesElement ne = NotesElements.build( this, element, null ) ; 
             String distinctKey = ne.getType() + "-" + ne.getObjIdSeed() ;

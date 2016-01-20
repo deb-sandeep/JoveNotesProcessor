@@ -31,6 +31,7 @@ import com.sandy.xtext.joveNotes.EqSymbol ;
 import com.sandy.xtext.joveNotes.Equation ;
 import com.sandy.xtext.joveNotes.EvalVar ;
 import com.sandy.xtext.joveNotes.Event ;
+import com.sandy.xtext.joveNotes.Exercise ;
 import com.sandy.xtext.joveNotes.HotSpot ;
 import com.sandy.xtext.joveNotes.ImageLabel ;
 import com.sandy.xtext.joveNotes.Matching ;
@@ -64,7 +65,8 @@ public class NotesElements {
     public static final String IMAGE_LABEL   = "image_label" ;
     public static final String EQUATION      = "equation" ; 
     public static final String RTC           = "rtc" ;  
-    public static final String MULTI_CHOICE  = "multi_choice" ;  
+    public static final String MULTI_CHOICE  = "multi_choice" ;
+    public static final String EXERCISE      = "exercise" ;
     
     // -------------------------------------------------------------------------
     public static AbstractNotesElement build( Chapter c,  
@@ -121,6 +123,9 @@ public class NotesElements {
         }
         else if( ast instanceof MultiChoice ){
             ne = new MultiChoiceElement(c, (MultiChoice)ast, rtcNE );
+        }
+        else if( ast instanceof Exercise ) {
+            ne = new ExerciseElement(c, (Exercise)ast, rtcNE ) ;
         }
         
         return ne ;
@@ -1040,6 +1045,48 @@ public class NotesElements {
             
             this.fmtQ = textProcessor.processText( qBuffer.toString() ) ;
             this.fmtA = textProcessor.processText( aBuffer.toString() ) ;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    public static class ExerciseElement extends AbstractNotesElement {
+        
+        private String   objIdSeed  = null ;
+        private Exercise ast        = null ;
+        
+        public ExerciseElement( Chapter chapter, Exercise ast, 
+                                RefToContextNotesElement rtcNE )  
+                throws Exception {
+            
+            super( EXERCISE, chapter, ast, rtcNE ) ;
+            this.objIdSeed = constructObjId( ast ) ;
+            this.ast = ast ;
+        }
+        
+        public String getObjIdSeed() { return objIdSeed ; }
+        
+        public void initialize( JNTextProcessor textProcessor ) 
+                throws Exception {
+            
+            // constructQuestionAndAnswerText( textProcessor ) ;
+            // cards.add( new MultiChoiceCard( this, rtcNE, objIdSeed, 
+            //                                this.ast, textProcessor ) ) ;
+        }
+        
+        public void collectContentAttributes( Map<String, Object> map ){
+            // Put JSON content attributes into the map.
+        }
+        
+        /**
+         * UID is made by processing the question and answer. This implies that
+         * the attributes (hide, marks, hints) can be modified without changing
+         * the element identity.
+         */
+        private String constructObjId( Exercise ast ) {
+            StringBuilder buffer = new StringBuilder() ;
+            buffer.append( ast.getQuestion() )
+                  .append( ast.getAnswer() ) ;
+            return buffer.toString() ;
         }
     }
 }
