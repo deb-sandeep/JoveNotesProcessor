@@ -105,6 +105,10 @@ public class Chapter {
         return notesAST.getChapterDetails().getTestPaper() != null ;
     }
     
+    public boolean isExerciseBank() {
+        return this.isExerciseBank ;
+    }
+    
     public String getSyllabusName() {
         return this.syllabusName ;
     }

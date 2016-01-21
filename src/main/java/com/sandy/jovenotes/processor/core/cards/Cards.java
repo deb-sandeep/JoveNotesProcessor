@@ -11,6 +11,7 @@ import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesEleme
 import com.sandy.jovenotes.processor.core.notes.RefToContextNotesElement ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.jovenotes.processor.util.StringUtil ;
+import com.sandy.xtext.joveNotes.Exercise ;
 import com.sandy.xtext.joveNotes.MultiChoice ;
 import com.sandy.xtext.joveNotes.Option ;
 
@@ -24,6 +25,7 @@ public class Cards {
     public static final String IMGLABEL      = "image_label" ;
     public static final String SPELLBEE      = "spellbee" ;
     public static final String MULTI_CHOICE  = "multi_choice" ;  
+    public static final String EXERCISE      = "exercise" ;  
     
     // -------------------------------------------------------------------------
     public static abstract class AbstractCard {
@@ -450,6 +452,60 @@ public class Cards {
             contentAttributes.put( "explanation",       fmtE ) ;
             contentAttributes.put( "numOptionsToShow",  numOptionsToShow ) ;
             contentAttributes.put( "numOptionsPerRow",  numOptionsPerRow ) ;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    /**
+     * The exercise card has the following JSON structure
+     * 
+     * {
+     *   question          : "Question text",
+     *   answer            : "Answer text",
+     *   hints             : [ "Hint1", "Hint2" ],
+     * }
+     */
+    public static class ExerciseCard extends AbstractCard {
+        
+        private String       objIdSeed   = null ;
+        private Exercise     ast         = null ;
+        private String       fmtQuestion = null ;
+        private String       fmtAnswer   = null ;
+        private List<String> fmtHints    = new ArrayList<String>() ;
+        
+        
+        public ExerciseCard( AbstractNotesElement ne, 
+                             RefToContextNotesElement rtcNE, 
+                             String objIdSeed, 
+                             Exercise ast, 
+                             JNTextProcessor textProcessor ) 
+            throws Exception {
+            
+            super( ne, rtcNE, EXERCISE ) ;
+            this.objIdSeed = objIdSeed ;
+            this.ast = ast ;
+            initialize( ast, textProcessor ) ;
+        }
+        
+        public String getObjIdSeed() { return objIdSeed ; }
+        
+        public int getDifficultyLevel() { return ast.getMarks() ; }
+        
+        public void collectContentAttributes( Map<String, Object> map ) {
+            
+            map.put( "question", fmtQuestion ) ;
+            map.put( "answer",   fmtAnswer   ) ;
+            map.put( "hints",    fmtHints    ) ;
+        }
+        
+        private void initialize( Exercise ast, JNTextProcessor textProcessor ) 
+                throws Exception {
+
+            fmtQuestion = textProcessor.processText( ast.getQuestion() ) ;
+            fmtAnswer   = textProcessor.processText( ast.getAnswer() ) ;
+            for( String hint : ast.getHints() ) {
+                fmtHints.add( textProcessor.processText( hint ) ) ;
+            }
         }
     }
 }

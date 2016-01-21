@@ -16,14 +16,14 @@ public class CardDBO extends AbstractDBO {
     
     private static final Logger log = Logger.getLogger( CardDBO.class ) ;
 
-    private int    cardId          = -1 ;
-    private int    notesElementId  = -1 ;
-    private int    chapterId       = -1 ;
-    private String cardType        = null ;
-    private int    difficultyLevel = 0 ;
-    private String content         = null ;
-    private String objCorrelId     = null ;
-    private boolean ready          = true ;
+    private int     cardId          = -1 ;
+    private int     notesElementId  = -1 ;
+    private int     chapterId       = -1 ;
+    private String  cardType        = null ;
+    private int     difficultyLevel = 0 ;
+    private String  content         = null ;
+    private String  objCorrelId     = null ;
+    private boolean ready           = true ;
     
     private ChapterDBO chapter = null ;
     private NotesElementDBO notesElement = null ;

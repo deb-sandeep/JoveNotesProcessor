@@ -13,6 +13,7 @@ import com.sandy.jovenotes.processor.JoveNotes ;
 import com.sandy.jovenotes.processor.async.SpellbeeCmd ;
 import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.core.cards.Cards.AbstractCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.ExerciseCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.FIBCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.ImageLabelCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.MatchCard ;
@@ -1054,6 +1055,10 @@ public class NotesElements {
         private String   objIdSeed  = null ;
         private Exercise ast        = null ;
         
+        private String       fmtQuestion = null ;
+        private String       fmtAnswer   = null ;
+        private List<String> fmtHints    = new ArrayList<String>() ;
+        
         public ExerciseElement( Chapter chapter, Exercise ast, 
                                 RefToContextNotesElement rtcNE )  
                 throws Exception {
@@ -1068,13 +1073,21 @@ public class NotesElements {
         public void initialize( JNTextProcessor textProcessor ) 
                 throws Exception {
             
-            // constructQuestionAndAnswerText( textProcessor ) ;
-            // cards.add( new MultiChoiceCard( this, rtcNE, objIdSeed, 
-            //                                this.ast, textProcessor ) ) ;
+            fmtQuestion = textProcessor.processText( ast.getQuestion() ) ;
+            fmtAnswer   = textProcessor.processText( ast.getAnswer() ) ;
+            for( String hint : ast.getHints() ) {
+                fmtHints.add( textProcessor.processText( hint ) ) ;
+            }
+            
+            cards.add( new ExerciseCard( this, rtcNE, objIdSeed, 
+                                         this.ast, textProcessor ) ) ;
         }
         
         public void collectContentAttributes( Map<String, Object> map ){
-            // Put JSON content attributes into the map.
+            
+            map.put( "question", fmtQuestion ) ;
+            map.put( "answer",   fmtAnswer   ) ;
+            map.put( "hints",    fmtHints    ) ;
         }
         
         /**
