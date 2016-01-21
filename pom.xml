@@ -126,7 +126,7 @@
             <!-- jovenotes start -->
             <groupId>com.sandy.xtext.jovenotes</groupId>
             <artifactId>jovenotes.xtext</artifactId>
-            <version>1.16</version>
+            <version>1.17</version>
             <!-- jovenotes end -->
         </dependency>
         <dependency>

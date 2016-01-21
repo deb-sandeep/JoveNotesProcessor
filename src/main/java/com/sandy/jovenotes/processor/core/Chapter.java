@@ -101,10 +101,6 @@ public class Chapter {
         return this.notesElements ;
     }
     
-    public boolean isTestPaper() {
-        return notesAST.getChapterDetails().getTestPaper() != null ;
-    }
-    
     public boolean isExerciseBank() {
         return this.isExerciseBank ;
     }

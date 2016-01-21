@@ -25,7 +25,6 @@ public class ChapterDBO extends AbstractDBO {
     private int     chapterNum     = 0 ;
     private int     subChapterNum  = 0 ;
     private String  chapterName    = null ;
-    private boolean isTestPaper    = false ;
     private boolean isExerciseBank = false ;
     private String  scriptBody     = null ;
     private String  chapterFQN     = null ;
@@ -45,7 +44,6 @@ public class ChapterDBO extends AbstractDBO {
         chapterNum     = chapter.getChapterNumber() ;
         subChapterNum  = chapter.getSubChapterNumber() ;
         chapterName    = chapter.getChapterName() ;
-        isTestPaper    = chapter.isTestPaper() ;
         isExerciseBank = chapter.isExerciseBank() ;
         scriptBody     = chapter.getScriptBody() ;
         
@@ -63,15 +61,10 @@ public class ChapterDBO extends AbstractDBO {
         chapterNum    = rs.getInt    ( "chapter_num"     ) ;
         subChapterNum = rs.getInt    ( "sub_chapter_num" ) ;
         chapterName   = rs.getString ( "chapter_name"    ) ;
-        isTestPaper   = rs.getBoolean( "is_test_paper"   ) ;
         isExerciseBank= rs.getBoolean( "is_exercise_bank") ;
         scriptBody    = rs.getString ( "script_body"     ) ;
         
         notesElements = NotesElementDBO.getAll( this ) ;
-    }
-    
-    public boolean isTestPaper() {
-        return isTestPaper;
     }
     
     public boolean isExerciseBank() {
@@ -135,7 +128,6 @@ public class ChapterDBO extends AbstractDBO {
         
         final String sql = "SELECT " + 
                            " `chapter`.`chapter_id`," + 
-                           " `chapter`.`is_test_paper`," + 
                            " `chapter`.`is_exercise_bank`," + 
                            " `chapter`.`syllabus_name`," +
                            " `chapter`.`subject_name`," +
@@ -167,7 +159,6 @@ public class ChapterDBO extends AbstractDBO {
         final String sql = 
                 "SELECT " + 
                 " chapter_id, " + 
-                " is_test_paper, " +
                 " is_exercise_bank, " +
                 " syllabus_name, " +
                 " subject_name, " +
@@ -209,7 +200,6 @@ public class ChapterDBO extends AbstractDBO {
         
         final String sql = "SELECT " + 
                             " `chapter`.`chapter_id`," + 
-                            " `chapter`.`is_test_paper`," + 
                             " `chapter`.`is_exercise_bank`," + 
                             " `chapter`.`syllabus_name`," +
                             " `chapter`.`subject_name`," +
@@ -245,10 +235,10 @@ public class ChapterDBO extends AbstractDBO {
         
         final String sql = 
         "INSERT INTO `jove_notes`.`chapter` " +
-        "(`is_test_paper`, `is_exercise_bank`, `syllabus_name`, `subject_name`, " + 
+        "(`is_exercise_bank`, `syllabus_name`, `subject_name`, " + 
         " `chapter_num`, `sub_chapter_num`, `chapter_name`, `script_body` ) " +
         "VALUES " +
-        "( ?, ?, ?, ?, ?, ?, ?, ? )" ;
+        "( ?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
         Connection conn = JoveNotes.db.getConnection() ;
@@ -257,14 +247,13 @@ public class ChapterDBO extends AbstractDBO {
             PreparedStatement psmt = conn.prepareStatement( sql, 
                                              Statement.RETURN_GENERATED_KEYS ) ;
             
-            psmt.setBoolean( 1, isTestPaper() ) ;
-            psmt.setBoolean( 2, isExerciseBank() ) ;
-            psmt.setString ( 3, getSyllabusName() ) ;
-            psmt.setString ( 4, getSubjectName() ) ;
-            psmt.setInt    ( 5, getChapterNum() ) ;
-            psmt.setInt    ( 6, getSubChapterNum() ) ;
-            psmt.setString ( 7, getChapterName() ) ;
-            psmt.setString ( 8, getScriptBody() ) ;
+            psmt.setBoolean( 1, isExerciseBank() ) ;
+            psmt.setString ( 2, getSyllabusName() ) ;
+            psmt.setString ( 3, getSubjectName() ) ;
+            psmt.setInt    ( 4, getChapterNum() ) ;
+            psmt.setInt    ( 5, getSubChapterNum() ) ;
+            psmt.setString ( 6, getChapterName() ) ;
+            psmt.setString ( 7, getScriptBody() ) ;
             
             psmt.executeUpdate() ;
             ResultSet rs = psmt.getGeneratedKeys() ;
@@ -292,7 +281,6 @@ public class ChapterDBO extends AbstractDBO {
             "SET " +
             "`chapter_name`     = ?, " +
             "`script_body`      = ?, " +
-            "`is_test_paper`    = ?, " +
             "`is_exercise_bank` = ? " +
             "WHERE `chapter_id` = ? " ;
 
@@ -302,9 +290,8 @@ public class ChapterDBO extends AbstractDBO {
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
             psmt.setString ( 1, getChapterName() ) ;
             psmt.setString ( 2, getScriptBody() ) ;
-            psmt.setBoolean( 3, isTestPaper() ) ;
-            psmt.setBoolean( 4, isExerciseBank() ) ;
-            psmt.setInt    ( 5, getChapterId() ) ;
+            psmt.setBoolean( 3, isExerciseBank() ) ;
+            psmt.setInt    ( 4, getChapterId() ) ;
             
             psmt.executeUpdate() ;
         }
@@ -410,12 +397,6 @@ public class ChapterDBO extends AbstractDBO {
             this.scriptBody = chapter.getScriptBody() ;
         }
         
-        if( hasTestPaperFlagChanged( chapter ) ) {
-            log.info( "\t    Chapter test paper flag changed. " ) ;
-            isModified = true ;
-            this.isTestPaper = chapter.isTestPaper() ;
-        }
-        
         if( hasExerciseBankFlagChanged( chapter ) ) {
             log.info( "\t    Chapter exercise bank flag changed. " ) ;
             isModified = true ;
@@ -431,10 +412,6 @@ public class ChapterDBO extends AbstractDBO {
     
     private boolean hasChapterNameChanged( Chapter chapter ) {
         return !chapter.getChapterName().equals( getChapterName() ) ;
-    }
-    
-    private boolean hasTestPaperFlagChanged( Chapter chapter ) {
-        return chapter.isTestPaper() != isTestPaper() ;
     }
     
     private boolean hasExerciseBankFlagChanged( Chapter chapter ) {
