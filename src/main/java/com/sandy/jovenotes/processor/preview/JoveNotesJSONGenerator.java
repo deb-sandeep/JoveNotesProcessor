@@ -32,6 +32,9 @@ public class JoveNotesJSONGenerator {
                 chapJSONGen.generate( getJSONChapterDir() ) ;                
             }
         }
+        
+        DashboardJSONGenerator dashJSONGen = new DashboardJSONGenerator() ;
+        dashJSONGen.generate( getJSONRootDir() );
     }
     
     private File getJSONRootDir() {

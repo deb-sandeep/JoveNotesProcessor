@@ -54,7 +54,7 @@ public class SourceFileProcessor {
             com.sandy.jovenotes.processor.JoveNotes.persistentQueue.add( 
                  new RefreshChapterCmd( chapter, chapterDBO.getChapterId() ) ) ;
         }
-        
+        //TODO To return a chapterId only if it is modified, return -1 otherwise
         return chapterDBO.getChapterId() ;
     }
     
