@@ -21,6 +21,7 @@ import com.sandy.jovenotes.processor.core.cards.Cards.MultiChoiceCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.QACard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.SpellbeeCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.TrueFalseCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.VoiceToTextCard ;
 import com.sandy.jovenotes.processor.util.ASTReflector ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.jovenotes.processor.util.StringUtil ;
@@ -45,6 +46,7 @@ import com.sandy.xtext.joveNotes.Script ;
 import com.sandy.xtext.joveNotes.Spellbee ;
 import com.sandy.xtext.joveNotes.TeacherNote ;
 import com.sandy.xtext.joveNotes.TrueFalse ;
+import com.sandy.xtext.joveNotes.VoiceToText ;
 import com.sandy.xtext.joveNotes.WordMeaning ;
 
 public class NotesElements {
@@ -68,6 +70,7 @@ public class NotesElements {
     public static final String RTC           = "rtc" ;  
     public static final String MULTI_CHOICE  = "multi_choice" ;
     public static final String EXERCISE      = "exercise" ;
+    public static final String VOICE2TEXT    = "voice2text" ;
     
     // -------------------------------------------------------------------------
     public static AbstractNotesElement build( Chapter c,  
@@ -127,6 +130,9 @@ public class NotesElements {
         }
         else if( ast instanceof Exercise ) {
             ne = new ExerciseElement(c, (Exercise)ast, rtcNE ) ;
+        }
+        else if( ast instanceof VoiceToText ) {
+            ne = new VoiceToTextElement( c, (VoiceToText)ast, rtcNE ) ;
         }
         
         return ne ;
@@ -1100,6 +1106,40 @@ public class NotesElements {
             buffer.append( ast.getQuestion() )
                   .append( ast.getAnswer() ) ;
             return buffer.toString() ;
+        }
+    }
+
+
+    // -------------------------------------------------------------------------
+    public static class VoiceToTextElement extends AbstractNotesElement {
+        
+        private String      objIdSeed  = null ;
+        private VoiceToText ast        = null ;
+        private String      fmtAnswer  = null ;
+        
+        public VoiceToTextElement( Chapter chapter, VoiceToText ast, 
+                                   RefToContextNotesElement rtcNE )  
+                throws Exception {
+            
+            super( VOICE2TEXT, chapter, ast, rtcNE ) ;
+            this.objIdSeed = ast.getText() ;
+            this.ast = ast ;
+        }
+        
+        public String getObjIdSeed() { return objIdSeed ; }
+        
+        public void initialize( JNTextProcessor textProcessor ) 
+                throws Exception {
+            
+            textProcessor.processAudio( ast.getClipName() + ".mp3" ) ;
+            fmtAnswer = textProcessor.processText( ast.getText() ) ;
+            cards.add( new VoiceToTextCard( this, rtcNE, objIdSeed, 
+                                            this.ast, textProcessor ) ) ;
+        }
+        
+        public void collectContentAttributes( Map<String, Object> map ){
+            map.put( "clipName", ast.getClipName() ) ;
+            map.put( "text",     fmtAnswer     ) ;
         }
     }
 }

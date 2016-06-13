@@ -14,6 +14,7 @@ import com.sandy.jovenotes.processor.util.StringUtil ;
 import com.sandy.xtext.joveNotes.Exercise ;
 import com.sandy.xtext.joveNotes.MultiChoice ;
 import com.sandy.xtext.joveNotes.Option ;
+import com.sandy.xtext.joveNotes.VoiceToText ;
 
 public class Cards {
 
@@ -25,7 +26,8 @@ public class Cards {
     public static final String IMGLABEL      = "image_label" ;
     public static final String SPELLBEE      = "spellbee" ;
     public static final String MULTI_CHOICE  = "multi_choice" ;  
-    public static final String EXERCISE      = "exercise" ;  
+    public static final String EXERCISE      = "exercise" ;
+    public static final String VOICE2TEXT    = "voice2text" ;
     
     // -------------------------------------------------------------------------
     public static abstract class AbstractCard {
@@ -506,6 +508,68 @@ public class Cards {
             for( String hint : ast.getHints() ) {
                 fmtHints.add( textProcessor.processText( hint ) ) ;
             }
+        }
+    }
+
+
+    // -------------------------------------------------------------------------
+    /**
+     * The voice2text card has the following JSON structure
+     * 
+     * {
+     *   clipname          : "<The name of the clip, not including .mp3>",
+     *   text              : "<The text of the clip>"
+     * }
+     * 
+     * It is assumed that the clip is in the audio chapter directory.
+     */
+    public static class VoiceToTextCard extends AbstractCard {
+        
+        private String          objIdSeed   = null ;
+        private VoiceToText     ast         = null ;
+        private String          fmtAnswer   = null ;
+        private JNTextProcessor txtProc     = null ;
+        
+        public VoiceToTextCard( AbstractNotesElement ne, 
+                                RefToContextNotesElement rtcNE, 
+                                String objIdSeed, 
+                                VoiceToText ast, 
+                                JNTextProcessor textProcessor ) 
+            throws Exception {
+            
+            super( ne, rtcNE, VOICE2TEXT ) ;
+            this.objIdSeed = objIdSeed ;
+            this.ast = ast ;
+            this.fmtAnswer = textProcessor.processText( ast.getText() ) ;
+            this.txtProc = textProcessor ;
+        }
+        
+        public String getObjIdSeed() { return objIdSeed ; }
+        
+        public int getDifficultyLevel() { 
+            
+            int textLen = txtProc.getNormalizedWordsInFormattedText( fmtAnswer ) ;
+            int difficulty = 0 ;
+            
+            if( textLen > 15 ) {
+                difficulty = 100 ;
+            }
+            else if( textLen > 10 ) {
+                difficulty = 75 ;
+            }
+            else if( textLen > 7 ) {
+                difficulty = 50 ;
+            }
+            else {
+                difficulty = 30 ;
+            }
+            return difficulty ; 
+        }
+        
+        public void collectContentAttributes( Map<String, Object> map ) {
+            
+            map.put( "clipName", ast.getClipName() ) ;
+            map.put( "text",     fmtAnswer         ) ;
         }
     }
 }
