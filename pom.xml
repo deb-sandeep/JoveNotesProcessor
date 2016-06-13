@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sandy.jovenotes</groupId>
     <artifactId>jnprocessor</artifactId>
-    <version>1.0</version>
+    <version>2.0</version>
     <name>Jove Notes Processor</name>
     <description>The application to consume JoveNotes XText source files and deploy them as study artifacts in the JoveNotes web application</description>
     <repositories>
