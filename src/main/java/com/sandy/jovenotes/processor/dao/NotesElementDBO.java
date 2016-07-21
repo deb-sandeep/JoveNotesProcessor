@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.sandy.jovenotes.processor.JoveNotes;
 import com.sandy.jovenotes.processor.core.cards.Cards.AbstractCard ;
 import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
+import com.sandy.jovenotes.processor.core.stat.Stats ;
 
 public class NotesElementDBO extends AbstractDBO {
     
@@ -313,6 +314,10 @@ public class NotesElementDBO extends AbstractDBO {
             
             psmt.executeUpdate() ;
             setDeleted( true ) ;
+            
+            for( CardDBO card : this.cards ) {
+                Stats.cardDeleted( card.getCardType() ) ;
+            }
         }
         finally {
             JoveNotes.db.returnConnection( conn ) ;
