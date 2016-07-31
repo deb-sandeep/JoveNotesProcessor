@@ -254,6 +254,15 @@ public class JNTextProcessor {
             CarouselTagProcessor processor = new CarouselTagProcessor( data, this ) ;
             return processor.getProcessedText() ;
         }
+        else if( type.equals( "red" ) ) {
+            return "<span class='red'>" + data + "</span>" ;
+        }
+        else if( type.equals( "green" ) ) {
+            return "<span class='green'>" + data + "</span>" ;
+        }
+        else if( type.equals( "blue" ) ) {
+            return "<span class='blue'>" + data + "</span>" ;
+        }
         
         return null ;
     }
