@@ -122,6 +122,9 @@ public class Stats {
             log( StringUtils.repeat( "=", LOG_LINE_SIZE ) ) ;
             log( "" ) ;
             log( LG_KEY, "Number of files processed",          chapterStats.size() ) ;
+            for( ChapterStat stat : chapterStats ) {
+                log( "\t" + stat.getChapterFQN() ) ;
+            }
             log( LG_KEY, "Number of new cards processed",      getNumNewCardsProcessed() ) ;
             log( LG_KEY, "Number of modified cards processed", getNumModifiedCardsProcessed() ) ;
             log( LG_KEY, "Number of deleted cards processed",  getNumDeletedCardsProcessed() ) ;
