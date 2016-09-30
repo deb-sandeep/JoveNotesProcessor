@@ -17,6 +17,7 @@ import com.sandy.jovenotes.processor.async.PersistentQueue.QueueElement;
 import com.sandy.jovenotes.processor.core.SourceFileProcessor;
 import com.sandy.jovenotes.processor.core.SourceProcessingJournal;
 import com.sandy.jovenotes.processor.preview.JoveNotesJSONGenerator;
+import com.sandy.jovenotes.processor.core.stat.Stats ;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.Database;
 import com.sandy.jovenotes.processor.util.LocalDatabase;
@@ -165,10 +166,11 @@ public class JoveNotes {
             log.error( "Error processing perissted cmd", e ) ;
         }
         
+        Stats.printStats() ;
+
         if( config.getRunMode().isPreview() ) { 
             previewFileGeneration( updatedChapters ) ;
         }
-
     }
     
     private void previewFileGeneration( List<Integer> updatedChapters ) throws Exception {

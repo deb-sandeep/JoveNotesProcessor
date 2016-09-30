@@ -156,18 +156,25 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
         
         if( !descFile.exists() ) {
             log.info( "\t\tDownloading word meaning." ) ;
-            List<String> defs = new WordnicAdapter().getDefinitions( word ) ;
-            if( defs.isEmpty() ) {
-                throw new Exception( "Word meaning could not be downloaded." ) ;
-            }
-            else {
-                StringBuilder buffer = new StringBuilder( "<ul>" ) ;
-                for( String def : defs ) {
-                    buffer.append( "<li>" + def + "</li>" ) ;
+            List<String> defs = null ;
+            
+            try {
+                defs = new WordnicAdapter().getDefinitions( word ) ;
+                if( defs == null || defs.isEmpty() ) {
+                    defs.add( "<< COULD NOT DOWNLOAD MEANING >>" ) ;
                 }
-                buffer.append( "</ul>" ) ;
-                FileUtils.writeStringToFile( descFile, buffer.toString() );
             }
+            catch( Exception e ) {
+                log.warn( "\t\t\tCould not download meaning for '" + word + "'" ) ;
+                defs.add( "<< COULD NOT DOWNLOAD MEANING >>" ) ;
+            }
+            
+            StringBuilder buffer = new StringBuilder( "<ul>" ) ;
+            for( String def : defs ) {
+                buffer.append( "<li>" + def + "</li>" ) ;
+            }
+            buffer.append( "</ul>" ) ;
+            FileUtils.writeStringToFile( descFile, buffer.toString() );
         }
     }
     
@@ -199,7 +206,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
     }
     
     private void updateContentAndDifficultyLevel( File pronunciationFile ) 
-            throws Exception {
+        throws Exception {
         
         String json = existingContent ;
         int    diff = existingDifficulty ;
@@ -210,7 +217,12 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
             
             if( !pronunciationFile.exists() ) {
                 log.info( "\t\tDownloading pronunciation." ) ;
-                pronunciation = new WordnicAdapter().getPronounciation( word ) ;
+                try {
+                    pronunciation = new WordnicAdapter().getPronounciation( word ) ;
+                }
+                catch( Exception e ) {
+                    log.warn( "\t\t\tCould not get pronunciation for '" + word + "'" );
+                }
                 pronunciation = ( pronunciation==null ) ? "" : pronunciation ;
                 FileUtils.writeStringToFile( pronunciationFile, pronunciation, 
                                              "UTF-8" ) ;

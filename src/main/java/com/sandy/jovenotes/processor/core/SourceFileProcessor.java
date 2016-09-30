@@ -4,12 +4,13 @@ import java.io.File ;
 
 import org.apache.log4j.Logger ;
 
-import com.sandy.jovenotes.processor.async.RefreshChapterCmd ;
-import com.sandy.jovenotes.processor.dao.ChapterDBO ;
+import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
+import com.sandy.jovenotes.processor.core.stat.Stats ;
 import com.sandy.jovenotes.processor.util.RunMode ;
-import com.sandy.jovenotes.processor.util.XTextModelParser ;
-import com.sandy.xtext.joveNotes.JoveNotes ;
-import com.sandy.xtext.joveNotes.ProcessingHints ;
+import com.sandy.jovenotes.processor.dao.ChapterDBO;
+import com.sandy.jovenotes.processor.util.XTextModelParser;
+import com.sandy.xtext.joveNotes.JoveNotes;
+import com.sandy.xtext.joveNotes.ProcessingHints;
 
 public class SourceFileProcessor {
     
@@ -32,9 +33,11 @@ public class SourceFileProcessor {
         // Retrieve the database object model if one exists
         ChapterDBO chapterDBO = ChapterDBO.get( chapter ) ;
         
+        // Create the chapter statistics
         boolean nextLevelTraceRequired = true ;
         if( chapterDBO == null ) {
             log.info( "\tChapter " + chapter + " does not exist." ) ;
+            Stats.newChapterBeingProcessed( chapter ) ;
             chapterDBO = insertNewChapter( chapter ) ;
         }
         else {
@@ -42,9 +45,11 @@ public class SourceFileProcessor {
             nextLevelTraceRequired = chapterDBO.trace( chapter ) ;
             if( nextLevelTraceRequired ){
                 log.info( "\tChapter update required. Processing trace." ) ;
+                Stats.updatedChapterBeingProcessed( chapter ) ;
                 chapterDBO.processTrace() ;
             }
             else if( chapterDBO.isModified() ) {
+                Stats.updatedChapterBeingProcessed( chapter ) ;
                 chapterDBO.update() ;
             }
         }

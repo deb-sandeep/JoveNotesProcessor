@@ -13,6 +13,7 @@ import com.sandy.jovenotes.processor.JoveNotes ;
 import com.sandy.jovenotes.processor.async.SpellbeeCmd ;
 import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.core.cards.Cards.AbstractCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.ExerciseCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.FIBCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.ImageLabelCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.MatchCard ;
@@ -20,6 +21,7 @@ import com.sandy.jovenotes.processor.core.cards.Cards.MultiChoiceCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.QACard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.SpellbeeCard ;
 import com.sandy.jovenotes.processor.core.cards.Cards.TrueFalseCard ;
+import com.sandy.jovenotes.processor.core.cards.Cards.VoiceToTextCard ;
 import com.sandy.jovenotes.processor.util.ASTReflector ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.jovenotes.processor.util.StringUtil ;
@@ -31,6 +33,7 @@ import com.sandy.xtext.joveNotes.EqSymbol ;
 import com.sandy.xtext.joveNotes.Equation ;
 import com.sandy.xtext.joveNotes.EvalVar ;
 import com.sandy.xtext.joveNotes.Event ;
+import com.sandy.xtext.joveNotes.Exercise ;
 import com.sandy.xtext.joveNotes.HotSpot ;
 import com.sandy.xtext.joveNotes.ImageLabel ;
 import com.sandy.xtext.joveNotes.Matching ;
@@ -43,6 +46,7 @@ import com.sandy.xtext.joveNotes.Script ;
 import com.sandy.xtext.joveNotes.Spellbee ;
 import com.sandy.xtext.joveNotes.TeacherNote ;
 import com.sandy.xtext.joveNotes.TrueFalse ;
+import com.sandy.xtext.joveNotes.VoiceToText ;
 import com.sandy.xtext.joveNotes.WordMeaning ;
 
 public class NotesElements {
@@ -64,7 +68,9 @@ public class NotesElements {
     public static final String IMAGE_LABEL   = "image_label" ;
     public static final String EQUATION      = "equation" ; 
     public static final String RTC           = "rtc" ;  
-    public static final String MULTI_CHOICE  = "multi_choice" ;  
+    public static final String MULTI_CHOICE  = "multi_choice" ;
+    public static final String EXERCISE      = "exercise" ;
+    public static final String VOICE2TEXT    = "voice2text" ;
     
     // -------------------------------------------------------------------------
     public static AbstractNotesElement build( Chapter c,  
@@ -121,6 +127,12 @@ public class NotesElements {
         }
         else if( ast instanceof MultiChoice ){
             ne = new MultiChoiceElement(c, (MultiChoice)ast, rtcNE );
+        }
+        else if( ast instanceof Exercise ) {
+            ne = new ExerciseElement(c, (Exercise)ast, rtcNE ) ;
+        }
+        else if( ast instanceof VoiceToText ) {
+            ne = new VoiceToTextElement( c, (VoiceToText)ast, rtcNE ) ;
         }
         
         return ne ;
@@ -1040,6 +1052,94 @@ public class NotesElements {
             
             this.fmtQ = textProcessor.processText( qBuffer.toString() ) ;
             this.fmtA = textProcessor.processText( aBuffer.toString() ) ;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    public static class ExerciseElement extends AbstractNotesElement {
+        
+        private String   objIdSeed  = null ;
+        private Exercise ast        = null ;
+        
+        private String       fmtQuestion = null ;
+        private String       fmtAnswer   = null ;
+        private List<String> fmtHints    = new ArrayList<String>() ;
+        
+        public ExerciseElement( Chapter chapter, Exercise ast, 
+                                RefToContextNotesElement rtcNE )  
+                throws Exception {
+            
+            super( EXERCISE, chapter, ast, rtcNE ) ;
+            this.objIdSeed = constructObjId( ast ) ;
+            this.ast = ast ;
+        }
+        
+        public String getObjIdSeed() { return objIdSeed ; }
+        
+        public void initialize( JNTextProcessor textProcessor ) 
+                throws Exception {
+            
+            fmtQuestion = textProcessor.processText( ast.getQuestion() ) ;
+            fmtAnswer   = textProcessor.processText( ast.getAnswer() ) ;
+            for( String hint : ast.getHints() ) {
+                fmtHints.add( textProcessor.processText( hint ) ) ;
+            }
+            
+            cards.add( new ExerciseCard( this, rtcNE, objIdSeed, 
+                                         this.ast, textProcessor ) ) ;
+        }
+        
+        public void collectContentAttributes( Map<String, Object> map ){
+            
+            map.put( "question", fmtQuestion ) ;
+            map.put( "answer",   fmtAnswer   ) ;
+            map.put( "hints",    fmtHints    ) ;
+        }
+        
+        /**
+         * UID is made by processing the question and answer. This implies that
+         * the attributes (hide, marks, hints) can be modified without changing
+         * the element identity.
+         */
+        private String constructObjId( Exercise ast ) {
+            StringBuilder buffer = new StringBuilder() ;
+            buffer.append( ast.getQuestion() )
+                  .append( ast.getAnswer() ) ;
+            return buffer.toString() ;
+        }
+    }
+
+
+    // -------------------------------------------------------------------------
+    public static class VoiceToTextElement extends AbstractNotesElement {
+        
+        private String      objIdSeed  = null ;
+        private VoiceToText ast        = null ;
+        private String      fmtAnswer  = null ;
+        
+        public VoiceToTextElement( Chapter chapter, VoiceToText ast, 
+                                   RefToContextNotesElement rtcNE )  
+                throws Exception {
+            
+            super( VOICE2TEXT, chapter, ast, rtcNE ) ;
+            this.objIdSeed = ast.getText() ;
+            this.ast = ast ;
+        }
+        
+        public String getObjIdSeed() { return objIdSeed ; }
+        
+        public void initialize( JNTextProcessor textProcessor ) 
+                throws Exception {
+            
+            textProcessor.processAudio( ast.getClipName() + ".mp3" ) ;
+            fmtAnswer = textProcessor.processText( ast.getText() ) ;
+            cards.add( new VoiceToTextCard( this, rtcNE, objIdSeed, 
+                                            this.ast, textProcessor ) ) ;
+        }
+        
+        public void collectContentAttributes( Map<String, Object> map ){
+            map.put( "clipName", ast.getClipName() ) ;
+            map.put( "text",     fmtAnswer     ) ;
         }
     }
 }

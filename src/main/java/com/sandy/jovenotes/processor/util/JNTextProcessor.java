@@ -114,16 +114,21 @@ public class JNTextProcessor {
         output = processBlockMathJaxMarkers( output ) ;
         output = processInlineMathJaxMarkers( output ) ;
         
-        output = pdProcessor.markdownToHtml( output ) ;
-        if( output.startsWith( "<p>" ) && output.endsWith( "</p>" ) ) {
-            output = output.substring( 3, output.length()-4 ) ;
-        }
+        output = processMarkDown( output ) ;
         
         // Let's piggy back on bootstrap formatting of tables.
         String customTableTag = "<table class=\"pure-table pure-table-horizontal\">" ;
         output = output.replaceAll( "<table>", customTableTag ) ;
         output = output.replaceAll( "\\\\\\\\", "\\\\" ) ;
         
+        return output ;
+    }
+    
+    private String processMarkDown( String input ) {
+        String output = pdProcessor.markdownToHtml( input ) ;
+        if( output.startsWith( "<p>" ) && output.endsWith( "</p>" ) ) {
+            output = output.substring( 3, output.length()-4 ) ;
+        }
         return output ;
     }
     
@@ -253,6 +258,15 @@ public class JNTextProcessor {
         else if( type.equals( "carousel" ) ) {
             CarouselTagProcessor processor = new CarouselTagProcessor( data, this ) ;
             return processor.getProcessedText() ;
+        }
+        else if( type.equals( "red" ) ) {
+            return "<span class='red'>" + processMarkDown( data ) + "</span>" ;
+        }
+        else if( type.equals( "green" ) ) {
+            return "<span class='green'>" + processMarkDown( data ) + "</span>" ;
+        }
+        else if( type.equals( "blue" ) ) {
+            return "<span class='blue'>" + processMarkDown( data ) + "</span>" ;
         }
         
         return null ;
