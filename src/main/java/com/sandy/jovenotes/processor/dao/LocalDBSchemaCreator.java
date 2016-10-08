@@ -48,6 +48,7 @@ public class LocalDBSchemaCreator extends AbstractDBO {
         final String createSql =  
             "CREATE TABLE jove_notes.chapter ( " +
                     "chapter_id      INTEGER IDENTITY NOT NULL, " +
+                    "is_exercise_bank   BIT(1) DEFAULT B'0' NOT NULL," +
                     "is_test_paper   BIT(1) DEFAULT B'0' NOT NULL," +
                     "syllabus_name   VARCHAR(256) NOT NULL," +
                     "subject_name    VARCHAR(45) NOT NULL," +
