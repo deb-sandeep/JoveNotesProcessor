@@ -4,10 +4,12 @@ import java.io.File ;
 
 import org.apache.log4j.Logger ;
 
+import com.sandy.jovenotes.processor.async.PersistedCmd;
 import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
+import com.sandy.jovenotes.processor.async.RefreshChapterCmdLocal;
 import com.sandy.jovenotes.processor.core.stat.Stats ;
-import com.sandy.jovenotes.processor.util.RunMode ;
 import com.sandy.jovenotes.processor.dao.ChapterDBO;
+import com.sandy.jovenotes.processor.util.RunMode ;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.ProcessingHints;
@@ -55,9 +57,16 @@ public class SourceFileProcessor {
         }
         
         if( nextLevelTraceRequired ) {
-            log.info( "\tChapter has been updated. Refreshing meta data." ) ;
-            com.sandy.jovenotes.processor.JoveNotes.persistentQueue.add( 
-                 new RefreshChapterCmd( chapter, chapterDBO.getChapterId() ) ) ;
+            
+        	log.info( "\tChapter has been updated. Refreshing meta data." ) ;
+    	    
+            RunMode runMode = com.sandy.jovenotes.processor.JoveNotes.config.getRunMode() ;
+            PersistedCmd cmd = ( runMode.isPreview() ) ?
+            		new RefreshChapterCmdLocal( chapter, chapterDBO.getChapterId() ) :
+            		new RefreshChapterCmd( chapter, chapterDBO.getChapterId() ) ;
+            
+            com.sandy.jovenotes.processor.JoveNotes.persistentQueue.add( cmd ) ;
+            
         }
         //TODO To return a chapterId only if it is modified, return -1 otherwise
         return chapterDBO.getChapterId() ;

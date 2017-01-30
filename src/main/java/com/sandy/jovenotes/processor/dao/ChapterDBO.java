@@ -28,6 +28,7 @@ public class ChapterDBO extends AbstractDBO {
     private boolean isExerciseBank = false ;
     private String  scriptBody     = null ;
     private String  chapterFQN     = null ;
+    private int     numCards       = 0 ;
     
     private List<NotesElementDBO> notesElements = null ;
     boolean tracedToSourceObjModel = false ;
@@ -63,6 +64,7 @@ public class ChapterDBO extends AbstractDBO {
         chapterName   = rs.getString ( "chapter_name"    ) ;
         isExerciseBank= rs.getBoolean( "is_exercise_bank") ;
         scriptBody    = rs.getString ( "script_body"     ) ;
+        numCards      = rs.getInt    ( "num_cards"       ) ;
         
         notesElements = NotesElementDBO.getAll( this ) ;
     }
@@ -122,7 +124,15 @@ public class ChapterDBO extends AbstractDBO {
         return this.scriptBody ;
     }
     
-    public static List<ChapterDBO> getAll() throws Exception {
+    public int getNumCards() {
+		return numCards;
+	}
+
+	public void setNumCards(int numCards) {
+		this.numCards = numCards;
+	}
+
+	public static List<ChapterDBO> getAll() throws Exception {
         
         ArrayList<ChapterDBO> chapters = new ArrayList<ChapterDBO>() ;
         
@@ -134,7 +144,8 @@ public class ChapterDBO extends AbstractDBO {
                            " chapter.chapter_num," +
                            " chapter.sub_chapter_num," +
                            " chapter.chapter_name," + 
-                           " chapter.script_body" + 
+                           " chapter.script_body," +
+                           " chapter.num_cards" +
                            " FROM jove_notes.chapter" ;
         
         Connection conn = JoveNotes.db.getConnection() ;
@@ -165,7 +176,8 @@ public class ChapterDBO extends AbstractDBO {
                 " chapter_num, " +
                 " sub_chapter_num, " +
                 " chapter_name, " +
-                " script_body " +
+                " script_body, " +
+                " chapter.num_cards " +
                 "FROM " + 
                 " jove_notes.chapter " +
                 "WHERE " + 
@@ -206,7 +218,8 @@ public class ChapterDBO extends AbstractDBO {
                             " chapter.chapter_num," +
                             " chapter.sub_chapter_num," +
                             " chapter.chapter_name," + 
-                            " chapter.script_body" + 
+                            " chapter.script_body," + 
+                            " chapter.num_cards" +
                             " FROM jove_notes.chapter " +
                             " WHERE chapter.chapter_id=?" ;
 

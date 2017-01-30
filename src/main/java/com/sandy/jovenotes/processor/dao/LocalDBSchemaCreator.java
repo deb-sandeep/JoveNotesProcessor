@@ -56,7 +56,7 @@ public class LocalDBSchemaCreator extends AbstractDBO {
                     "sub_chapter_num INTEGER NOT NULL," +
                     "chapter_name    VARCHAR(65535) NOT NULL," +
                     "script_body     VARCHAR(65535)," +
-                    "num_cards       INTEGER," +
+                    "num_cards       INTEGER DEFAULT 0," +
                     "num_VE          INTEGER," +
                     "num_E           INTEGER," +
                     "num_M           INTEGER," +

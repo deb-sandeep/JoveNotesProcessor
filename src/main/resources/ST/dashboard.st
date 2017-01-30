@@ -20,7 +20,7 @@
                          "isFlashcardAuthorized": false,
                          "isStatisticsAuthorized": false,
                          "isDeleteAuthorized": false,
-                         "totalCards": 0,
+                         "totalCards": <chapter.numCards>,
                          "notStartedCards": 0,
                          "l0Cards": 0,
                          "l1Cards": 0,
