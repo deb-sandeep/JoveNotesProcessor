@@ -7,6 +7,8 @@ import java.util.List ;
 import java.util.Map ;
 
 import org.apache.log4j.Logger ;
+import org.eclipse.xtext.nodemodel.ICompositeNode ;
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils ;
 import org.json.simple.JSONValue ;
 
 import com.sandy.jovenotes.processor.JoveNotes ;
@@ -145,8 +147,11 @@ public class NotesElements {
         private   int          difficultyLevel   = -1 ;
         private   NotesElement ast               = null ;
         private   String       scriptBody        = null ;
+        private   String       sourceText        = null ;
+        
         protected boolean      ready             = true ;
         protected boolean      hiddenFromView    = false ;
+        
         
         protected RefToContextNotesElement rtcNE = null ;
         protected Chapter chapter = null ;
@@ -163,6 +168,11 @@ public class NotesElements {
             this.chapter = chapter ;
             this.ast     = ast ;
             this.rtcNE   = rtcNE ;
+            
+            ICompositeNode cmpNode = NodeModelUtils.getNode( ast ) ;
+            if( cmpNode != null ) {
+                sourceText = cmpNode.getText() ;
+            }
             
             ASTReflector reflector = new ASTReflector( ast ) ;
             
@@ -222,6 +232,10 @@ public class NotesElements {
         
         public Map<String, String> getEvalVars() {
             return this.evalVars ;
+        }
+        
+        public String getSourceText() {
+            return this.sourceText ;
         }
         
         public final String getObjId() {
