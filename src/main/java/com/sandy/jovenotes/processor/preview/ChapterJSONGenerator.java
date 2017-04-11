@@ -59,6 +59,7 @@ public class ChapterJSONGenerator {
         chapterDetails.put( "subjectName", chapter.getSubjectName() ) ;
         chapterDetails.put( "chapterNum", chapter.getChapterNum() ) ;
         chapterDetails.put( "subChapterNum", chapter.getSubChapterNum() ) ;
+        chapterDetails.put( "chapterName", chapter.getChapterName() ) ;
         String scriptBody = ( chapter.getScriptBody() != null ) ?
                                 Base64.encodeBase64String( 
                                         chapter.getScriptBody().getBytes() ) :
