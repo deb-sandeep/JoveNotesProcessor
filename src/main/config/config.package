@@ -3,7 +3,15 @@
 # The fully qualified path of the directory where the JoveNotes sources are 
 # stored. 
 # Mandatory - If not specified, program will exit
-source.dir=/home/sandeep/Documents/JoveNotes
+source.dir=\
+/home/sandeep/projects/workspace/JoveNotes-I:\
+/home/sandeep/projects/workspace/JoveNotes-II:\
+/home/sandeep/projects/workspace/JoveNotes-III:\
+/home/sandeep/projects/workspace/JoveNotes-VII:\
+/home/sandeep/projects/workspace/JoveNotes-VIII:\
+/home/sandeep/projects/workspace/JoveNotes-IX:\
+/home/sandeep/projects/workspace/JoveNotes-X:\
+/home/sandeep/projects/workspace/JoveNotes-IIT
 
 # The directory where JoveNotes processor will keep its bookkeeping data which 
 # will be used across runs. The contents of this directory should not be modified 
