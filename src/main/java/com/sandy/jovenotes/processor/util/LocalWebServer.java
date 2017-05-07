@@ -10,7 +10,7 @@ public class LocalWebServer  {
     private String  host  = "localhost" ;
     private int     port  = 80 ;
     private File    root  = null ;
-    private boolean quiet = false ;
+    private boolean quiet = true ;
     
     private SimpleWebServer server = null ;
     
