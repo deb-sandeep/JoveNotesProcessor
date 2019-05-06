@@ -54,9 +54,10 @@ public class WordnicAdapter {
         
         List<TextPron> pronounciations = api.getTextPronunciations( 
         		URLEncoder.encode( word, "UTF-8" ), null, null, "true", 1 ) ;
-        if( !pronounciations.isEmpty() ) {
+        if( pronounciations!= null && !pronounciations.isEmpty() ) {
         	return pronounciations.get(0).getRaw() ;
         }
-        return null ;
+        
+        return "" ;
     }
 }
