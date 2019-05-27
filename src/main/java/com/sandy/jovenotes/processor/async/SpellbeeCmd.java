@@ -6,9 +6,7 @@ import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.* ;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -156,7 +154,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
         
         if( !descFile.exists() ) {
             log.info( "\t\tDownloading word meaning." ) ;
-            List<String> defs = null ;
+            List<String> defs = new ArrayList<String>() ;
             
             try {
                 defs = new WordnicAdapter().getDefinitions( word ) ;
