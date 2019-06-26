@@ -136,9 +136,6 @@ public class JoveNotes {
                 filesForProcessing.add( file ) ;
                 log.info( "  Selecting file - " + file.getAbsolutePath() ) ;
             }
-            else {
-                log.debug( "  Ignoring file - " + file.getAbsolutePath() ) ;
-            }
         }
         
         log.info("\n") ;
