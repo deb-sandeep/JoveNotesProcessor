@@ -29,22 +29,22 @@ public class NotesElementDAO extends AbstractDAO {
         
         final String sql = 
             "SELECT " +
-            "`notes_element`.`notes_element_id`, " +
-            "`notes_element`.`chapter_id`, " +
-            "`notes_element`.`element_type`, " +
-            "`notes_element`.`difficulty_level`, " +
-            "`notes_element`.`content`, " +
-            "`notes_element`.`eval_vars`, " +
-            "`notes_element`.`script_body`, " +
-            "`notes_element`.`obj_correl_id`, " +
-            "`notes_element`.`ready`, " +
-            "`notes_element`.`hidden_from_view` " +
+            "   notes_element_id, " +
+            "   chapter_id, " +
+            "   element_type, " +
+            "   difficulty_level, " +
+            "   content, " +
+            "   eval_vars, " +
+            "   script_body, " +
+            "   obj_correl_id, " +
+            "   ready, " +
+            "   hidden_from_view " +
             "FROM " +
-            "`jove_notes`.`notes_element` " +
+            "   jove_notes.notes_element " +
             "WHERE " + 
-            "`notes_element`.`chapter_id` = ? " +
+            "   chapter_id = ? " +
             "ORDER BY " + 
-            "`notes_element`.`notes_element_id` ASC ";
+            "   notes_element_id ASC ";
 
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
@@ -95,13 +95,19 @@ public class NotesElementDAO extends AbstractDAO {
         log.info( "\t  Creating notes element - " + 
                   note.getElementType() + "::" + note.getObjCorrelId() ) ;
         
-        final String sql = 
-        "INSERT INTO `jove_notes`.`notes_element` " +
-        "(`chapter_id`, `element_type`, `difficulty_level`, " + 
-        "`content`, `eval_vars`, `script_body`, `obj_correl_id`, `ready`, " + 
-        "`hidden_from_view` ) " +
-        "VALUES " +
-        "( ?, ?, ?, ?, ?, ?, ?, ?, ? )" ;
+        final String sql = "INSERT INTO jove_notes.notes_element ( " +
+                           "  chapter_id, " + 
+                           "  element_type, " + 
+                           "  difficulty_level, " + 
+                           "  content, " +
+                           "  eval_vars, " +
+                           "  script_body, " +
+                           "  obj_correl_id, " +
+                           "  ready, " + 
+                           "  hidden_from_view " + 
+                           ") " +
+                           "VALUES " +
+                           "( ?, ?, ?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
         Connection conn = JoveNotesProcessor.db.getConnection() ;
@@ -146,15 +152,16 @@ public class NotesElementDAO extends AbstractDAO {
     
     public static void update( NotesElementDBO note ) throws Exception {
         
-        final String sql = 
-            "UPDATE `jove_notes`.`notes_element` " +
-            "SET " +
-            "`difficulty_level` = ?, " +
-            "`content` = ?, " +
-            "`eval_vars` = ?, " +
-            "`script_body` = ?, " +
-            "`hidden_from_view` = ? " +
-            "WHERE `notes_element_id` = ? " ;
+        final String sql = "UPDATE " +
+                           "   jove_notes.notes_element " +
+                           "SET " +
+                           "   difficulty_level = ?, " +
+                           "   content = ?, " +
+                           "   eval_vars = ?, " +
+                           "   script_body = ?, " +
+                           "   hidden_from_view = ? " +
+                           "WHERE " +
+                           "   notes_element_id = ? " ;
 
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
@@ -181,7 +188,7 @@ public class NotesElementDAO extends AbstractDAO {
     public static void delete( NotesElementDBO note ) throws Exception {
         
         final String sql = 
-            "DELETE FROM `jove_notes`.`notes_element` WHERE `notes_element_id` = ?" ;
+            "DELETE FROM jove_notes.notes_element WHERE notes_element_id = ?" ;
 
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
