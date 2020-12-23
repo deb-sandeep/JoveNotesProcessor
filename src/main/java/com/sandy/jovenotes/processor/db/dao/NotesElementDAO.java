@@ -13,10 +13,10 @@ import java.util.List ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.jovenotes.processor.JoveNotesProcessor ;
-import com.sandy.jovenotes.processor.core.stat.Stats ;
 import com.sandy.jovenotes.processor.db.dbo.CardDBO ;
 import com.sandy.jovenotes.processor.db.dbo.ChapterDBO ;
 import com.sandy.jovenotes.processor.db.dbo.NotesElementDBO ;
+import com.sandy.jovenotes.processor.util.stat.Stats ;
 
 public class NotesElementDAO extends AbstractDAO {
     

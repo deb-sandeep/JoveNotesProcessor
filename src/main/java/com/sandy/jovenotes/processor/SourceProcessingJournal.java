@@ -1,4 +1,4 @@
-package com.sandy.jovenotes.processor.core;
+package com.sandy.jovenotes.processor;
 
 import java.io.File;
 import java.io.FileReader;

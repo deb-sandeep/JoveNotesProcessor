@@ -10,8 +10,8 @@ import java.util.List ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.jovenotes.processor.JoveNotesProcessor ;
-import com.sandy.jovenotes.processor.core.stat.Stats ;
 import com.sandy.jovenotes.processor.db.dbo.CardDBO ;
+import com.sandy.jovenotes.processor.util.stat.Stats ;
 
 public class CardDAO extends AbstractDAO {
     

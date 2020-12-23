@@ -1,14 +1,15 @@
-package com.sandy.jovenotes.processor.core;
+package com.sandy.jovenotes.processor;
 
 import java.io.File;
 
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
-import com.sandy.jovenotes.processor.core.stat.Stats ;
+import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.db.dao.ChapterDAO ;
 import com.sandy.jovenotes.processor.db.dbo.ChapterDBO ;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
+import com.sandy.jovenotes.processor.util.stat.Stats ;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.ProcessingHints;
 

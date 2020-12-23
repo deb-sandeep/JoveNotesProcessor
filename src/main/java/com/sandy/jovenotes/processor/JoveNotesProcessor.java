@@ -14,12 +14,10 @@ import org.apache.log4j.Logger;
 import com.sandy.jovenotes.processor.async.PersistedCmd;
 import com.sandy.jovenotes.processor.async.PersistentQueue;
 import com.sandy.jovenotes.processor.async.PersistentQueue.QueueElement;
-import com.sandy.jovenotes.processor.core.SourceFileProcessor;
-import com.sandy.jovenotes.processor.core.SourceProcessingJournal;
-import com.sandy.jovenotes.processor.core.stat.Stats ;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.Database;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
+import com.sandy.jovenotes.processor.util.stat.Stats ;
 
 /**
  * Main class for the JoveNotes processor application.

@@ -1,4 +1,4 @@
-package com.sandy.jovenotes.processor.core.stat;
+package com.sandy.jovenotes.processor.util.stat;
 
 import java.util.ArrayList ;
 import java.util.HashMap ;

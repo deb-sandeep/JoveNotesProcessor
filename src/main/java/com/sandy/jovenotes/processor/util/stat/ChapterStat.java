@@ -1,9 +1,9 @@
-package com.sandy.jovenotes.processor.core.stat;
+package com.sandy.jovenotes.processor.util.stat;
 
 import java.util.HashMap ;
 import java.util.Map ;
 
-import com.sandy.jovenotes.processor.core.stat.Stats.ProcessType ;
+import com.sandy.jovenotes.processor.util.stat.Stats.ProcessType ;
 
 class CardStat {
     
