@@ -23,15 +23,15 @@ public class ChapterDAO extends AbstractDAO {
         ArrayList<ChapterDBO> chapters = new ArrayList<ChapterDBO>() ;
         
         final String sql = "SELECT " + 
-                           " `chapter`.`chapter_id`," + 
-                           " `chapter`.`is_exercise_bank`," + 
-                           " `chapter`.`syllabus_name`," +
-                           " `chapter`.`subject_name`," +
-                           " `chapter`.`chapter_num`," +
-                           " `chapter`.`sub_chapter_num`," +
-                           " `chapter`.`chapter_name`," + 
-                           " `chapter`.`script_body`" + 
-                           " FROM `jove_notes`.`chapter`" ;
+                           "  chapter_id, " + 
+                           "  is_exercise_bank, " + 
+                           "  syllabus_name, " +
+                           "  subject_name, " +
+                           "  chapter_num, " +
+                           "  sub_chapter_num, " +
+                           "  chapter_name, " + 
+                           "  script_body " + 
+                           "FROM jove_notes.chapter" ;
         
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
@@ -54,21 +54,21 @@ public class ChapterDAO extends AbstractDAO {
         
         final String sql = 
                 "SELECT " + 
-                " chapter_id, " + 
-                " is_exercise_bank, " +
-                " syllabus_name, " +
-                " subject_name, " +
-                " chapter_num, " +
-                " sub_chapter_num, " +
-                " chapter_name, " +
-                " script_body " +
+                "  chapter_id, " + 
+                "  is_exercise_bank, " +
+                "  syllabus_name, " +
+                "  subject_name, " +
+                "  chapter_num, " +
+                "  sub_chapter_num, " +
+                "  chapter_name, " +
+                "  script_body " +
                 "FROM " + 
-                " jove_notes.chapter " +
+                "  jove_notes.chapter " +
                 "WHERE " + 
-                " syllabus_name   = ? and " + 
-                " subject_name    = ? and " + 
-                " chapter_num     = ? and " + 
-                " sub_chapter_num = ? " ;
+                "  syllabus_name   = ? and " + 
+                "  subject_name    = ? and " + 
+                "  chapter_num     = ? and " + 
+                "  sub_chapter_num = ? " ;
 
         ChapterDBO dbo = null ;
         Connection conn = JoveNotesProcessor.db.getConnection() ;
@@ -94,17 +94,19 @@ public class ChapterDAO extends AbstractDAO {
     
     public static ChapterDBO get( int chapterId ) throws Exception {
         
-        final String sql = "SELECT " + 
-                            " `chapter`.`chapter_id`," + 
-                            " `chapter`.`is_exercise_bank`," + 
-                            " `chapter`.`syllabus_name`," +
-                            " `chapter`.`subject_name`," +
-                            " `chapter`.`chapter_num`," +
-                            " `chapter`.`sub_chapter_num`," +
-                            " `chapter`.`chapter_name`," + 
-                            " `chapter`.`script_body`" + 
-                            " FROM `jove_notes`.`chapter` " +
-                            " WHERE `chapter`.`chapter_id`=?" ;
+        final String sql =  "SELECT " + 
+                            "  chapter_id," + 
+                            "  is_exercise_bank," + 
+                            "  syllabus_name," +
+                            "  subject_name," +
+                            "  chapter_num," +
+                            "  sub_chapter_num," +
+                            "  chapter_name," + 
+                            "  script_body" + 
+                            "FROM " + 
+                            "  jove_notes.chapter " +
+                            "WHERE " + 
+                            "  chapter_id=?" ;
         
         ChapterDBO chapter = null ;
         Connection conn = JoveNotesProcessor.db.getConnection() ;
@@ -129,12 +131,17 @@ public class ChapterDAO extends AbstractDAO {
 
         log.info( "\tCreating chapter - " + chapter.getFQN() ) ;
         
-        final String sql = 
-        "INSERT INTO `jove_notes`.`chapter` " +
-        "(`is_exercise_bank`, `syllabus_name`, `subject_name`, " + 
-        " `chapter_num`, `sub_chapter_num`, `chapter_name`, `script_body` ) " +
-        "VALUES " +
-        "( ?, ?, ?, ?, ?, ?, ? )" ;
+        final String sql = "INSERT INTO jove_notes.chapter ( " +
+                           "  is_exercise_bank, " + 
+                           "  syllabus_name, " +
+                           "  subject_name, " + 
+                           "  chapter_num, " + 
+                           "  sub_chapter_num, " + 
+                           "  chapter_name, " + 
+                           "  script_body " + 
+                           ") " +
+                           "VALUES " +
+                           "( ?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
         Connection conn = JoveNotesProcessor.db.getConnection() ;
@@ -172,13 +179,13 @@ public class ChapterDAO extends AbstractDAO {
     
     public static void update( ChapterDBO chapter ) throws Exception {
         
-        final String sql = 
-            "UPDATE `jove_notes`.`chapter` " +
-            "SET " +
-            "`chapter_name`     = ?, " +
-            "`script_body`      = ?, " +
-            "`is_exercise_bank` = ? " +
-            "WHERE `chapter_id` = ? " ;
+        final String sql = "UPDATE jove_notes.chapter " +
+                           "SET " +
+                           "  chapter_name     = ?, " +
+                           "  script_body      = ?, " +
+                           "  is_exercise_bank = ?  " +
+                           "WHERE " + 
+                           "  chapter_id = ? " ;
 
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
@@ -198,8 +205,7 @@ public class ChapterDAO extends AbstractDAO {
 
     public static void delete( ChapterDBO chapter ) throws Exception {
         
-        final String sql = 
-            "DELETE FROM `jove_notes`.`chapter` WHERE `chapter_id` = ?" ;
+        final String sql = "DELETE FROM jove_notes.chapter WHERE chapter_id = ?" ;
 
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
