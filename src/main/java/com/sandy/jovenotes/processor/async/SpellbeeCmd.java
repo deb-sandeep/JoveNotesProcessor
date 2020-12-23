@@ -12,7 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 
-import com.sandy.jovenotes.processor.JoveNotes;
+import com.sandy.jovenotes.processor.JoveNotesProcessor;
 import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.util.NetworkResourceDownloader;
 import com.sandy.jovenotes.processor.util.StringUtil;
@@ -60,7 +60,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
         
         log.info( "\tExecuting SpellbeeCmd for word - " + word ) ;
         
-        File mediaDir = new File( JoveNotes.config.getDestMediaRootDir(), "_spellbee" ) ;
+        File mediaDir = new File( JoveNotesProcessor.config.getDestMediaRootDir(), "_spellbee" ) ;
         File clipFile = new File( mediaDir, word.toLowerCase() + ".mp3" ) ;
         File descFile = new File( mediaDir, word.toLowerCase() + ".descr" ) ;
         File pronunciationFile = new File( mediaDir, word.toLowerCase() + ".pronunciation" ) ;
@@ -185,7 +185,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
                 "WHERE " +
                 " chapter_id = ? and obj_correl_id = ?" ;
         
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::getAll", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -199,7 +199,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
     
@@ -265,7 +265,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
                 " chapter_id = ? and " +
                 " obj_correl_id  = ?" ;
         
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::updateTable", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -282,7 +282,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
     
@@ -298,7 +298,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
                 " sub_chapter_num=?" ;
         
         int chapterId = -1 ;
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::getAll", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -313,7 +313,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         return chapterId ;
     }

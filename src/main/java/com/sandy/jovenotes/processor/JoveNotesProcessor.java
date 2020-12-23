@@ -26,9 +26,9 @@ import com.sandy.jovenotes.processor.util.XTextModelParser;
  * 
  * @author Sandeep
  */
-public class JoveNotes {
+public class JoveNotesProcessor {
     
-    private static final Logger log = Logger.getLogger( JoveNotes.class ) ;
+    private static final Logger log = Logger.getLogger( JoveNotesProcessor.class ) ;
     
     public static ConfigManager config = null ;
     public static Database db = null ;
@@ -40,7 +40,7 @@ public class JoveNotes {
     private List<PathMatcher> includePathMatchers = null ;
     private List<PathMatcher> excludePathMatchers = null ;
     
-    private JoveNotes( String[] args ) throws Exception {
+    private JoveNotesProcessor( String[] args ) throws Exception {
         initialize( args ) ;
     }
     
@@ -217,7 +217,7 @@ public class JoveNotes {
     public static void main( String[] args ) throws Exception {
         log.info( "Starting JoveNotes processor." ) ;
         
-        JoveNotes processor = new JoveNotes( args ) ;
+        JoveNotesProcessor processor = new JoveNotesProcessor( args ) ;
         processor.start() ;
     }
 }

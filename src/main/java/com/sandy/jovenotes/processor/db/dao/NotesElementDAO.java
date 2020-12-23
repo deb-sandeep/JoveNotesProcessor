@@ -12,7 +12,7 @@ import java.util.List ;
 
 import org.apache.log4j.Logger ;
 
-import com.sandy.jovenotes.processor.JoveNotes ;
+import com.sandy.jovenotes.processor.JoveNotesProcessor ;
 import com.sandy.jovenotes.processor.core.stat.Stats ;
 import com.sandy.jovenotes.processor.db.dbo.CardDBO ;
 import com.sandy.jovenotes.processor.db.dbo.ChapterDBO ;
@@ -46,7 +46,7 @@ public class NotesElementDAO extends AbstractDAO {
             "ORDER BY " + 
             "`notes_element`.`notes_element_id` ASC ";
 
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "NotesElementDBO::getAll", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -60,7 +60,7 @@ public class NotesElementDAO extends AbstractDAO {
             loadAndAssociateCardsWithNotesElements( chapter, elements ) ;
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         
         return elements ;
@@ -104,7 +104,7 @@ public class NotesElementDAO extends AbstractDAO {
         "( ?, ?, ?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "NotesElementDBO::create", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql, 
@@ -139,7 +139,7 @@ public class NotesElementDAO extends AbstractDAO {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         return generatedId ;
     }
@@ -156,7 +156,7 @@ public class NotesElementDAO extends AbstractDAO {
             "`hidden_from_view` = ? " +
             "WHERE `notes_element_id` = ? " ;
 
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "NotesElementDBO::update", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -174,7 +174,7 @@ public class NotesElementDAO extends AbstractDAO {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
 
@@ -183,7 +183,7 @@ public class NotesElementDAO extends AbstractDAO {
         final String sql = 
             "DELETE FROM `jove_notes`.`notes_element` WHERE `notes_element_id` = ?" ;
 
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "NotesElementDBO::delete", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -201,7 +201,7 @@ public class NotesElementDAO extends AbstractDAO {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
 }

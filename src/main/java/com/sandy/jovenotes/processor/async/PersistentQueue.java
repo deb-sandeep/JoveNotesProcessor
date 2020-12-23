@@ -14,7 +14,7 @@ import java.util.Calendar;
 
 import org.apache.log4j.Logger;
 
-import com.sandy.jovenotes.processor.JoveNotes;
+import com.sandy.jovenotes.processor.JoveNotesProcessor;
 import com.sandy.jovenotes.processor.db.dao.AbstractDAO ;
 
 public class PersistentQueue extends AbstractDAO {
@@ -57,7 +57,7 @@ public class PersistentQueue extends AbstractDAO {
 		private void delete() throws Exception {
 			
 			String sql = "delete from jove_notes.persistent_queue where id = ?" ; 
-			Connection conn = JoveNotes.db.getConnection() ;
+			Connection conn = JoveNotesProcessor.db.getConnection() ;
 			try {
 				logQuery( "QueueElement::delete", sql ) ;
 				PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -65,7 +65,7 @@ public class PersistentQueue extends AbstractDAO {
 				psmt.execute() ;
 			}
 			finally {
-				JoveNotes.db.returnConnection( conn ) ;
+				JoveNotesProcessor.db.returnConnection( conn ) ;
 			}
 		}
 		
@@ -74,7 +74,7 @@ public class PersistentQueue extends AbstractDAO {
 			String sql = "select 1 from jove_notes.persistent_queue where uid = ?" ; 
 			
 			boolean exists = false ;
-			Connection conn = JoveNotes.db.getConnection() ;
+			Connection conn = JoveNotesProcessor.db.getConnection() ;
 			
 			try {
 				logQuery( "QueueElement::exists", sql ) ;
@@ -86,7 +86,7 @@ public class PersistentQueue extends AbstractDAO {
 				}
 			}
 			finally {
-				JoveNotes.db.returnConnection( conn ) ;
+				JoveNotesProcessor.db.returnConnection( conn ) ;
 			}
 			return exists ;
 		}
@@ -107,7 +107,7 @@ public class PersistentQueue extends AbstractDAO {
 			ByteArrayOutputStream bos = null ;
 			ObjectOutputStream    oos = null ;
 			
-			Connection conn = JoveNotes.db.getConnection() ;
+			Connection conn = JoveNotesProcessor.db.getConnection() ;
 			PreparedStatement psmt = null ;
 			
 			try {
@@ -138,7 +138,7 @@ public class PersistentQueue extends AbstractDAO {
 				}
 			}
 			finally {
-				JoveNotes.db.returnConnection( conn ) ;
+				JoveNotesProcessor.db.returnConnection( conn ) ;
 			}
 		}
 		
@@ -164,7 +164,7 @@ public class PersistentQueue extends AbstractDAO {
 		
 		QueueElement element = null ;
 		
-		Connection conn = JoveNotes.db.getConnection() ;
+		Connection conn = JoveNotesProcessor.db.getConnection() ;
 		try {
 			logQuery( "PersistentQueue::remove", selectSQL ) ;
 			PreparedStatement psmt = conn.prepareStatement( selectSQL ) ;
@@ -175,7 +175,7 @@ public class PersistentQueue extends AbstractDAO {
 			}
 		}
 		finally {
-			JoveNotes.db.returnConnection( conn ) ;
+			JoveNotesProcessor.db.returnConnection( conn ) ;
 		}
 		
 		return element ;
@@ -186,7 +186,7 @@ public class PersistentQueue extends AbstractDAO {
 		final String sql = "SELECT count(*) from `jove_notes`.`persistent_queue`" ;
 		
 		int size = 0 ;
-		Connection conn = JoveNotes.db.getConnection() ;
+		Connection conn = JoveNotesProcessor.db.getConnection() ;
 		try {
 			logQuery( "PersistentQueue::size", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -195,7 +195,7 @@ public class PersistentQueue extends AbstractDAO {
 			size = rs.getInt( 1 ) ;
 		}
 		finally {
-			JoveNotes.db.returnConnection( conn ) ;
+			JoveNotesProcessor.db.returnConnection( conn ) ;
 		}
 		return size ;
 	}

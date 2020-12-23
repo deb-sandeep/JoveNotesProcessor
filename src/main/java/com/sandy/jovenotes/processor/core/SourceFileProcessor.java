@@ -56,7 +56,7 @@ public class SourceFileProcessor {
         
         if( nextLevelTraceRequired ) {
             log.info( "\tChapter has been updated. Refreshing meta data." ) ;
-            com.sandy.jovenotes.processor.JoveNotes.persistentQueue.add( 
+            com.sandy.jovenotes.processor.JoveNotesProcessor.persistentQueue.add( 
                  new RefreshChapterCmd( chapter, chapterDBO.getChapterId() ) ) ;
         }
     }
@@ -73,7 +73,7 @@ public class SourceFileProcessor {
     
     private boolean shouldSkipProcessing( JoveNotes notesAST ) {
         ProcessingHints hints = notesAST.getProcessingHints() ;
-        String runMode = com.sandy.jovenotes.processor.JoveNotes.config.getRunMode() ;
+        String runMode = com.sandy.jovenotes.processor.JoveNotesProcessor.config.getRunMode() ;
         
         boolean shouldSkipProcess = false ;
         if( hints != null ) {

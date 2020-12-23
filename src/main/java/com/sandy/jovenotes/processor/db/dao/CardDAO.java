@@ -9,7 +9,7 @@ import java.util.List ;
 
 import org.apache.log4j.Logger ;
 
-import com.sandy.jovenotes.processor.JoveNotes ;
+import com.sandy.jovenotes.processor.JoveNotesProcessor ;
 import com.sandy.jovenotes.processor.core.stat.Stats ;
 import com.sandy.jovenotes.processor.db.dbo.CardDBO ;
 
@@ -39,7 +39,7 @@ public class CardDAO extends AbstractDAO {
                 " ORDER BY " + 
                 "   `card`.`card_id` ASC";
 
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "CardDBO::getAll", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -51,7 +51,7 @@ public class CardDAO extends AbstractDAO {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         return cards ;
     }
@@ -69,7 +69,7 @@ public class CardDAO extends AbstractDAO {
         "(?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "CardDBO::create", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql, 
@@ -96,7 +96,7 @@ public class CardDAO extends AbstractDAO {
             Stats.cardCreated( card.getCardType() ) ;
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         return generatedId ;
     }
@@ -110,7 +110,7 @@ public class CardDAO extends AbstractDAO {
             "`content` = ? " +
             "WHERE `card_id` = ? " ;
 
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "CardDBO::update", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -123,7 +123,7 @@ public class CardDAO extends AbstractDAO {
             Stats.cardUpdated( card.getCardType() ) ;
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
 
@@ -132,7 +132,7 @@ public class CardDAO extends AbstractDAO {
         final String sql = 
             "DELETE FROM `jove_notes`.`card` WHERE `card_id` = ?" ;
 
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "CardDBO::delete", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -144,7 +144,7 @@ public class CardDAO extends AbstractDAO {
             Stats.cardDeleted( card.getCardType() ) ;
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
     

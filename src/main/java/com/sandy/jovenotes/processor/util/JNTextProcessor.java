@@ -23,7 +23,7 @@ import com.sandy.jcmap.util.CMapBuilder ;
 import com.sandy.jcmap.util.CMapDotSerializer ;
 import com.sandy.jcmap.util.CMapElement ;
 import com.sandy.jcmap.util.GraphvizAdapter ;
-import com.sandy.jovenotes.processor.JoveNotes ;
+import com.sandy.jovenotes.processor.JoveNotesProcessor ;
 import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.util.tagprocessor.CarouselTagProcessor ;
 import com.sandy.jovenotes.processor.util.tagprocessor.TableTagProcessor ;
@@ -358,12 +358,12 @@ public class JNTextProcessor {
         CMapElement cmap = new CMapBuilder().buildCMapElement( cmapContent ) ;
         CMapDotSerializer dotSerializer = new CMapDotSerializer( cmap ) ;
         
-        File dotFile = new File( JoveNotes.config.getWorkspaceDir(), "temp.dot" ) ;
+        File dotFile = new File( JoveNotesProcessor.config.getWorkspaceDir(), "temp.dot" ) ;
 
         String fileContent = dotSerializer.convertCMaptoDot() ;
         FileUtils.writeStringToFile( dotFile, fileContent, "UTF-8" ) ;
         
-        File dotExecFile = JoveNotes.config.getGraphvizDotPath() ;
+        File dotExecFile = JoveNotesProcessor.config.getGraphvizDotPath() ;
         GraphvizAdapter gvAdapter = new GraphvizAdapter( dotExecFile.getAbsolutePath() ) ;
         gvAdapter.generateGraph( dotFile, imgFile ) ;
         

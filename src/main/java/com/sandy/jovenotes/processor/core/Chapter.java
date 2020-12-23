@@ -39,7 +39,7 @@ public class Chapter {
     public Chapter( File baseDir, File srcFile, JoveNotes notesAST ) 
         throws Exception {
         
-        this.config = com.sandy.jovenotes.processor.JoveNotes.config ;
+        this.config = com.sandy.jovenotes.processor.JoveNotesProcessor.config ;
         this.chapterDetails = notesAST.getChapterDetails() ;
         
         this.notesElements = new ArrayList<AbstractNotesElement>() ;

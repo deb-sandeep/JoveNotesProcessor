@@ -9,7 +9,7 @@ import java.util.List ;
 
 import org.apache.log4j.Logger ;
 
-import com.sandy.jovenotes.processor.JoveNotes ;
+import com.sandy.jovenotes.processor.JoveNotesProcessor ;
 import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.db.dbo.ChapterDBO ;
 import com.sandy.jovenotes.processor.db.dbo.NotesElementDBO ;
@@ -33,7 +33,7 @@ public class ChapterDAO extends AbstractDAO {
                            " `chapter`.`script_body`" + 
                            " FROM `jove_notes`.`chapter`" ;
         
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::getAll", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -44,7 +44,7 @@ public class ChapterDAO extends AbstractDAO {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         
         return chapters ;
@@ -71,7 +71,7 @@ public class ChapterDAO extends AbstractDAO {
                 " sub_chapter_num = ? " ;
 
         ChapterDBO dbo = null ;
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::get", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -86,7 +86,7 @@ public class ChapterDAO extends AbstractDAO {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         
         return dbo ;
@@ -107,7 +107,7 @@ public class ChapterDAO extends AbstractDAO {
                             " WHERE `chapter`.`chapter_id`=?" ;
         
         ChapterDBO chapter = null ;
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::get", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -119,7 +119,7 @@ public class ChapterDAO extends AbstractDAO {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         
         return chapter ;
@@ -137,7 +137,7 @@ public class ChapterDAO extends AbstractDAO {
         "( ?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::create", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql, 
@@ -165,7 +165,7 @@ public class ChapterDAO extends AbstractDAO {
             }
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
         return generatedId ;
     }
@@ -180,7 +180,7 @@ public class ChapterDAO extends AbstractDAO {
             "`is_exercise_bank` = ? " +
             "WHERE `chapter_id` = ? " ;
 
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::update", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -192,7 +192,7 @@ public class ChapterDAO extends AbstractDAO {
             psmt.executeUpdate() ;
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
 
@@ -201,7 +201,7 @@ public class ChapterDAO extends AbstractDAO {
         final String sql = 
             "DELETE FROM `jove_notes`.`chapter` WHERE `chapter_id` = ?" ;
 
-        Connection conn = JoveNotes.db.getConnection() ;
+        Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
             logQuery( "ChapterDBO::delete", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -211,7 +211,7 @@ public class ChapterDAO extends AbstractDAO {
             chapter.setDeleted( true ) ;
         }
         finally {
-            JoveNotes.db.returnConnection( conn ) ;
+            JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
     

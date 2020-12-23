@@ -4,7 +4,7 @@ import static com.sandy.jovenotes.processor.core.notes.NoteElementType.SPELLBEE 
 
 import java.util.Map ;
 
-import com.sandy.jovenotes.processor.JoveNotes ;
+import com.sandy.jovenotes.processor.JoveNotesProcessor ;
 import com.sandy.jovenotes.processor.async.SpellbeeCmd ;
 import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.core.cards.SpellbeeCard ;
@@ -38,7 +38,7 @@ public class SpellbeeElement extends AbstractNotesElement {
                                             super.getObjId(), 
                                             card.getObjId() ) ;
         
-        JoveNotes.persistentQueue.add( cmd ) ;
+        JoveNotesProcessor.persistentQueue.add( cmd ) ;
         cards.add( card ) ;
     }
     
