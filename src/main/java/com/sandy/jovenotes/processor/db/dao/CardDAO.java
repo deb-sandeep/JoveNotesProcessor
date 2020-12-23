@@ -23,21 +23,21 @@ public class CardDAO extends AbstractDAO {
         ArrayList<CardDBO> cards = new ArrayList<CardDBO>() ;
         
         final String sql = 
-                " SELECT  " +
-                "   `card`.`card_id`, " +
-                "   `card`.`notes_element_id`, " +
-                "   `card`.`chapter_id`, " +
-                "   `card`.`card_type`, " +
-                "   `card`.`difficulty_level`, " +
-                "   `card`.`content`, " +
-                "   `card`.`obj_correl_id`, " +
-                "   `card`.`ready` " +
-                " FROM " +
-                "   `jove_notes`.`card` " +
-                " WHERE " +
-                "   `card`.`chapter_id` = ? " + 
-                " ORDER BY " + 
-                "   `card`.`card_id` ASC";
+                "SELECT  " +
+                "   card_id, " +
+                "   notes_element_id, " +
+                "   chapter_id, " +
+                "   card_type, " +
+                "   difficulty_level, " +
+                "   content, " +
+                "   obj_correl_id, " +
+                "   ready " +
+                "FROM " +
+                "   jove_notes.card " +
+                "WHERE " +
+                "   chapter_id = ? " + 
+                "ORDER BY " + 
+                "   card_id ASC";
 
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
@@ -61,12 +61,17 @@ public class CardDAO extends AbstractDAO {
         log.info( "\t    Creating card - " + 
                    card.getCardType() + "::" + card.getObjCorrelId() ) ;
         
-        final String sql = 
-        "INSERT INTO `jove_notes`.`card` " +
-        "(`notes_element_id`, `chapter_id`, `card_type`, `difficulty_level`, " +
-        " `content`, `obj_correl_id`, `ready`) " +
-        "VALUES " +
-        "(?, ?, ?, ?, ?, ?, ? )" ;
+        final String sql = "INSERT INTO jove_notes.card ( " +
+                           "  notes_element_id, " +
+                           "  chapter_id, " +
+                           "  card_type, " +
+                           "  difficulty_level, " +
+                           "  content, " +
+                           "  obj_correl_id, " + 
+                           "  ready " + 
+                           ") " +
+                           "VALUES " +
+                           "(?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
         Connection conn = JoveNotesProcessor.db.getConnection() ;
@@ -103,12 +108,12 @@ public class CardDAO extends AbstractDAO {
     
     public static void update( CardDBO card ) throws Exception {
         
-        final String sql = 
-            "UPDATE `jove_notes`.`card` " +
-            "SET " +
-            "`difficulty_level` = ?, " +
-            "`content` = ? " +
-            "WHERE `card_id` = ? " ;
+        final String sql = "UPDATE jove_notes.card " +
+                           "SET " +
+                           "  difficulty_level = ?, " +
+                           "  content = ? " +
+                           "WHERE " +
+                           "  card_id = ?" ;
 
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
@@ -129,8 +134,7 @@ public class CardDAO extends AbstractDAO {
 
     public static void delete( CardDBO card ) throws Exception {
         
-        final String sql = 
-            "DELETE FROM `jove_notes`.`card` WHERE `card_id` = ?" ;
+        final String sql = "DELETE FROM jove_notes.card WHERE card_id = ?" ;
 
         Connection conn = JoveNotesProcessor.db.getConnection() ;
         try {
@@ -147,5 +151,4 @@ public class CardDAO extends AbstractDAO {
             JoveNotesProcessor.db.returnConnection( conn ) ;
         }
     }
-    
 }
