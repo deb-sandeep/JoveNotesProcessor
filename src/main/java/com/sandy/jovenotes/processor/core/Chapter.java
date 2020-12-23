@@ -9,8 +9,8 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import com.sandy.jovenotes.processor.core.notes.NotesElements ;
-import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
+import com.sandy.jovenotes.processor.core.notes.NoteElementBuilder ;
+import com.sandy.jovenotes.processor.core.notes.element.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.xtext.joveNotes.ChapterDetails ;
@@ -60,7 +60,7 @@ public class Chapter {
                         "file, which is not marked as @exercise_bank." ) ;
             }
             
-            AbstractNotesElement ne = NotesElements.build( this, element, null ) ; 
+            AbstractNotesElement ne = NoteElementBuilder.build( this, element, null ) ; 
             String distinctKey = ne.getType() + "-" + ne.getObjIdSeed() ;
             
             if( distinctNEMap.containsKey( distinctKey ) ) {

@@ -1,5 +1,7 @@
 package com.sandy.jovenotes.processor.dao;
 
+import static com.sandy.jovenotes.processor.core.notes.NoteElementType.TEACHER_NOTE ;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,9 +14,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.core.cards.Cards.AbstractCard ;
-import com.sandy.jovenotes.processor.core.notes.NotesElements ;
-import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
+import com.sandy.jovenotes.processor.core.cards.AbstractCard ;
+import com.sandy.jovenotes.processor.core.notes.element.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.core.stat.Stats ;
 
 public class NotesElementDBO extends AbstractDBO {
@@ -263,8 +264,8 @@ public class NotesElementDBO extends AbstractDBO {
             }
             setNotesElementId( generatedId ) ;
             
-            if( getElementType().equals( NotesElements.TEACHER_NOTE ) ) {
-                Stats.cardCreated( NotesElements.TEACHER_NOTE ) ;
+            if( getElementType().equals( TEACHER_NOTE ) ) {
+                Stats.cardCreated( TEACHER_NOTE ) ;
             }
             
             for( CardDBO card : this.cards ) {
@@ -302,8 +303,8 @@ public class NotesElementDBO extends AbstractDBO {
             
             psmt.executeUpdate() ;
             
-            if( getElementType().equals( NotesElements.TEACHER_NOTE ) ) {
-                Stats.cardUpdated( NotesElements.TEACHER_NOTE ) ;
+            if( getElementType().equals( TEACHER_NOTE ) ) {
+                Stats.cardUpdated( TEACHER_NOTE ) ;
             }
         }
         finally {
@@ -325,8 +326,8 @@ public class NotesElementDBO extends AbstractDBO {
             psmt.executeUpdate() ;
             setDeleted( true ) ;
             
-            if( getElementType().equals( NotesElements.TEACHER_NOTE ) ) {
-                Stats.cardDeleted( NotesElements.TEACHER_NOTE ) ;
+            if( getElementType().equals( TEACHER_NOTE ) ) {
+                Stats.cardDeleted( TEACHER_NOTE ) ;
             }
             
             for( CardDBO card : this.cards ) {

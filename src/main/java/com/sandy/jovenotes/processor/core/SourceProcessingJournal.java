@@ -24,6 +24,7 @@ public class SourceProcessingJournal {
     private Properties journal     = new Properties() ;
     private File       journalFile = null ;
     
+    @SuppressWarnings( "resource" )
     public SourceProcessingJournal( File journalFile ) 
         throws Exception {
         

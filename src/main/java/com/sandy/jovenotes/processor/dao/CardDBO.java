@@ -10,7 +10,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.core.cards.Cards.AbstractCard ;
+import com.sandy.jovenotes.processor.core.cards.AbstractCard ;
 import com.sandy.jovenotes.processor.core.stat.Stats ;
 
 public class CardDBO extends AbstractDBO {

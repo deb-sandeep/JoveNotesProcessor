@@ -1,4 +1,4 @@
-package com.sandy.jovenotes.processor.core.notes ;
+package com.sandy.jovenotes.processor.core.notes.element ;
 
 import java.util.ArrayList ;
 import java.util.LinkedHashMap ;
@@ -6,7 +6,8 @@ import java.util.List ;
 import java.util.Map ;
 
 import com.sandy.jovenotes.processor.core.Chapter ;
-import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement ;
+import com.sandy.jovenotes.processor.core.notes.NoteElementBuilder ;
+import com.sandy.jovenotes.processor.core.notes.NoteElementType ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.xtext.joveNotes.NotesElement ;
 import com.sandy.xtext.joveNotes.RTCElement ;
@@ -23,14 +24,14 @@ public class RefToContextNotesElement extends AbstractNotesElement {
     public RefToContextNotesElement( Chapter chapter, RefToContext ast ) 
         throws Exception {
         
-        super( NotesElements.RTC, chapter, ast, null ) ;
+        super( NoteElementType.RTC, chapter, ast, null ) ;
         
         this.rtcCaption = ast.getContext() ;
         this.objIdSeed = ast.getContext().substring( 0, rtcCaption.length()/5 ) ;
         
         for( RTCElement rtcNE : ast.getRtcElement() ) {
             AbstractNotesElement ane = null ;
-            ane = NotesElements.build( chapter, (NotesElement)rtcNE, this ) ;
+            ane = NoteElementBuilder.build( chapter, (NotesElement)rtcNE, this ) ;
             
             noteElements.add( ane ) ;
         }
