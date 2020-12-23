@@ -15,9 +15,9 @@ import java.util.Calendar;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.dao.AbstractDBO;
+import com.sandy.jovenotes.processor.db.dao.AbstractDAO ;
 
-public class PersistentQueue extends AbstractDBO {
+public class PersistentQueue extends AbstractDAO {
 	
 	private static Logger log = Logger.getLogger( PersistentQueue.class ) ;
 	

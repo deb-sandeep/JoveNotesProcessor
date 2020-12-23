@@ -9,7 +9,7 @@ import org.apache.commons.lang.StringUtils ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.jovenotes.processor.core.Chapter ;
-import com.sandy.jovenotes.processor.dao.NotesElementDBO ;
+import com.sandy.jovenotes.processor.db.dbo.NotesElementDBO ;
 
 public class Stats {
 

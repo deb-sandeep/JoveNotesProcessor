@@ -6,7 +6,8 @@ import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
 import com.sandy.jovenotes.processor.core.stat.Stats ;
-import com.sandy.jovenotes.processor.dao.ChapterDBO;
+import com.sandy.jovenotes.processor.db.dao.ChapterDAO ;
+import com.sandy.jovenotes.processor.db.dbo.ChapterDBO ;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.ProcessingHints;
@@ -30,7 +31,7 @@ public class SourceFileProcessor {
         Chapter chapter = new Chapter( baseDir, file, ast ) ;
 
         // Retrieve the database object model if one exists
-        ChapterDBO chapterDBO = ChapterDBO.get( chapter ) ;
+        ChapterDBO chapterDBO = ChapterDAO.get( chapter ) ;
         
         // Create the chapter statistics
         boolean nextLevelTraceRequired = true ;
@@ -49,7 +50,7 @@ public class SourceFileProcessor {
             }
             else if( chapterDBO.isModified() ) {
                 Stats.updatedChapterBeingProcessed( chapter ) ;
-                chapterDBO.update() ;
+                ChapterDAO.update( chapterDBO ) ;
             }
         }
         
@@ -65,7 +66,7 @@ public class SourceFileProcessor {
         
         log.info( "\tInserting new chapter." ) ;
         ChapterDBO chapterDBO = new ChapterDBO( chapter ) ;
-        chapterDBO.create() ;
+        ChapterDAO.create( chapterDBO ) ;
         log.debug( "\tNew chapter created. id = " + chapterDBO.getChapterId() );
         return chapterDBO ;
     }

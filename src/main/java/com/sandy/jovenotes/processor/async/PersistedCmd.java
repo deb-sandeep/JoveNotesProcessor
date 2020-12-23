@@ -3,7 +3,7 @@ package com.sandy.jovenotes.processor.async;
 import java.io.Serializable;
 
 import com.sandy.jovenotes.processor.core.Chapter ;
-import com.sandy.jovenotes.processor.dao.AbstractDBO;
+import com.sandy.jovenotes.processor.db.dao.AbstractDAO ;
 
 /**
  * Superclass of all command data which are stored and processed via 
@@ -20,7 +20,7 @@ import com.sandy.jovenotes.processor.dao.AbstractDBO;
  * 
  * @author Sandeep
  */
-public abstract class PersistedCmd extends AbstractDBO implements Serializable {
+public abstract class PersistedCmd extends AbstractDAO implements Serializable {
 
 	private static final long serialVersionUID = -1919148238331312275L;
 	
