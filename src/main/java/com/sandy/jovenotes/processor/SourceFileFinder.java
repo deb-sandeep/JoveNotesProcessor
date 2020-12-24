@@ -29,7 +29,6 @@ public class SourceFileFinder {
         this.excludePathMatchers = config.getExcludePathMatchers() ;
     }
     
-    
     public List<File> getFilesForProcessing( File srcDir ) throws Exception {
         
         List<File> filesForProcessing = new ArrayList<File>() ;
@@ -68,8 +67,6 @@ public class SourceFileFinder {
         if( !excludePathMatchers.isEmpty() ) {
             for( PathMatcher matcher : excludePathMatchers ) {
                 if( matcher.matches( file.toPath() ) ) {
-                    //log.debug( "Rejecting file as it matches exclusion filter. " + 
-                    //           matcher.toString() );
                     shouldConsider = false ;
                     break ;
                 }
@@ -91,7 +88,6 @@ public class SourceFileFinder {
             // If we have include matchers, but none of them match the file,
             // it should be excluded.
             if( !includePatternMatch ) {
-                //log.debug( "Rejecting file as it does not match any inclusion filter." ) ;
                 shouldConsider = false ;
             }
         }

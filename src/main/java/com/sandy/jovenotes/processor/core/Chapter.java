@@ -136,7 +136,7 @@ public class Chapter {
     }
     
     public String getChapterFQN() {
-        return syllabusName + "/" +
+        return getSyllabusName() + "/" +
                getSubjectName() + "/" +
                getChapterNumber() + "/" +
                getSubChapterNumber() + "/" +
@@ -148,10 +148,10 @@ public class Chapter {
     public File getMediaDirectory() {
         
         File dir =  new File( config.getDestMediaRootDir(), 
-                         syllabusName + File.separator + 
-                         getSubjectName() + File.separator + 
-                         getChapterNumber() + File.separator + 
-                         getSubChapterNumber() ) ;
+                              getSyllabusName() + File.separator + 
+                              getSubjectName() + File.separator + 
+                              getChapterNumber() + File.separator + 
+                              getSubChapterNumber() ) ;
         if( !dir.exists() ) {
             dir.mkdirs() ;
         }
