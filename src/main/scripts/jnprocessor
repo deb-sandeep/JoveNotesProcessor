@@ -42,7 +42,7 @@ $LIBDIR/javax.inject-1.jar:\
 $LIBDIR/jcmap-1.0.jar:\
 $LIBDIR/jersey-client-1.7.jar:\
 $LIBDIR/jersey-core-1.7.jar:\
-$LIBDIR/jnprocessor-2.0.jar:\
+$LIBDIR/jnprocessor-3.0.jar:\
 $LIBDIR/jovenotes.xtext-1.19.jar:\
 $LIBDIR/json-simple-1.1.1.jar:\
 $LIBDIR/jsoup-1.8.2.jar:\
