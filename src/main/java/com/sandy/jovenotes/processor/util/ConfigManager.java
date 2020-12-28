@@ -117,7 +117,10 @@ public class ConfigManager{
         
         wkspDir = getMandatoryDirFromConfig( CK_WKSP_DIR, config ) ;
         destMediaRootDir = getMandatoryDirFromConfig( CK_DEST_ROOT_DIR, config) ;
-        graphvizDotPath  = getMandatoryDirFromConfig( CK_GRAPHVIZ_PATH, config ) ;
+        
+        // Big Sur has made root folders read only :(
+        graphvizDotPath  = getMandatoryDirFromConfig( CK_GRAPHVIZ_PATH, config,
+                                                      "/usr/local/bin/dot" ) ;
     }
     
     private void parseDatabaseConfig( PropertiesConfiguration config ) 
@@ -143,14 +146,27 @@ public class ConfigManager{
     }
     
     private File getMandatoryDirFromConfig( String key, 
-                                            PropertiesConfiguration config ) 
+                                            PropertiesConfiguration config,
+                                            String... fallbackValues ) 
         throws Exception {
         
         String path = getMandatoryConfig( key, config ) ;
         File file = new File( path ) ;
         if( !file.exists() ) {
-            throw new Exception( "Folder referred to by " + key + 
-                    " configuration does not exist." ) ;
+            
+            if( fallbackValues != null ) {
+                for( String fallbackVal : fallbackValues ) {
+                    file = new File( fallbackVal ) ;
+                    if( file.exists() ) {
+                        log.info( "Using fallback value = " + fallbackVal + 
+                                  " for key = " + key ) ;
+                        return file ;
+                    }
+                }
+            }
+            
+            throw new Exception( "Folder or file referred to by " + key + 
+                                 " configuration does not exist." ) ;
         }
         return file ;
     }
