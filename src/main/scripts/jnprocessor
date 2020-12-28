@@ -2,9 +2,80 @@
 
 cd `dirname $0`
 SCRIPTDIR=`pwd`
+LIBDIR="$SCRIPTDIR/lib"
+JARLIST="\
+$LIBDIR/animal-sniffer-annotations-1.17.jar:\
+$LIBDIR/antlr-runtime-3.2.jar:\
+$LIBDIR/antlr4-4.5.jar:\
+$LIBDIR/antlr4-runtime-4.5.jar:\
+$LIBDIR/aopalliance-1.0.jar:\
+$LIBDIR/asm-9.0.jar:\
+$LIBDIR/asm-analysis-9.0.jar:\
+$LIBDIR/asm-commons-9.0.jar:\
+$LIBDIR/asm-tree-9.0.jar:\
+$LIBDIR/asm-util-9.0.jar:\
+$LIBDIR/avalon-framework-4.1.3.jar:\
+$LIBDIR/checker-qual-2.5.2.jar:\
+$LIBDIR/classgraph-4.8.35.jar:\
+$LIBDIR/commons-beanutils-1.7.0.jar:\
+$LIBDIR/commons-beanutils-core-1.7.0.jar:\
+$LIBDIR/commons-cli-1.3.jar:\
+$LIBDIR/commons-codec-1.10.jar:\
+$LIBDIR/commons-collections-3.2.jar:\
+$LIBDIR/commons-configuration-1.5.jar:\
+$LIBDIR/commons-digester-1.8.jar:\
+$LIBDIR/commons-io-2.4.jar:\
+$LIBDIR/commons-lang-2.3.jar:\
+$LIBDIR/commons-logging-1.1.jar:\
+$LIBDIR/commons-pool-1.6.jar:\
+$LIBDIR/error_prone_annotations-2.2.0.jar:\
+$LIBDIR/failureaccess-1.0.1.jar:\
+$LIBDIR/guava-27.1-jre.jar:\
+$LIBDIR/guice-3.0.jar:\
+$LIBDIR/httpclient-4.4.1.jar:\
+$LIBDIR/httpcore-4.4.1.jar:\
+$LIBDIR/j2objc-annotations-1.1.jar:\
+$LIBDIR/jackson-annotations-2.1.4.jar:\
+$LIBDIR/jackson-core-2.1.4.jar:\
+$LIBDIR/jackson-databind-2.1.4.jar:\
+$LIBDIR/javax.inject-1.jar:\
+$LIBDIR/jcmap-1.0.jar:\
+$LIBDIR/jersey-client-1.7.jar:\
+$LIBDIR/jersey-core-1.7.jar:\
+$LIBDIR/jnprocessor-3.0.jar:\
+$LIBDIR/jovenotes.xtext-1.19.jar:\
+$LIBDIR/json-simple-1.1.1.jar:\
+$LIBDIR/jsoup-1.8.2.jar:\
+$LIBDIR/jsr305-3.0.2.jar:\
+$LIBDIR/junit-4.4.jar:\
+$LIBDIR/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:\
+$LIBDIR/log4j-1.2.17.jar:\
+$LIBDIR/logkit-1.0.1.jar:\
+$LIBDIR/mysql-connector-java-8.0.17.jar:\
+$LIBDIR/org.abego.treelayout.core-1.0.1.jar:\
+$LIBDIR/org.eclipse.emf.common-2.17.0.jar:\
+$LIBDIR/org.eclipse.emf.ecore-2.20.0.jar:\
+$LIBDIR/org.eclipse.emf.ecore.xmi-2.16.0.jar:\
+$LIBDIR/org.eclipse.equinox.common-3.13.0.jar:\
+$LIBDIR/org.eclipse.osgi-3.16.0.jar:\
+$LIBDIR/org.eclipse.xtend.lib-2.24.0.jar:\
+$LIBDIR/org.eclipse.xtend.lib.macro-2.24.0.jar:\
+$LIBDIR/org.eclipse.xtext-2.24.0.jar:\
+$LIBDIR/org.eclipse.xtext.common.types-2.24.0.jar:\
+$LIBDIR/org.eclipse.xtext.util-2.24.0.jar:\
+$LIBDIR/org.eclipse.xtext.xbase.lib-2.24.0.jar:\
+$LIBDIR/parboiled-core-1.3.1.jar:\
+$LIBDIR/parboiled-java-1.3.1.jar:\
+$LIBDIR/pegdown-1.6.0.jar:\
+$LIBDIR/plantuml-8028.jar:\
+$LIBDIR/protobuf-java-3.6.1.jar:\
+$LIBDIR/servlet-api-2.3.jar:\
+$LIBDIR/ST4-4.0.8.jar:\
+$LIBDIR/wordnik-java-client-1.0.0.jar:\
+"
 cd -
 
-CP="$SCRIPTDIR/config:$SCRIPTDIR/lib/antlr-runtime-3.2.jar:$SCRIPTDIR/lib/antlr4-4.5.jar:$SCRIPTDIR/lib/antlr4-runtime-4.5.jar:$SCRIPTDIR/lib/aopalliance-1.0.jar:$SCRIPTDIR/lib/asm-5.0.3.jar:$SCRIPTDIR/lib/asm-analysis-5.0.3.jar:$SCRIPTDIR/lib/asm-commons-5.0.1.jar:$SCRIPTDIR/lib/asm-tree-5.0.1.jar:$SCRIPTDIR/lib/asm-util-5.0.3.jar:$SCRIPTDIR/lib/avalon-framework-4.1.3.jar:$SCRIPTDIR/lib/commons-beanutils-1.7.0.jar:$SCRIPTDIR/lib/commons-beanutils-core-1.7.0.jar:$SCRIPTDIR/lib/commons-cli-1.3.jar:$SCRIPTDIR/lib/commons-codec-1.10.jar:$SCRIPTDIR/lib/commons-collections-3.2.jar:$SCRIPTDIR/lib/commons-configuration-1.5.jar:$SCRIPTDIR/lib/commons-digester-1.8.jar:$SCRIPTDIR/lib/commons-io-2.4.jar:$SCRIPTDIR/lib/commons-lang-2.3.jar:$SCRIPTDIR/lib/commons-logging-1.1.jar:$SCRIPTDIR/lib/commons-pool-1.6.jar:$SCRIPTDIR/lib/guava-19.0-rc3.jar:$SCRIPTDIR/lib/guice-3.0.jar:$SCRIPTDIR/lib/httpclient-4.4.1.jar:$SCRIPTDIR/lib/httpcore-4.4.1.jar:$SCRIPTDIR/lib/jackson-annotations-2.1.4.jar:$SCRIPTDIR/lib/jackson-core-2.1.4.jar:$SCRIPTDIR/lib/jackson-databind-2.1.4.jar:$SCRIPTDIR/lib/javax.inject-1.jar:$SCRIPTDIR/lib/jcmap-1.0.jar:$SCRIPTDIR/lib/jersey-client-1.7.jar:$SCRIPTDIR/lib/jersey-core-1.7.jar:$SCRIPTDIR/lib/jnprocessor-2.0.jar:$SCRIPTDIR/lib/jovenotes.xtext-1.18.jar:$SCRIPTDIR/lib/json-simple-1.1.1.jar:$SCRIPTDIR/lib/jsoup-1.8.2.jar:$SCRIPTDIR/lib/junit-4.4.jar:$SCRIPTDIR/lib/log4j-1.2.14.jar:$SCRIPTDIR/lib/logkit-1.0.1.jar:$SCRIPTDIR/lib/mysql-connector-java-5.1.35.jar:$SCRIPTDIR/lib/org.abego.treelayout.core-1.0.1.jar:$SCRIPTDIR/lib/org.eclipse.emf.common-2.11.0-v20150805-0538.jar:$SCRIPTDIR/lib/org.eclipse.emf.ecore-2.11.1-v20150805-0538.jar:$SCRIPTDIR/lib/org.eclipse.emf.ecore.xmi-2.11.1-v20150805-0538.jar:$SCRIPTDIR/lib/org.eclipse.emf.mwe2.lib-2.8.3.jar:$SCRIPTDIR/lib/org.eclipse.emf.mwe2.runtime-2.8.3.jar:$SCRIPTDIR/lib/org.eclipse.equinox.common-3.6.0.jar:$SCRIPTDIR/lib/org.eclipse.xtend.lib-2.10.0.jar:$SCRIPTDIR/lib/org.eclipse.xtend.lib.macro-2.10.0.jar:$SCRIPTDIR/lib/org.eclipse.xtext-2.10.0.jar:$SCRIPTDIR/lib/org.eclipse.xtext.common.types-2.10.0.jar:$SCRIPTDIR/lib/org.eclipse.xtext.util-2.10.0.jar:$SCRIPTDIR/lib/org.eclipse.xtext.xbase.lib-2.10.0.jar:$SCRIPTDIR/lib/out.txt:$SCRIPTDIR/lib/parboiled-core-1.1.7.jar:$SCRIPTDIR/lib/parboiled-java-1.1.7.jar:$SCRIPTDIR/lib/pegdown-1.5.0.jar:$SCRIPTDIR/lib/plantuml-8028.jar:$SCRIPTDIR/lib/servlet-api-2.3.jar:$SCRIPTDIR/lib/ST4-4.0.8.jar:$SCRIPTDIR/lib/wordnik-java-client-1.0.0.jar"
+CP="$SCRIPTDIR/config:$JARLIST"
 
-java -classpath $CP com.sandy.jovenotes.processor.JoveNotes "$@"
+java -classpath $CP com.sandy.jovenotes.processor.JoveNotesProcessor "$@"
 

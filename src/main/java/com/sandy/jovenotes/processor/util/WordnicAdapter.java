@@ -4,7 +4,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList ;
 import java.util.List ;
 
-import com.sandy.jovenotes.processor.JoveNotes;
+import com.sandy.jovenotes.processor.JoveNotesProcessor;
 import com.wordnik.client.api.WordApi ;
 import com.wordnik.client.model.Definition ;
 import com.wordnik.client.model.TextPron;
@@ -26,7 +26,7 @@ public class WordnicAdapter {
         
         WordApi api = new WordApi() ;
         api.getInvoker().addDefaultHeader( "api_key", 
-        		                           JoveNotes.config.getWordnicAPIKey() ) ;
+        		                           JoveNotesProcessor.config.getWordnicAPIKey() ) ;
         
         List<Definition> defs = api.getDefinitions(
                 URLEncoder.encode( word, "UTF-8" ),     
@@ -50,7 +50,7 @@ public class WordnicAdapter {
     	
         WordApi api = new WordApi() ;
         api.getInvoker().addDefaultHeader( "api_key", 
-        		                           JoveNotes.config.getWordnicAPIKey() ) ;
+        		                           JoveNotesProcessor.config.getWordnicAPIKey() ) ;
         
         List<TextPron> pronounciations = api.getTextPronunciations( 
         		URLEncoder.encode( word, "UTF-8" ), null, null, "true", 1 ) ;

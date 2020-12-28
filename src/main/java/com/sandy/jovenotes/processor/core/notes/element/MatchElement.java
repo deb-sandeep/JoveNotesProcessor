@@ -1,4 +1,4 @@
-package com.sandy.jovenotes.processor.core.notes;
+package com.sandy.jovenotes.processor.core.notes.element;
 
 import java.util.ArrayList ;
 import java.util.HashMap ;
@@ -7,9 +7,8 @@ import java.util.Map ;
 import java.util.Map.Entry ;
 
 import com.sandy.jovenotes.processor.core.Chapter ;
-import com.sandy.jovenotes.processor.core.cards.Cards.MatchCard ;
-import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement ;
-import com.sandy.jovenotes.processor.core.notes.NotesElements.MultiChoiceElement ;
+import com.sandy.jovenotes.processor.core.cards.MatchCard ;
+import com.sandy.jovenotes.processor.core.notes.NoteElementType ;
 import com.sandy.jovenotes.processor.util.JNTextProcessor ;
 import com.sandy.xtext.joveNotes.MatchMCQConfig ;
 import com.sandy.xtext.joveNotes.MatchPair ;
@@ -33,7 +32,7 @@ public class MatchElement extends AbstractNotesElement {
                          RefToContextNotesElement rtcNE )  
             throws Exception {
         
-        super( NotesElements.MATCHING, chapter, ast, rtcNE ) ;
+        super( NoteElementType.MATCHING, chapter, ast, rtcNE ) ;
         this.ast = ast ;
         this.generateReverseQuestion = 
                    ( ast.getSkipReverseQuestion() == null ) ? true : false ; 

@@ -26,7 +26,7 @@ destination.media.root.dir=/home/sandeep/projects/workspace/jove_notes_media
 
 # The fully qualified name of the database driver.
 # Mandatory - If not specified, program will exit
-db.driver=com.mysql.jdbc.Driver
+db.driver=com.mysql.cj.jdbc.Driver
 
 # The database connection URL
 # Mandatory - If not specified, program will exit
@@ -53,7 +53,6 @@ graphviz.dot.path=/usr/bin/dot
 #            option If the command line option is specified, it will override 
 #            the value provided in this configuration file.
 #wordnic.api.key=
-
 
 # Include files globs
 # Optional - This value can also be specified via the --inclGlobs command line

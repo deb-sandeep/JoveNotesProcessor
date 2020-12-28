@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 
 import org.apache.log4j.Logger;
 
-import com.sandy.jovenotes.processor.JoveNotes;
+import com.sandy.jovenotes.processor.JoveNotesProcessor;
 import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.util.StringUtil;
 
@@ -61,7 +61,7 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 		int numCards = 0 ;
 		int numVE = 0, numE = 0, numM = 0, numH = 0, numVH = 0 ;
 		
-		Connection conn = JoveNotes.db.getConnection() ;
+		Connection conn = JoveNotesProcessor.db.getConnection() ;
 		try {
 			logQuery( "RefreshChapterCmd::refreshMetaData", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -83,7 +83,7 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 			updateMetaData( numCards, numVE, numE, numM, numH, numVH ) ;
 		}
 		finally {
-			JoveNotes.db.returnConnection( conn ) ;
+			JoveNotesProcessor.db.returnConnection( conn ) ;
 		}
 	}
 	
@@ -107,7 +107,7 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 				"where " + 
 		        " chapter_id = ? " ;
 		
-		Connection conn = JoveNotes.db.getConnection() ;
+		Connection conn = JoveNotesProcessor.db.getConnection() ;
 		try {
 			logQuery( "RefreshChapterCmd::updateMetaData", sql ) ;
 			PreparedStatement psmt = conn.prepareStatement( sql ) ;
@@ -122,7 +122,7 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 			psmt.executeUpdate() ;
 		}
 		finally {
-			JoveNotes.db.returnConnection( conn ) ;
+			JoveNotesProcessor.db.returnConnection( conn ) ;
 		}
 	}
 	

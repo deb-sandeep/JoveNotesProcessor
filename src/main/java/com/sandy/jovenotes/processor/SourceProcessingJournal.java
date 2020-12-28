@@ -1,4 +1,4 @@
-package com.sandy.jovenotes.processor.core;
+package com.sandy.jovenotes.processor;
 
 import java.io.File;
 import java.io.FileReader;
@@ -24,6 +24,7 @@ public class SourceProcessingJournal {
     private Properties journal     = new Properties() ;
     private File       journalFile = null ;
     
+    @SuppressWarnings( "resource" )
     public SourceProcessingJournal( File journalFile ) 
         throws Exception {
         

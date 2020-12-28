@@ -1,9 +1,6 @@
-package com.sandy.jovenotes.processor.dao;
+package com.sandy.jovenotes.processor.db.dbo;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +8,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.sandy.jovenotes.processor.JoveNotes;
-import com.sandy.jovenotes.processor.core.cards.Cards.AbstractCard ;
-import com.sandy.jovenotes.processor.core.notes.NotesElements ;
-import com.sandy.jovenotes.processor.core.notes.NotesElements.AbstractNotesElement;
-import com.sandy.jovenotes.processor.core.stat.Stats ;
+import com.sandy.jovenotes.processor.core.cards.AbstractCard ;
+import com.sandy.jovenotes.processor.core.notes.element.AbstractNotesElement ;
+import com.sandy.jovenotes.processor.db.dao.ChapterDAO ;
+import com.sandy.jovenotes.processor.db.dao.NotesElementDAO ;
 
-public class NotesElementDBO extends AbstractDBO {
+public class NotesElementDBO {
     
     private static final Logger log = Logger.getLogger( NotesElementDBO.class ) ;
 
@@ -55,7 +51,7 @@ public class NotesElementDBO extends AbstractDBO {
         }
     }
     
-    private NotesElementDBO( ChapterDBO chapter, ResultSet rs ) throws Exception {
+    public NotesElementDBO( ChapterDBO chapter, ResultSet rs ) throws Exception {
         
         this.chapter = chapter ;
         
@@ -119,7 +115,7 @@ public class NotesElementDBO extends AbstractDBO {
 
     public ChapterDBO getChapter() throws Exception {
         if( this.chapter == null ) {
-            this.chapter = ChapterDBO.get( getChapterId() ) ;
+            this.chapter = ChapterDAO.get( getChapterId() ) ;
         }
         return this.chapter ;
     }
@@ -148,193 +144,10 @@ public class NotesElementDBO extends AbstractDBO {
         return isDeleted ;
     }
     
-    private void setDeleted( boolean deleted ) {
+    public void setDeleted( boolean deleted ) {
         isDeleted = true ;
         for( CardDBO card : cards ) {
             card.setDeleted( true ) ;
-        }
-    }
-    
-    public static List<NotesElementDBO> getAll( ChapterDBO chapter )
-            throws Exception {
-            
-        ArrayList<NotesElementDBO> elements = new ArrayList<NotesElementDBO>() ;
-        
-        final String sql = 
-            "SELECT " +
-            "`notes_element`.`notes_element_id`, " +
-            "`notes_element`.`chapter_id`, " +
-            "`notes_element`.`element_type`, " +
-            "`notes_element`.`difficulty_level`, " +
-            "`notes_element`.`content`, " +
-            "`notes_element`.`eval_vars`, " +
-            "`notes_element`.`script_body`, " +
-            "`notes_element`.`obj_correl_id`, " +
-            "`notes_element`.`ready`, " +
-            "`notes_element`.`hidden_from_view` " +
-            "FROM " +
-            "`jove_notes`.`notes_element` " +
-            "WHERE " + 
-            "`notes_element`.`chapter_id` = ? " +
-            "ORDER BY " + 
-            "`notes_element`.`notes_element_id` ASC ";
-
-        Connection conn = JoveNotes.db.getConnection() ;
-        try {
-            logQuery( "NotesElementDBO::getAll", sql ) ;
-            PreparedStatement psmt = conn.prepareStatement( sql ) ;
-            psmt.setInt( 1, chapter.getChapterId() ) ;
-            ResultSet rs = psmt.executeQuery() ;
-            
-            while( rs.next() ) {
-                elements.add( new NotesElementDBO( chapter, rs ) ) ;
-            }
-            
-            loadAndAssociateCardsWithNotesElements( chapter, elements ) ;
-        }
-        finally {
-            JoveNotes.db.returnConnection( conn ) ;
-        }
-        
-        return elements ;
-    }
-    
-    private static void loadAndAssociateCardsWithNotesElements( 
-            ChapterDBO chapter, ArrayList<NotesElementDBO> notesElements ) 
-        throws Exception {
-        
-        HashMap<Integer, NotesElementDBO> notesElementMap = null ;
-        notesElementMap = new HashMap<Integer, NotesElementDBO>() ;
-        
-        for( NotesElementDBO notesElement : notesElements ) {
-            notesElementMap.put( notesElement.notesElementId, notesElement ) ;
-        }
-        
-        for( CardDBO card : CardDBO.getAll( chapter.getChapterId() ) ) {
-            NotesElementDBO ne = notesElementMap.get( card.getNotesElementId() ) ;
-            if( ne != null ){
-                ne.cards.add( card ) ;
-                card.setNotesElement( ne ) ;
-                card.setChapter( chapter ) ;
-            }
-            else {
-                log.error( "Orphan card found!! card id = " + card.getCardId() ) ;
-            }
-        }
-    }
-
-    public int create() throws Exception {
-
-        log.info( "\t  Creating notes element - " + 
-                   getElementType() + "::" + getObjCorrelId() ) ;
-        
-        final String sql = 
-        "INSERT INTO `jove_notes`.`notes_element` " +
-        "(`chapter_id`, `element_type`, `difficulty_level`, " + 
-        "`content`, `eval_vars`, `script_body`, `obj_correl_id`, `ready`, " + 
-        "`hidden_from_view` ) " +
-        "VALUES " +
-        "( ?, ?, ?, ?, ?, ?, ?, ?, ? )" ;
-
-        int generatedId = -1 ;
-        Connection conn = JoveNotes.db.getConnection() ;
-        try {
-            logQuery( "NotesElementDBO::create", sql ) ;
-            PreparedStatement psmt = conn.prepareStatement( sql, 
-                                             Statement.RETURN_GENERATED_KEYS ) ;
-            
-            psmt.setInt    ( 1, getChapterId() ) ;
-            psmt.setString ( 2, getElementType() ) ;
-            psmt.setInt    ( 3, getDifficultyLevel() ) ;
-            psmt.setString ( 4, getContent() ) ;
-            psmt.setString ( 5, getEvalVars() ) ;
-            psmt.setString ( 6, getScriptBody() ) ;
-            psmt.setString ( 7, getObjCorrelId() ) ;
-            psmt.setBoolean( 8, isReady() ) ;
-            psmt.setBoolean( 9, isHiddenFromView() ) ;
-            
-            psmt.executeUpdate() ;
-            ResultSet rs = psmt.getGeneratedKeys() ;
-            if( null != rs && rs.next()) {
-                 generatedId = (int)rs.getLong( 1 ) ;
-            }
-            else {
-                throw new Exception( "Autogenerated key not obtained for notes element." ) ;
-            }
-            setNotesElementId( generatedId ) ;
-            
-            if( getElementType().equals( NotesElements.TEACHER_NOTE ) ) {
-                Stats.cardCreated( NotesElements.TEACHER_NOTE ) ;
-            }
-            
-            for( CardDBO card : this.cards ) {
-                card.create() ;
-            }
-        }
-        finally {
-            JoveNotes.db.returnConnection( conn ) ;
-        }
-        return generatedId ;
-    }
-    
-    public void update() throws Exception {
-        
-        final String sql = 
-            "UPDATE `jove_notes`.`notes_element` " +
-            "SET " +
-            "`difficulty_level` = ?, " +
-            "`content` = ?, " +
-            "`eval_vars` = ?, " +
-            "`script_body` = ?, " +
-            "`hidden_from_view` = ? " +
-            "WHERE `notes_element_id` = ? " ;
-
-        Connection conn = JoveNotes.db.getConnection() ;
-        try {
-            logQuery( "NotesElementDBO::update", sql ) ;
-            PreparedStatement psmt = conn.prepareStatement( sql ) ;
-            psmt.setInt    ( 1, getDifficultyLevel() ) ;
-            psmt.setString ( 2, getContent() ) ;
-            psmt.setString ( 3, getEvalVars() ) ;
-            psmt.setString ( 4, getScriptBody() ) ;
-            psmt.setBoolean( 5, isHiddenFromView() ) ;
-            psmt.setInt    ( 6, getNotesElementId() ) ;
-            
-            psmt.executeUpdate() ;
-            
-            if( getElementType().equals( NotesElements.TEACHER_NOTE ) ) {
-                Stats.cardUpdated( NotesElements.TEACHER_NOTE ) ;
-            }
-        }
-        finally {
-            JoveNotes.db.returnConnection( conn ) ;
-        }
-    }
-
-    public void delete() throws Exception {
-        
-        final String sql = 
-            "DELETE FROM `jove_notes`.`notes_element` WHERE `notes_element_id` = ?" ;
-
-        Connection conn = JoveNotes.db.getConnection() ;
-        try {
-            logQuery( "NotesElementDBO::delete", sql ) ;
-            PreparedStatement psmt = conn.prepareStatement( sql ) ;
-            psmt.setInt ( 1, getNotesElementId() ) ;
-            
-            psmt.executeUpdate() ;
-            setDeleted( true ) ;
-            
-            if( getElementType().equals( NotesElements.TEACHER_NOTE ) ) {
-                Stats.cardDeleted( NotesElements.TEACHER_NOTE ) ;
-            }
-            
-            for( CardDBO card : this.cards ) {
-                Stats.cardDeleted( card.getCardType() ) ;
-            }
-        }
-        finally {
-            JoveNotes.db.returnConnection( conn ) ;
         }
     }
     
@@ -421,18 +234,18 @@ public class NotesElementDBO extends AbstractDBO {
         
         if( getNotesElementId() == -1 ) {
             log.info( "\t    Notes element will be created." ) ;
-            create() ;
+            NotesElementDAO.create( this ) ;
             return ;
         }
         else if( isModified ) {
             log.info( "\t    Notes element will be updated. id=" + 
                        getNotesElementId() ) ;
-            update() ;
+            NotesElementDAO.update( this ) ;
         }
         else if( !sourceTrace ) {
             log.info( "\t    Notes element will be deleted. id=" + 
                        getNotesElementId() ) ;
-            delete() ;
+            NotesElementDAO.delete( this ) ;
             return ;
             // The associated cards will be cascade deleted at the database.
             // No need to delete them explicitly.

@@ -19,6 +19,7 @@ public class XTextModelParser {
         this( bootstrapClassName, DEF_EMF_REG_METHOD ) ;
     }
     
+    @SuppressWarnings( "deprecation" )
     public XTextModelParser( String bootstrapClassName, 
                              String bootstrapMethodName )
         throws Exception { 
