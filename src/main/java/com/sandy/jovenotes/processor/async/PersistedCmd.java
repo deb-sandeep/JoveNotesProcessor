@@ -24,10 +24,10 @@ public abstract class PersistedCmd extends AbstractDAO implements Serializable {
 
 	private static final long serialVersionUID = -1919148238331312275L;
 	
-	protected String syllabusName = null ;
-	protected String subjectName  = null ;
-	protected int    chapterNum   = -1 ;
-	protected int    subChapterNum= -1 ;
+	protected String  syllabusName = null ;
+	protected String  subjectName  = null ;
+	protected int     chapterNum   = -1 ;
+	protected int     subChapterNum= -1 ;
 	
 	protected PersistedCmd( Chapter chapter ) {
 		this.syllabusName = chapter.getSyllabusName() ;

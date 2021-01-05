@@ -1,6 +1,7 @@
 package com.sandy.jovenotes.processor.async;
 
 import java.io.File;
+import java.io.IOException ;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.Connection;
@@ -40,6 +41,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
     private int difficultyLevel = 0 ;
     private String neObjId = null ;
     private String cardObjId = null ;
+    private String srcFilePath = null ;
     
     private transient int chapterId = 0 ;
     private transient int existingDifficulty = 0 ;
@@ -54,6 +56,7 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
         this.difficultyLevel = difficultyLevel ;
         this.neObjId = neObjId ;
         this.cardObjId = cardObjId ;
+        this.srcFilePath = chapter.getSourceFile().getAbsolutePath() ;
     }
 
     public void execute() throws Exception {
@@ -81,13 +84,49 @@ public class SpellbeeCmd extends PersistedCmd implements Serializable {
     private void downloadSoundClip( File clipFile ) throws Exception {
 
         if( !clipFile.exists() ) {
+            
+            // Check if there is a user recorded sound clip in the audio directory
+            // If so, use it first. If no user supplied audio clip is found, try 
+            // fetching it from the internet            
             log.info( "\t\tDownloading sound clip." ) ;
-            if( !downloadClipFromGoogle( clipFile ) ) {
-                if( !downloadClipFromDictionaryDotCom( clipFile ) ) {
-                    throw new Exception( "Could not download sound clip." ) ;
+            if( !downloadClipFromLocal( clipFile ) ) {
+                if( !downloadClipFromGoogle( clipFile ) ) {
+                    if( !downloadClipFromDictionaryDotCom( clipFile ) ) {
+                        throw new Exception( "Could not download sound clip." ) ;
+                    }
                 }
             }
         }
+    }
+    
+    private boolean downloadClipFromLocal( File outputFile ) {
+        
+        log.debug( "\t\t\tDownloading clip from local" ) ;
+        String relativeSrcFilePath = "words/" + word.toLowerCase() + ".mp3" ;
+        File srcFile  = new File( getSrcAudioFolder(), relativeSrcFilePath ) ;
+        
+        boolean result = false ;
+
+        if( srcFile.exists() ) {
+            try {
+                FileUtils.copyFile( srcFile, outputFile ) ;
+                result = true ;
+                log.info( "\t\t\tFound local audio clip." ) ;
+            }
+            catch( IOException e ) {
+                log.error( "Could not copy local file", e ) ;
+            }
+        }
+        else {
+            log.info( "\t\t\tNo local clip found." ) ;
+        }
+        return result ;
+    }
+    
+    private File getSrcAudioFolder() {
+        File srcFile = new File( this.srcFilePath ) ;
+        File srcAudioFolder = new File( srcFile.getParent(), "audio" ) ;
+        return srcAudioFolder ;
     }
     
     private boolean downloadClipFromGoogle( File outputFile ) 
