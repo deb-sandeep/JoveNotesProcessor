@@ -11,9 +11,9 @@ import static com.sandy.jovenotes.processor.core.cards.CardType.* ;
 
 public class FIBCard extends AbstractCard {
     
-    private static final double DIFFICULTY_FACTOR = 0.5 ;
+    private static final double DIFFICULTY_FACTOR = 0.3 ;
     private static final double X_SHIFT = -0.1 ;
-    private static final double MAX_LIMIT = 0.3 ;
+    private static final double MAX_LIMIT = 0.15 ;
     
     private String       fmtQuestion = null ;
     private List<String> fmtAnswers  = null ;
