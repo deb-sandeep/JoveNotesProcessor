@@ -138,7 +138,7 @@
             <!-- jovenotes start -->
             <groupId>com.sandy.xtext.jovenotes</groupId>
             <artifactId>jovenotes.xtext</artifactId>
-            <version>1.19</version>
+            <version>1.20</version>
             <!-- jovenotes end -->
         </dependency>
         <dependency>

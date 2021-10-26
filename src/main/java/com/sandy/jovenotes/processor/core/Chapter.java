@@ -14,6 +14,7 @@ import com.sandy.jovenotes.processor.core.notes.element.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
 import com.sandy.xtext.joveNotes.ChapterDetails ;
+import com.sandy.xtext.joveNotes.CompilerBreak ;
 import com.sandy.xtext.joveNotes.Exercise ;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.NotesElement;
@@ -58,6 +59,11 @@ public class Chapter {
                 throw new Exception( 
                         "Found an @exercise element in a source " + 
                         "file, which is not marked as @exercise_bank." ) ;
+            }
+            
+            if( element instanceof CompilerBreak ) {
+                log.info( "\t  Compiler break encountered. Skipping further parsing." ) ;
+                break ;
             }
             
             AbstractNotesElement ne = NoteElementBuilder.build( this, element, null ) ; 
