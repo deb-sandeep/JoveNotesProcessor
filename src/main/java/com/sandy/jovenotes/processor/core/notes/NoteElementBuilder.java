@@ -20,6 +20,7 @@ import com.sandy.jovenotes.processor.core.notes.element.TeacherNotesElement ;
 import com.sandy.jovenotes.processor.core.notes.element.TrueFalseElement ;
 import com.sandy.jovenotes.processor.core.notes.element.VoiceToTextElement ;
 import com.sandy.jovenotes.processor.core.notes.element.WMElement ;
+import com.sandy.jovenotes.processor.util.StringUtil ;
 import com.sandy.xtext.joveNotes.Character ;
 import com.sandy.xtext.joveNotes.ChemCompound ;
 import com.sandy.xtext.joveNotes.ChemEquation ;
@@ -42,7 +43,8 @@ import com.sandy.xtext.joveNotes.WordMeaning ;
 public class NoteElementBuilder {
     
     public static AbstractNotesElement build( Chapter c,  
-                                              NotesElement ast, 
+                                              NotesElement ast,
+                                              String sectionName,
                                               RefToContextNotesElement rtcNE ) 
         throws Exception {
         
@@ -91,7 +93,7 @@ public class NoteElementBuilder {
             ne = new ChemEquationElement(c, (ChemEquation)ast, rtcNE );
         }
         else if( ast instanceof RefToContext ){
-            ne = new RefToContextNotesElement(c, (RefToContext)ast );
+            ne = new RefToContextNotesElement(c, (RefToContext)ast, sectionName );
         }
         else if( ast instanceof MultiChoice ){
             ne = new MultiChoiceElement(c, (MultiChoice)ast, rtcNE );
@@ -101,6 +103,10 @@ public class NoteElementBuilder {
         }
         else if( ast instanceof VoiceToText ) {
             ne = new VoiceToTextElement( c, (VoiceToText)ast, rtcNE ) ;
+        }
+        
+        if( StringUtil.isNotEmptyOrNull( sectionName ) ) {
+            ne.setSection( sectionName ) ;
         }
         
         return ne ;

@@ -29,6 +29,10 @@ public abstract class AbstractCard {
         return this.type ;
     }
     
+    public String getSection() {
+        return this.ne.getSection() ;
+    }
+    
     public boolean isReady() {
         return this.ready ;
     }

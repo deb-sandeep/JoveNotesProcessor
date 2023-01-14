@@ -19,6 +19,7 @@ public class NotesElementDBO {
 
     private int     notesElementId  = -1 ;
     private int     chapterId       = -1 ;
+    private String  section         = null ;
     private String  elementType     = null ;
     private int     difficultyLevel = 0 ;
     private String  content         = null ;
@@ -37,6 +38,7 @@ public class NotesElementDBO {
     
     public NotesElementDBO( AbstractNotesElement ne ) throws Exception {
         
+        section         = ne.getSection() ;
         elementType     = ne.getType() ;
         difficultyLevel = ne.getDifficultyLevel() ;
         content         = ne.getContent() ;
@@ -57,6 +59,7 @@ public class NotesElementDBO {
         
         notesElementId  = rs.getInt    ( "notes_element_id" ) ;
         chapterId       = rs.getInt    ( "chapter_id"       ) ;
+        section         = rs.getString ( "section"          ) ;
         elementType     = rs.getString ( "element_type"     ) ;
         difficultyLevel = rs.getInt    ( "difficulty_level" ) ;
         content         = rs.getString ( "content"          ) ;
@@ -87,6 +90,10 @@ public class NotesElementDBO {
         for( CardDBO card : cards ) {
             card.setChapterId( chapterId ) ;
         }
+    }
+    
+    public String getSection() {
+        return this.section ;
     }
 
     public String getElementType() {
@@ -200,13 +207,22 @@ public class NotesElementDBO {
                                        getEvalVars() == null :
                                        ne.getEvalVarsAsJSON().equals( getEvalVars() ) ;
             
+            boolean sectionEquals    = ( this.section == null && ne.getSection() == null ) ;
+            
+            if( this.section != null && ne.getSection() != null ) {
+                sectionEquals = this.section.equals( ne.getSection() ) ;
+            }
+            
             if( !( contentEquals && difficultyEquals && 
-                   hiddenEquals && scriptBodyEquals && evalVarsEquals ) ) {
+                   hiddenEquals && scriptBodyEquals && 
+                   evalVarsEquals && sectionEquals ) ) {
+                
                 log.info( "\t      Notes element found modfied.. id=" + 
                            getNotesElementId() ) ;
                 
                 this.isModified      = true ;
                 this.content         = ne.getContent() ;
+                this.section         = ne.getSection() ;
                 this.hiddenFromView  = ne.isHiddenFromView() ;
                 this.difficultyLevel = ne.getDifficultyLevel() ;
                 this.evalVars        = ne.getEvalVarsAsJSON() ;

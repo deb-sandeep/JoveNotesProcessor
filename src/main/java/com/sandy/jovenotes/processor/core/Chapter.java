@@ -13,7 +13,9 @@ import com.sandy.jovenotes.processor.core.notes.NoteElementBuilder ;
 import com.sandy.jovenotes.processor.core.notes.element.AbstractNotesElement ;
 import com.sandy.jovenotes.processor.util.ConfigManager;
 import com.sandy.jovenotes.processor.util.JNTextProcessor;
+import com.sandy.jovenotes.processor.util.StringUtil ;
 import com.sandy.xtext.joveNotes.ChapterDetails ;
+import com.sandy.xtext.joveNotes.ChapterSection ;
 import com.sandy.xtext.joveNotes.CompilerBreak ;
 import com.sandy.xtext.joveNotes.Exercise ;
 import com.sandy.xtext.joveNotes.JoveNotes;
@@ -51,7 +53,9 @@ public class Chapter {
     
         this.isExerciseBank = ( chapterDetails.getExerciseBank() != null ) ; 
         
-        log.debug( "\tObject transforming chapter - " + getChapterFQN() );
+        log.debug( "\tObject transforming chapter - " + getChapterFQN() ) ;
+        
+        String currentSectionName = "00 - Default" ;
         
         for( NotesElement element : this.notesAST.getNotesElements() ) {
             
@@ -66,7 +70,22 @@ public class Chapter {
                 break ;
             }
             
-            AbstractNotesElement ne = NoteElementBuilder.build( this, element, null ) ; 
+            if( element instanceof ChapterSection ) {
+                ChapterSection section = ( ChapterSection )element ;
+                currentSectionName = section.getSectionName() ;
+                
+                log.info( "\t  Chapter section encountered. " +
+                          "[" + currentSectionName + "]" ) ;
+                
+                if( StringUtil.isEmptyOrNull( currentSectionName ) ) {
+                    throw new Exception( 
+                            "Chapter section encountered but section name is " +
+                            "empty or null." ) ;
+                }
+                continue ;
+            }
+            
+            AbstractNotesElement ne = NoteElementBuilder.build( this, element, currentSectionName, null ) ; 
             String distinctKey = ne.getType() + "-" + ne.getObjIdSeed() ;
             
             if( distinctNEMap.containsKey( distinctKey ) ) {

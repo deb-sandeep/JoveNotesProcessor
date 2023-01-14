@@ -4,11 +4,16 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.LinkedHashMap ;
+import java.util.List ;
+import java.util.Map ;
 
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.JoveNotesProcessor;
 import com.sandy.jovenotes.processor.core.Chapter ;
+import com.sandy.jovenotes.processor.db.dao.ChapterSectionDAO ;
+import com.sandy.jovenotes.processor.db.dbo.ChapterSectionDBO ;
 import com.sandy.jovenotes.processor.util.StringUtil;
 
 /**
@@ -32,7 +37,11 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 		log.info( "\tExecuting RefreshChapterCmd for id - " + chapterId ) ;
 		
 		try {
+		    log.info( "\t  Populating meta data" ) ;
 			refreshMetaData() ;
+			
+			log.info( "\t  Populating sections" ) ;
+			refreshSections() ;
 		} 
 		catch( Exception e ){
 			log.error( "Could not process refresh chapter command.", e ) ;
@@ -124,6 +133,35 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 		finally {
 			JoveNotesProcessor.db.returnConnection( conn ) ;
 		}
+	}
+	
+	private void refreshSections() throws Exception {
+	    
+	    List<ChapterSectionDBO> dbSections    = null ;
+	    List<String>            srcSections   = null ;
+	    Map<String, Boolean>    sectionSelMap = new LinkedHashMap<>() ;
+	    
+	    dbSections  = ChapterSectionDAO.getAll( chapterId ) ;
+	    srcSections = ChapterSectionDAO.extractSections( chapterId ) ;
+	    
+	    for( String srcSection : srcSections ) {
+	        boolean selected = true ;
+	        for( ChapterSectionDBO dbo : dbSections ) {
+	            if( dbo.getSection().equals( srcSection ) ) {
+	                selected = dbo.isSelected() ;
+	                break ;
+	            }
+	        }
+	        sectionSelMap.put( srcSection, selected ) ;
+	    }
+	    
+	    ChapterSectionDAO.delete( chapterId ) ;
+	    
+	    ChapterSectionDBO dbo = null ;
+	    for( String sec : sectionSelMap.keySet() ) {
+            dbo = new ChapterSectionDBO( chapterId, sec, sectionSelMap.get( sec ) ) ;
+            ChapterSectionDAO.create( dbo ) ;
+	    }
 	}
 	
 	public String getUID() {

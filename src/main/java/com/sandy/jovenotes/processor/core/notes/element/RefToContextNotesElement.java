@@ -21,7 +21,7 @@ public class RefToContextNotesElement extends AbstractNotesElement {
     
     private List<AbstractNotesElement> noteElements = new ArrayList<AbstractNotesElement>() ;
     
-    public RefToContextNotesElement( Chapter chapter, RefToContext ast ) 
+    public RefToContextNotesElement( Chapter chapter, RefToContext ast, String sectionName ) 
         throws Exception {
         
         super( NoteElementType.RTC, chapter, ast, null ) ;
@@ -31,7 +31,7 @@ public class RefToContextNotesElement extends AbstractNotesElement {
         
         for( RTCElement rtcNE : ast.getRtcElement() ) {
             AbstractNotesElement ane = null ;
-            ane = NoteElementBuilder.build( chapter, (NotesElement)rtcNE, this ) ;
+            ane = NoteElementBuilder.build( chapter, (NotesElement)rtcNE, sectionName, this ) ;
             
             noteElements.add( ane ) ;
         }

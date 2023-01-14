@@ -24,14 +24,15 @@ public abstract class AbstractNotesElement {
     
     private static final Logger log = Logger.getLogger( AbstractNotesElement.class ) ;
     
-    private   String       type              = null ;
-    private   int          difficultyLevel   = -1 ;
-    private   NotesElement ast               = null ;
-    private   String       scriptBody        = null ;
-    private   String       sourceText        = null ;
+    private   String       type            = null ;
+    private   int          difficultyLevel = -1 ;
+    private   String       section         = null ;
+    private   NotesElement ast             = null ;
+    private   String       scriptBody      = null ;
+    private   String       sourceText      = null ;
     
-    protected boolean      ready             = true ;
-    protected boolean      hiddenFromView    = false ;
+    protected boolean      ready           = true ;
+    protected boolean      hiddenFromView  = false ;
     
     
     protected RefToContextNotesElement rtcNE = null ;
@@ -89,6 +90,16 @@ public abstract class AbstractNotesElement {
     
     public String getType() {
         return this.type ;
+    }
+    
+    public void setSection( String name ) {
+        if( name != null ) {
+            this.section = name.trim() ;
+        }
+    }
+    
+    public String getSection() {
+        return this.section ;
     }
     
     public Chapter getChapter() { 

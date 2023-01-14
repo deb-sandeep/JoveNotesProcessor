@@ -36,6 +36,7 @@ public class SourceFileProcessor {
         
         // Create the chapter statistics
         boolean nextLevelTraceRequired = true ;
+        
         if( chapterDBO == null ) {
             log.info( "\tChapter " + chapter + " does not exist." ) ;
             Stats.newChapterBeingProcessed( chapter ) ;
@@ -44,6 +45,7 @@ public class SourceFileProcessor {
         else {
             log.debug( "\tChapter " + chapter + " is present in database." ) ;
             nextLevelTraceRequired = chapterDBO.trace( chapter ) ;
+            
             if( nextLevelTraceRequired ){
                 log.info( "\tChapter update required. Processing trace." ) ;
                 Stats.updatedChapterBeingProcessed( chapter ) ;

@@ -31,6 +31,7 @@ public class NotesElementDAO extends AbstractDAO {
             "SELECT " +
             "   notes_element_id, " +
             "   chapter_id, " +
+            "   section, " +
             "   element_type, " +
             "   difficulty_level, " +
             "   content, " +
@@ -97,6 +98,7 @@ public class NotesElementDAO extends AbstractDAO {
         
         final String sql = "INSERT INTO jove_notes.notes_element ( " +
                            "  chapter_id, " + 
+                           "  section, " +
                            "  element_type, " + 
                            "  difficulty_level, " + 
                            "  content, " +
@@ -107,7 +109,7 @@ public class NotesElementDAO extends AbstractDAO {
                            "  hidden_from_view " + 
                            ") " +
                            "VALUES " +
-                           "( ?, ?, ?, ?, ?, ?, ?, ?, ? )" ;
+                           "( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
         Connection conn = JoveNotesProcessor.db.getConnection() ;
@@ -117,14 +119,15 @@ public class NotesElementDAO extends AbstractDAO {
                                              Statement.RETURN_GENERATED_KEYS ) ;
             
             psmt.setInt    ( 1, note.getChapterId() ) ;
-            psmt.setString ( 2, note.getElementType() ) ;
-            psmt.setInt    ( 3, note.getDifficultyLevel() ) ;
-            psmt.setString ( 4, note.getContent() ) ;
-            psmt.setString ( 5, note.getEvalVars() ) ;
-            psmt.setString ( 6, note.getScriptBody() ) ;
-            psmt.setString ( 7, note.getObjCorrelId() ) ;
-            psmt.setBoolean( 8, note.isReady() ) ;
-            psmt.setBoolean( 9, note.isHiddenFromView() ) ;
+            psmt.setString ( 2, note.getSection() ) ;
+            psmt.setString ( 3, note.getElementType() ) ;
+            psmt.setInt    ( 4, note.getDifficultyLevel() ) ;
+            psmt.setString ( 5, note.getContent() ) ;
+            psmt.setString ( 6, note.getEvalVars() ) ;
+            psmt.setString ( 7, note.getScriptBody() ) ;
+            psmt.setString ( 8, note.getObjCorrelId() ) ;
+            psmt.setBoolean( 9, note.isReady() ) ;
+            psmt.setBoolean(10, note.isHiddenFromView() ) ;
             
             psmt.executeUpdate() ;
             ResultSet rs = psmt.getGeneratedKeys() ;
@@ -156,6 +159,7 @@ public class NotesElementDAO extends AbstractDAO {
                            "   jove_notes.notes_element " +
                            "SET " +
                            "   difficulty_level = ?, " +
+                           "   section = ?, " +
                            "   content = ?, " +
                            "   eval_vars = ?, " +
                            "   script_body = ?, " +
@@ -168,11 +172,12 @@ public class NotesElementDAO extends AbstractDAO {
             logQuery( "NotesElementDBO::update", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
             psmt.setInt    ( 1, note.getDifficultyLevel() ) ;
-            psmt.setString ( 2, note.getContent() ) ;
-            psmt.setString ( 3, note.getEvalVars() ) ;
-            psmt.setString ( 4, note.getScriptBody() ) ;
-            psmt.setBoolean( 5, note.isHiddenFromView() ) ;
-            psmt.setInt    ( 6, note.getNotesElementId() ) ;
+            psmt.setString ( 2, note.getSection() ) ;
+            psmt.setString ( 3, note.getContent() ) ;
+            psmt.setString ( 4, note.getEvalVars() ) ;
+            psmt.setString ( 5, note.getScriptBody() ) ;
+            psmt.setBoolean( 6, note.isHiddenFromView() ) ;
+            psmt.setInt    ( 7, note.getNotesElementId() ) ;
             
             psmt.executeUpdate() ;
             

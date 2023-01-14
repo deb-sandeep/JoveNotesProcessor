@@ -14,6 +14,7 @@ public class CardDBO {
     private int     cardId          = -1 ;
     private int     notesElementId  = -1 ;
     private int     chapterId       = -1 ;
+    private String  section         = null ;
     private String  cardType        = null ;
     private int     difficultyLevel = 0 ;
     private String  content         = null ;
@@ -29,6 +30,7 @@ public class CardDBO {
     
     public CardDBO( AbstractCard card ) throws Exception {
         
+        this.section         = card.getSection() ;
         this.cardType        = card.getType() ;
         this.difficultyLevel = card.getDifficultyLevel() ;
         this.content         = card.getContent() ;
@@ -38,14 +40,15 @@ public class CardDBO {
     
     public CardDBO( ResultSet rs ) throws Exception {
         
-        cardId          = rs.getInt    ( "card_id"          ) ;
-        notesElementId  = rs.getInt    ( "notes_element_id" ) ;
-        chapterId       = rs.getInt    ( "chapter_id"       ) ;
-        cardType        = rs.getString ( "card_type"        ) ;
-        difficultyLevel = rs.getInt    ( "difficulty_level" ) ;
-        content         = rs.getString ( "content"          ) ;
-        objCorrelId     = rs.getString ( "obj_correl_id"    ) ;        
-        ready           = rs.getBoolean( "ready"            ) ;        
+        this.cardId          = rs.getInt    ( "card_id"          ) ;
+        this.notesElementId  = rs.getInt    ( "notes_element_id" ) ;
+        this.chapterId       = rs.getInt    ( "chapter_id"       ) ;
+        this.section         = rs.getString ( "section"          ) ;
+        this.cardType        = rs.getString ( "card_type"        ) ;
+        this.difficultyLevel = rs.getInt    ( "difficulty_level" ) ;
+        this.content         = rs.getString ( "content"          ) ;
+        this.objCorrelId     = rs.getString ( "obj_correl_id"    ) ;        
+        this.ready           = rs.getBoolean( "ready"            ) ;        
     }
     
     public boolean trace( AbstractCard card ) throws Exception {
@@ -66,10 +69,16 @@ public class CardDBO {
             
             boolean contentEquals    = getContent().equals( card.getContent() ) ;
             boolean difficultyEquals = getDifficultyLevel() == card.getDifficultyLevel() ;
+            boolean sectionEquals    = ( this.section == null && card.getSection() == null ) ;
             
-            if( !( contentEquals && difficultyEquals ) ) {
+            if( this.section != null && card.getSection() != null ) {
+                sectionEquals = this.section.equals( card.getSection() ) ;
+            }
+            
+            if( !( contentEquals && difficultyEquals && sectionEquals ) ) {
                 log.info( "\t           Card found modififed. id=" + getCardId() ) ;
                 this.isModified = true ;
+                this.section = card.getSection() ;
                 this.content = card.getContent() ;
                 this.difficultyLevel = card.getDifficultyLevel() ;
                 return true ;
@@ -107,6 +116,9 @@ public class CardDBO {
     
     public int getChapterId() { return chapterId; }
     public void setChapterId(int val) { this.chapterId = val; }
+    
+    public String getSection() { return section ; }
+    public void setSection( String section ) { this.section = section ; }
     
     public String getCardType() { return cardType; }
     public void setCardType(String val) { this.cardType = val; }

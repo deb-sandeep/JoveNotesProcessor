@@ -27,6 +27,7 @@ public class CardDAO extends AbstractDAO {
                 "   card_id, " +
                 "   notes_element_id, " +
                 "   chapter_id, " +
+                "   section, " +
                 "   card_type, " +
                 "   difficulty_level, " +
                 "   content, " +
@@ -64,6 +65,7 @@ public class CardDAO extends AbstractDAO {
         final String sql = "INSERT INTO jove_notes.card ( " +
                            "  notes_element_id, " +
                            "  chapter_id, " +
+                           "  section, " +
                            "  card_type, " +
                            "  difficulty_level, " +
                            "  content, " +
@@ -71,7 +73,7 @@ public class CardDAO extends AbstractDAO {
                            "  ready " + 
                            ") " +
                            "VALUES " +
-                           "(?, ?, ?, ?, ?, ?, ? )" ;
+                           "(?, ?, ?, ?, ?, ?, ?, ? )" ;
 
         int generatedId = -1 ;
         Connection conn = JoveNotesProcessor.db.getConnection() ;
@@ -82,11 +84,12 @@ public class CardDAO extends AbstractDAO {
             
             psmt.setInt    ( 1, card.getNotesElementId() ) ;
             psmt.setInt    ( 2, card.getChapterId() ) ;
-            psmt.setString ( 3, card.getCardType() ) ;
-            psmt.setInt    ( 4, card.getDifficultyLevel() ) ;
-            psmt.setString ( 5, card.getContent() ) ;
-            psmt.setString ( 6, card.getObjCorrelId()  ) ;
-            psmt.setBoolean( 7, card.isReady() ) ;
+            psmt.setString ( 3, card.getSection() ) ;
+            psmt.setString ( 4, card.getCardType() ) ;
+            psmt.setInt    ( 5, card.getDifficultyLevel() ) ;
+            psmt.setString ( 6, card.getContent() ) ;
+            psmt.setString ( 7, card.getObjCorrelId()  ) ;
+            psmt.setBoolean( 8, card.isReady() ) ;
             
             psmt.executeUpdate() ;
             ResultSet rs = psmt.getGeneratedKeys() ;
@@ -111,6 +114,7 @@ public class CardDAO extends AbstractDAO {
         final String sql = "UPDATE jove_notes.card " +
                            "SET " +
                            "  difficulty_level = ?, " +
+                           "  section = ?, " + 
                            "  content = ? " +
                            "WHERE " +
                            "  card_id = ?" ;
@@ -120,8 +124,9 @@ public class CardDAO extends AbstractDAO {
             logQuery( "CardDBO::update", sql ) ;
             PreparedStatement psmt = conn.prepareStatement( sql ) ;
             psmt.setInt    ( 1, card.getDifficultyLevel() ) ;
-            psmt.setString ( 2, card.getContent() ) ;
-            psmt.setInt    ( 3, card.getCardId() ) ;
+            psmt.setString ( 2, card.getSection() ) ;
+            psmt.setString ( 3, card.getContent() ) ;
+            psmt.setInt    ( 4, card.getCardId() ) ;
             
             psmt.executeUpdate() ;
             
