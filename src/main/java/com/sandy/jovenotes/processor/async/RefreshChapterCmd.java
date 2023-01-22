@@ -145,14 +145,16 @@ public class RefreshChapterCmd extends PersistedCmd implements Serializable {
 	    srcSections = ChapterSectionDAO.extractSections( chapterId ) ;
 	    
 	    for( String srcSection : srcSections ) {
-	        boolean selected = true ;
-	        for( ChapterSectionDBO dbo : dbSections ) {
-	            if( dbo.getSection().equals( srcSection ) ) {
-	                selected = dbo.isSelected() ;
-	                break ;
+	        if( StringUtil.isNotEmptyOrNull( srcSection ) ) {
+	            boolean selected = true ;
+	            for( ChapterSectionDBO dbo : dbSections ) {
+	                if( dbo.getSection().equals( srcSection ) ) {
+	                    selected = dbo.isSelected() ;
+	                    break ;
+	                }
 	            }
+	            sectionSelMap.put( srcSection, selected ) ;
 	        }
-	        sectionSelMap.put( srcSection, selected ) ;
 	    }
 	    
 	    ChapterSectionDAO.delete( chapterId ) ;
