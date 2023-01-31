@@ -150,6 +150,7 @@ public class MatchElement extends AbstractNotesElement {
             
             MultiChoiceElement mcqElement = null ;
             mcqElement = new MultiChoiceElement( chapter, mcqAST, rtcNE ) ;
+            mcqElement.setSection( super.getSection() );
             mcqElement.initialize( textProcessor ) ;
             
             cards.addAll( mcqElement.getCards() ) ;
