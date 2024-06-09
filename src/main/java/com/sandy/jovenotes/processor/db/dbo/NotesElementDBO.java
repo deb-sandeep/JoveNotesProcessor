@@ -250,18 +250,39 @@ public class NotesElementDBO {
         
         if( getNotesElementId() == -1 ) {
             log.info( "\t    Notes element will be created." ) ;
-            NotesElementDAO.create( this ) ;
+            try {
+                NotesElementDAO.create( this ) ;
+            }
+            catch( Exception e ) {
+                log.error( "Exception creating notes element.", e ) ;
+                log.error( this.content ) ;
+                throw e ;
+            }
             return ;
         }
         else if( isModified ) {
             log.info( "\t    Notes element will be updated. id=" + 
                        getNotesElementId() ) ;
-            NotesElementDAO.update( this ) ;
+            try {
+                NotesElementDAO.update( this ) ;
+            }
+            catch( Exception e ) {
+                log.error( "Exception updating notes element.", e ) ;
+                log.error( this.content ) ;
+                throw e ;
+            }
         }
         else if( !sourceTrace ) {
             log.info( "\t    Notes element will be deleted. id=" + 
                        getNotesElementId() ) ;
-            NotesElementDAO.delete( this ) ;
+            try {
+                NotesElementDAO.delete( this ) ;
+            }
+            catch( Exception e ) {
+                log.error( "Exception deleting notes element.", e ) ;
+                log.error( this.content ) ;
+                throw e ;
+            }
             return ;
             // The associated cards will be cascade deleted at the database.
             // No need to delete them explicitly.
