@@ -10,6 +10,7 @@ import java.util.Map ;
 import java.util.regex.Matcher ;
 import java.util.regex.Pattern ;
 
+import com.sandy.jovenotes.processor.util.tagprocessor.LatexChemfigProcessor;
 import net.sourceforge.plantuml.SourceStringReader ;
 
 import org.apache.commons.codec.binary.Base64 ;
@@ -50,7 +51,7 @@ public class JNTextProcessor {
     private Chapter chapter = null ;
     private ArrayList<File> existingMediaFiles = null ;
     
-    private static Map<String, Boolean> stopWords = new HashMap<String, Boolean>() ;
+    private static final Map<String, Boolean> stopWords = new HashMap<String, Boolean>() ;
     
     {
         try {
@@ -66,7 +67,7 @@ public class JNTextProcessor {
         InputStream is = JNTextProcessor.class.getResourceAsStream( "/stopwords.txt" ) ;
         if( is != null ) {
             BufferedReader br = new BufferedReader( new InputStreamReader( is ) ) ;
-            String line = null ;
+            String line ;
             while( ( line = br.readLine() ) != null ) {
                 if( StringUtil.isNotEmptyOrNull( line ) ) {
                     stopWords.put( line.toLowerCase(), Boolean.TRUE ) ;
@@ -230,6 +231,9 @@ public class JNTextProcessor {
         else if( type.equals( "cmap" ) ) {
             return "<p>{{@img " + processCMapContent( data ) + "}}<p>" ;
         }
+        else if( type.equals( "cfig" ) ) {
+            return "<p>{{@img " + processChemFigContent( data.trim() ) + "}}<p>" ;
+        }
         else if( type.equals( "uml" ) ) {
             return "<p>{{@img " + processUMLContent( data ) + "}}<p>" ;
         }
@@ -372,13 +376,37 @@ public class JNTextProcessor {
         return imgFile.getName() ;
     }
     
+    private String processChemFigContent( String chemfigLatexSnippet )
+        throws Exception {
+        
+        File imgFile = getChemfigDestImageFilePath( chemfigLatexSnippet ) ;
+        
+        // If the image file exists, we do not regenerate. We have named the file
+        // based on its content hash. Which implies, if the content had
+        // changed, the file name would change too.
+        if( imgFile.exists() ) {
+            this.existingMediaFiles.remove( imgFile ) ;
+            return imgFile.getName() ;
+        }
+        
+        log.info( "\tGenerating cfig image. " + imgFile.getName() );
+        LatexChemfigProcessor chemFigProcessor = new LatexChemfigProcessor() ;
+        chemFigProcessor.processSnippet( chemfigLatexSnippet, imgFile ) ;
+        
+        return imgFile.getName() ;
+    }
+    
     private File getCMapDestImageFilePath( String cmapContent ) {
         String imgName = StringUtil.getHash( cmapContent ) + ".cmap.png" ;
-        File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
-        return destFile ;
+        return new File( chapter.getMediaDirectory(), "img" + File.separator + imgName );
     }
 
-    private String processUMLContent( String umlContent ) 
+    private File getChemfigDestImageFilePath( String chemfigContent ) {
+        String imgName = StringUtil.getHash( chemfigContent ) + ".cfig.png" ;
+        return new File( chapter.getMediaDirectory(), "img" + File.separator + imgName );
+    }
+
+    private String processUMLContent( String umlContent )
             throws Exception {
             
         File imgFile = getUMLDestImageFilePath( umlContent ) ;

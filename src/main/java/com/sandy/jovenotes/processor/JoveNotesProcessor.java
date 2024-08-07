@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 
+import com.sandy.jovenotes.processor.util.ProgamExitTriggerException;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.async.PersistedCmd;
@@ -15,6 +16,8 @@ import com.sandy.jovenotes.processor.util.Database;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 import com.sandy.jovenotes.processor.util.stat.Stats ;
 
+import static com.sandy.jovenotes.processor.util.ProgamExitTriggerException.* ;
+
 /**
  * Main class for the JoveNotes processor application.
  * 
@@ -24,11 +27,24 @@ public class JoveNotesProcessor {
     
     private static final Logger log = Logger.getLogger( JoveNotesProcessor.class ) ;
     
-    public static void main( String[] args ) throws Exception {
+    public static void main( String[] args ) {
         log.info( "Starting JoveNotes processor." ) ;
         JoveNotesProcessor processor = new JoveNotesProcessor() ;
-        processor.initialize( args ) ;
-        processor.start() ;
+        int returnCode = 0 ;
+        try {
+            processor.initialize( args ) ;
+            returnCode = processor.start() ;
+        }
+        catch( ProgamExitTriggerException ete ) {
+            returnCode = ete.getErrorCode() ;
+            log.error( "Unknown error during JoveNotesProcessor execution", ete ) ;
+        }
+        catch( Exception e ) {
+            returnCode = EC_UNKNOWN ;
+            log.error( "Unknown error during JoveNotesProcessor execution", e ) ;
+        }
+        
+        System.exit( returnCode ) ;
     }
 
     // -------------------------------------------------------------------------
@@ -52,32 +68,40 @@ public class JoveNotesProcessor {
         config = new ConfigManager( args ) ;
         if( config.isShowUsage() ) {
             config.printUsage() ;
-            System.exit( 0 );
+            throw EX_NORMAL ;
         }
-        log.debug( "\tConfigManager initialized." ) ;
-        
-        db = new Database( config.getDatabaseDriverName(), 
-                           config.getDatabaseURL(), 
-                           config.getDatabaseUser(), 
-                           config.getDatabasePassword() ) ;
-        db.returnConnection( db.getConnection() ) ;
-        log.debug( "\tDatabase initialized." ) ;
-        
-        persistentQueue = new PersistentQueue() ;
-        log.debug( "\tPersistent Queue initialized." ) ;
-        
-        File journalFile = new File( config.getWorkspaceDir(), "jove_notes.journal" ) ;
-        journal = new SourceProcessingJournal( journalFile ) ;
-        log.debug( "\tSource processing journal initialized." ) ;
-        
-        srcFileFinder = new SourceFileFinder( config, journal ) ;
-        log.debug( "\tSource file finder created." ) ;
-        
-        log.info( "JoveNotes processor - initialized." ) ;
-        log.info( "" ) ;
+        try {
+            log.debug( "\tConfigManager initialized." ) ;
+            
+            db = new Database( config.getDatabaseDriverName(),
+                               config.getDatabaseURL(),
+                               config.getDatabaseUser(),
+                               config.getDatabasePassword() ) ;
+            db.returnConnection( db.getConnection() ) ;
+            log.debug( "\tDatabase initialized." ) ;
+            
+            persistentQueue = new PersistentQueue() ;
+            log.debug( "\tPersistent Queue initialized." ) ;
+            
+            File journalFile = new File( config.getWorkspaceDir(), "jove_notes.journal" ) ;
+            journal = new SourceProcessingJournal( journalFile ) ;
+            log.debug( "\tSource processing journal initialized." ) ;
+            
+            srcFileFinder = new SourceFileFinder( config, journal ) ;
+            log.debug( "\tSource file finder created." ) ;
+            
+            log.info( "JoveNotes processor - initialized." ) ;
+            log.info( "" ) ;
+        }
+        catch( Exception e ) {
+            log.error( "Initialization failure.", e ) ;
+            throw EX_INIT_FAILURE ;
+        }
     }
     
-    private void start() throws Exception {
+    private int start() throws Exception {
+        
+        int returnCode = EC_NORMAL ;
         
         log.info( "\tExecuting JoveNotes processor in " + config.getRunMode() + " mode." );
         journal.clean() ;
@@ -100,6 +124,9 @@ public class JoveNotesProcessor {
                 catch( Exception e ) {
                     log.error( "Failure in processing " + file.getAbsolutePath(), e ) ;
                     journal.updateFailureProcessingStatus( file ) ;
+                    if( returnCode == EC_NORMAL ) {
+                        returnCode = EC_FILE_PROCESSING_FAILURE ;
+                    }
                 }
             }
         }
@@ -107,11 +134,13 @@ public class JoveNotesProcessor {
         try {
             processPersistedCommands() ;
         } 
-        catch (Exception e) {
+        catch( Exception e ) {
             log.error( "Error processing perissted cmd", e ) ;
+            returnCode = EC_PERSISTED_CMD_FAILURE ;
         }
         
         Stats.printStats() ;
+        return returnCode ;
     }
     
     private void processPersistedCommands() throws Exception {
@@ -133,7 +162,7 @@ public class JoveNotesProcessor {
                     try {
                         qElement.reCreate() ;
                     } 
-                    catch (IOException e1) {
+                    catch( IOException e1 ) {
                         log.error( "\tCould not re-persist command. " + cmd, e1 ) ;
                     } 
                 }
