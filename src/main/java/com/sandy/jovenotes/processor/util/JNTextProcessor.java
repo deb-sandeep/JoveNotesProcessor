@@ -438,8 +438,7 @@ public class JNTextProcessor {
     
     private File getUMLDestImageFilePath( String umlContent ) {
         String imgName = StringUtil.getHash( umlContent ) + ".uml.png" ;
-        File destFile = new File( chapter.getMediaDirectory(), "img" + File.separator + imgName ) ;
-        return destFile ;
+        return new File( chapter.getMediaDirectory(), "img" + File.separator + imgName );
     }
     
     private String processYouTubeVideoId( String youTubeVideoId ) {

@@ -30,7 +30,7 @@ public class JoveNotesProcessor {
     public static void main( String[] args ) {
         log.info( "Starting JoveNotes processor." ) ;
         JoveNotesProcessor processor = new JoveNotesProcessor() ;
-        int returnCode = 0 ;
+        int returnCode ;
         try {
             processor.initialize( args ) ;
             returnCode = processor.start() ;

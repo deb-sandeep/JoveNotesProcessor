@@ -9,7 +9,6 @@ public class ProgamExitTriggerException extends Exception {
     public static final int EC_PERSISTED_CMD_FAILURE    = 4 ;
     
     public static final ProgamExitTriggerException EX_NORMAL       = new ProgamExitTriggerException( EC_NORMAL ) ;
-    public static final ProgamExitTriggerException EX_UNKNOWN      = new ProgamExitTriggerException( EC_UNKNOWN ) ;
     public static final ProgamExitTriggerException EX_INIT_FAILURE = new ProgamExitTriggerException( EC_INIT_FAILURE ) ;
 
     private int errorCode = 1 ;
