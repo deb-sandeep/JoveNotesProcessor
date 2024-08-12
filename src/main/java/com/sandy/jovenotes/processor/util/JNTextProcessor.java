@@ -232,7 +232,7 @@ public class JNTextProcessor {
             return "<p>{{@img " + processCMapContent( data ) + "}}<p>" ;
         }
         else if( type.equals( "cfig" ) ) {
-            return "<p>{{@img " + processChemFigContent( data.trim() ) + "}}<p>" ;
+            return "{{@img " + processChemFigContent( data.trim() ) + "}}" ;
         }
         else if( type.equals( "uml" ) ) {
             return "<p>{{@img " + processUMLContent( data ) + "}}<p>" ;
