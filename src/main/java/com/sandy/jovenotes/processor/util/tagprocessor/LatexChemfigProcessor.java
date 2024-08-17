@@ -109,6 +109,8 @@ public class LatexChemfigProcessor {
         ArrayList<String> cmdParts = new ArrayList<>() ;
         cmdParts.add( "convert" ) ;
         cmdParts.add( "-verbose" ) ;
+        cmdParts.add( "-density" ) ;
+        cmdParts.add( "82" ) ;
         cmdParts.add( "cf.pdf" ) ;
         cmdParts.add( "cf.png" ) ;
         
