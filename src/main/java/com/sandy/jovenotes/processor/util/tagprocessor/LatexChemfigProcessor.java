@@ -21,9 +21,10 @@ public class LatexChemfigProcessor {
         "\\documentclass[preview]{standalone}\n" +
         "\\usepackage{chemfig}\n" +
         "\n" +
-        "\\standalonecfg{border=5px}\n" +
+        "\\standaloneconfig{border=5px}\n" +
         "\n" +
         "\\renewcommand * \\printatom[1]{\\Large\\ensuremath{\\mathrm{#1}}}\n" +
+        "\n" +
         "\\begin{document}\n" +
         "\\chemfig{OPTIONS}{\n" +
         "{SNIPPET}\n" +
