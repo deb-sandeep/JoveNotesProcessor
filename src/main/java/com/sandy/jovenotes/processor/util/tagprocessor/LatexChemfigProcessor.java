@@ -20,6 +20,9 @@ public class LatexChemfigProcessor {
     private static final String LATEX_TEMPLATE =
         "\\documentclass[preview]{standalone}\n" +
         "\\usepackage{chemfig}\n" +
+        "\n" +
+        "\\standalonecfg{border=5px}\n" +
+        "\n" +
         "\\renewcommand * \\printatom[1]{\\Large\\ensuremath{\\mathrm{#1}}}\n" +
         "\\begin{document}\n" +
         "\\chemfig{OPTIONS}{\n" +
