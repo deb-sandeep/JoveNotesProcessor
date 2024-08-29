@@ -51,6 +51,9 @@ public class JNTextProcessor {
     private Chapter chapter = null ;
     private ArrayList<File> existingMediaFiles = null ;
     
+//    private final Parser mdParser ;
+//    private final HtmlRenderer mdHTMLRenderer ;
+    
     private static final Map<String, Boolean> stopWords = new HashMap<String, Boolean>() ;
     
     {
@@ -83,6 +86,10 @@ public class JNTextProcessor {
         
         this.chapter = chapter ;
         this.existingMediaFiles = existingMediaFiles ;
+        
+//        MutableDataSet options = new MutableDataSet();
+//        mdParser = Parser.builder( options ).build() ;
+//        mdHTMLRenderer = HtmlRenderer.builder( options ).build() ;
     }
     
     public int getNormalizedWordsInFormattedText( String text ) {
@@ -127,6 +134,10 @@ public class JNTextProcessor {
     
     private String processMarkDown( String input ) {
         String output = pdProcessor.markdownToHtml( input ) ;
+        
+//        Node   document = mdParser.parse( input ) ;
+//        String output   = mdHTMLRenderer.render( document ) ;
+        
         if( output.startsWith( "<p>" ) && output.endsWith( "</p>" ) ) {
             output = output.substring( 3, output.length()-4 ) ;
         }
