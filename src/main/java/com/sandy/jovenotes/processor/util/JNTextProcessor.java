@@ -48,6 +48,12 @@ public class JNTextProcessor {
     private static final String MJ_INLINE_MARKER_PATTERN = 
                              "\\\\\\(.*?\\\\\\)" ;
     
+    private static final String MJ_INLINE_TILDE_MARKER_PATTERN = // Inline math
+                             "~(.*?)~" ;
+    
+    private static final String MJ_INLINE_AT_MARKER_PATTERN = // Inline mhchem
+                             "@(.*?)@" ;
+    
     private Chapter chapter = null ;
     private ArrayList<File> existingMediaFiles = null ;
     
@@ -121,6 +127,8 @@ public class JNTextProcessor {
         output = processJoveNotesMarkers( input ) ;
         output = processBlockMathJaxMarkers( output ) ;
         output = processInlineMathJaxMarkers( output ) ;
+        output = processInlineMathJaxTildeMarkers( output ) ;
+        output = processInlineMathJaxAtMarkers( output ) ;
         
         output = processMarkDown( output ) ;
         
@@ -163,12 +171,12 @@ public class JNTextProcessor {
             
             String processedString = processMarker( markerType, markerData ) ;
             if( processedString != null ) {
-                outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
+                outputBuffer.append( input, lastEndMarker, start ) ;
                 outputBuffer.append( processedString ) ;
                 lastEndMarker = end ;
             }
         }
-        outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
+        outputBuffer.append( input.substring(lastEndMarker ) ) ;
         return outputBuffer.toString() ;
     }
     
@@ -189,17 +197,16 @@ public class JNTextProcessor {
             String markerData = m.group( 0 ) ;
             String processedString = markerData.replace( "\\", "\\\\" ) ;
 
-            outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
+            outputBuffer.append( input, lastEndMarker, start ) ;
             outputBuffer.append( processedString ) ;
             
             lastEndMarker = end ;
         }
-        outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
+        outputBuffer.append( input.substring( lastEndMarker ) ) ;
         return outputBuffer.toString() ;
     }
     
-    private String processInlineMathJaxMarkers( String input ) 
-            throws Exception {
+    private String processInlineMathJaxMarkers( String input ) {
         
         StringBuilder outputBuffer = new StringBuilder() ;
         
@@ -215,16 +222,66 @@ public class JNTextProcessor {
             String markerData = m.group( 0 ) ;
             String processedString = markerData.replace( "\\", "\\\\" ) ;
             
-            outputBuffer.append( input.substring( lastEndMarker, start ) ) ;
+            outputBuffer.append( input, lastEndMarker, start ) ;
             outputBuffer.append( processedString ) ;
             
             lastEndMarker = end ;
         }
-        outputBuffer.append( input.substring(lastEndMarker, input.length() ) ) ;
+        outputBuffer.append( input.substring(lastEndMarker ) ) ;
         return outputBuffer.toString() ;
     }
     
-    private String processMarker( String type, String data ) 
+    private String processInlineMathJaxTildeMarkers( String input ) {
+        
+        StringBuilder outputBuffer = new StringBuilder() ;
+        
+        Pattern r = Pattern.compile( MJ_INLINE_TILDE_MARKER_PATTERN ) ;
+        Matcher m = r.matcher( input ) ;
+        
+        int lastEndMarker = 0 ;
+        
+        while( m.find() ) {
+            int start = m.start() ;
+            int end   = m.end() ;
+            
+            String markerData = m.group( 1 ) ;
+            String processedString = "\\\\(" + markerData + "\\\\)" ;
+            
+            outputBuffer.append( input, lastEndMarker, start ) ;
+            outputBuffer.append( processedString ) ;
+            
+            lastEndMarker = end ;
+        }
+        outputBuffer.append( input.substring(lastEndMarker) ) ;
+        return outputBuffer.toString() ;
+    }
+    
+    private String processInlineMathJaxAtMarkers( String input ) {
+        
+        StringBuilder outputBuffer = new StringBuilder() ;
+        
+        Pattern r = Pattern.compile( MJ_INLINE_AT_MARKER_PATTERN ) ;
+        Matcher m = r.matcher( input ) ;
+        
+        int lastEndMarker = 0 ;
+        
+        while( m.find() ) {
+            int start = m.start() ;
+            int end   = m.end() ;
+            
+            String markerData = m.group( 1 ) ;
+            String processedString = "\\\\( \\\\ce{ " + markerData + " } \\\\)" ;
+            
+            outputBuffer.append( input, lastEndMarker, start ) ;
+            outputBuffer.append( processedString ) ;
+            
+            lastEndMarker = end ;
+        }
+        outputBuffer.append( input.substring(lastEndMarker) ) ;
+        return outputBuffer.toString() ;
+    }
+    
+    private String processMarker( String type, String data )
         throws Exception {
         
         if( type.equals( "img" ) ) {
