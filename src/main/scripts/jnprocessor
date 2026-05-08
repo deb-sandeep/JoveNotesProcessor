@@ -78,4 +78,3 @@ cd -
 CP="$SCRIPTDIR/config:$JARLIST"
 
 java -classpath $CP com.sandy.jovenotes.processor.JoveNotesProcessor "$@"
-
