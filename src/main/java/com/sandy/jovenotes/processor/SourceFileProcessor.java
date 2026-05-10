@@ -2,26 +2,31 @@ package com.sandy.jovenotes.processor;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.sandy.jovenotes.processor.async.RefreshChapterCmd;
 import com.sandy.jovenotes.processor.core.Chapter ;
 import com.sandy.jovenotes.processor.db.dao.ChapterDAO ;
 import com.sandy.jovenotes.processor.db.dbo.ChapterDBO ;
+import com.sandy.jovenotes.processor.util.JNLatexPreProcessor;
 import com.sandy.jovenotes.processor.util.XTextModelParser;
 import com.sandy.jovenotes.processor.util.stat.Stats ;
 import com.sandy.xtext.joveNotes.JoveNotes;
 import com.sandy.xtext.joveNotes.ProcessingHints;
 
+import static com.sandy.jovenotes.processor.JoveNotesProcessor.config;
+
 public class SourceFileProcessor {
-    
+
     private static final Logger log = Logger.getLogger( SourceFileProcessor.class ) ;
-    
-    public void process( File baseDir, File file, XTextModelParser modelParser ) 
+
+    public void process( File baseDir, File file, XTextModelParser modelParser )
             throws Exception {
-        
-        JoveNotes ast = ( JoveNotes )modelParser.parseFile( file ) ;
+
+        JoveNotes ast = createAST( file, modelParser ) ;
         log.debug( "\tAST created." ) ;
+
         if( shouldSkipProcessing( ast ) ) {
             return ;
         }
@@ -64,7 +69,46 @@ public class SourceFileProcessor {
         }
     }
     
-    private ChapterDBO insertNewChapter( Chapter chapter ) 
+    private JoveNotes createAST( File file, XTextModelParser modelParser )
+            throws Exception {
+        
+        File fileToProcess = preProcessMathBlocks( file ) ;
+        try {
+            return ( JoveNotes )modelParser.parseFile( fileToProcess ) ;
+        }
+        finally {
+            if( fileToProcess != file ) {
+                boolean deleteSuccess = fileToProcess.delete() ;
+                if( !deleteSuccess ) {
+                    log.warn( "Could not delete tmp file " + fileToProcess ) ;
+                }
+            }
+        }
+    }
+    
+    private File preProcessMathBlocks( File sourceFile ) throws Exception {
+
+        String raw       = FileUtils.readFileToString( sourceFile, "UTF-8" ) ;
+        String processed = JNLatexPreProcessor.process( raw ) ;
+
+        // The == is intentional. The preprocessor returns the same string
+        // object if no changes were made.
+        if( processed == raw ) return sourceFile ;
+
+        File preProcDir = new File( config.getWorkspaceDir(), "preproc" ) ;
+        if( !preProcDir.exists() ) {
+            boolean created = preProcDir.mkdirs() ;
+            if( !created ) {
+                throw new Exception( "Could not create preprocessor directory." ) ;
+            }
+        }
+
+        File tempFile = new File( preProcDir, sourceFile.getName() ) ;
+        FileUtils.writeStringToFile( tempFile, processed, "UTF-8" ) ;
+        return tempFile ;
+    }
+
+    private ChapterDBO insertNewChapter( Chapter chapter )
         throws Exception {
         
         log.info( "\tInserting new chapter." ) ;
@@ -76,7 +120,7 @@ public class SourceFileProcessor {
     
     private boolean shouldSkipProcessing( JoveNotes notesAST ) {
         ProcessingHints hints = notesAST.getProcessingHints() ;
-        String runMode = com.sandy.jovenotes.processor.JoveNotesProcessor.config.getRunMode() ;
+        String runMode = config.getRunMode() ;
         
         boolean shouldSkipProcess = false ;
         if( hints != null ) {
